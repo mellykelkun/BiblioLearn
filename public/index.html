@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Bibliolearn, bibliothèque locale pour comprendre et réviser le développement web.">
+    <meta name="theme-color" content="#0b0e14">
+    <title>Bibliolearn — Bibliothèque du développeur</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+
+    <div class="app" id="app">
+      <aside class="sidebar" id="sidebar" aria-label="Navigation de la bibliothèque">
+        <div class="sidebar__header">
+          <button class="brand" type="button" data-route="accueil" aria-label="Retour à l’accueil">
+            <span class="brand__mark" aria-hidden="true">B/</span>
+            <span><strong>Bibliolearn</strong><small>developer reference</small></span>
+          </button>
+          <button class="icon-button sidebar__close" id="fermer-menu" type="button" aria-label="Fermer le menu">×</button>
+        </div>
+
+        <button class="search-trigger" id="ouvrir-recherche" type="button">
+          <span aria-hidden="true">⌕</span>
+          <span>Rechercher une notion</span>
+          <kbd>Ctrl K</kbd>
+        </button>
+
+        <nav class="sidebar__nav">
+          <button class="nav-primary is-active" type="button" data-route="accueil">
+            <span class="nav-primary__icon">⌂</span>Vue d’ensemble
+          </button>
+          <button class="nav-primary" type="button" data-route="parcours">
+            <span class="nav-primary__icon">✓</span>Mon parcours
+          </button>
+          <p class="nav-label">Bibliothèque</p>
+          <div id="navigation-domaines"></div>
+        </nav>
+
+        <footer class="sidebar__footer">
+          <span><i></i> 100 % local</span>
+          <span id="compteur-sidebar"></span>
+        </footer>
+      </aside>
+
+      <div class="sidebar-overlay" id="sidebar-overlay" hidden></div>
+
+      <div class="workspace">
+        <header class="topbar">
+          <button class="icon-button menu-button" id="ouvrir-menu" type="button" aria-label="Ouvrir le menu">☰</button>
+          <nav class="breadcrumb" id="fil-ariane" aria-label="Fil d’Ariane"></nav>
+          <div class="topbar__actions">
+            <button class="topbar__button" id="action-revoir" type="button" title="Afficher les fiches à revoir">
+              <span aria-hidden="true">◎</span><span class="action-label">À revoir</span><b id="compteur-revoir">0</b>
+            </button>
+          </div>
+        </header>
+
+        <main class="content" id="contenu" tabindex="-1">
+          <div class="loading-state">
+            <span class="loading-state__mark">B/</span>
+            <p>Chargement de la bibliothèque…</p>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <dialog class="search-dialog" id="dialogue-recherche">
+      <div class="search-dialog__head">
+        <span aria-hidden="true">⌕</span>
+        <input id="champ-recherche" type="search" autocomplete="off" placeholder="map, app.use, flexbox, Promise…" aria-label="Rechercher dans la documentation">
+        <button class="escape-button" id="fermer-recherche" type="button" aria-label="Fermer la recherche">ESC</button>
+      </div>
+      <div class="search-dialog__meta" id="meta-recherche">Commencez à écrire pour chercher dans toutes les fiches.</div>
+      <div class="search-results" id="resultats-recherche"></div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,681 @@
+'use strict';
+
+const elements = {
+  contenu: document.querySelector('#contenu'),
+  navigation: document.querySelector('#navigation-domaines'),
+  filAriane: document.querySelector('#fil-ariane'),
+  sidebar: document.querySelector('#sidebar'),
+  overlay: document.querySelector('#sidebar-overlay'),
+  ouvrirMenu: document.querySelector('#ouvrir-menu'),
+  fermerMenu: document.querySelector('#fermer-menu'),
+  ouvrirRecherche: document.querySelector('#ouvrir-recherche'),
+  fermerRecherche: document.querySelector('#fermer-recherche'),
+  dialogueRecherche: document.querySelector('#dialogue-recherche'),
+  champRecherche: document.querySelector('#champ-recherche'),
+  resultatsRecherche: document.querySelector('#resultats-recherche'),
+  metaRecherche: document.querySelector('#meta-recherche'),
+  compteurSidebar: document.querySelector('#compteur-sidebar'),
+  compteurRevoir: document.querySelector('#compteur-revoir'),
+  actionRevoir: document.querySelector('#action-revoir'),
+  toast: document.querySelector('#toast')
+};
+
+const etat = {
+  documentation: null,
+  domaineActif: null,
+  ficheActive: null,
+  resultatActif: 0,
+  stockage: chargerStockage()
+};
+
+const clesStockage = {
+  recent: 'bibliolearn.recent',
+  revoir: 'bibliolearn.revoir',
+  lues: 'bibliolearn.lues'
+};
+
+function chargerValeur(cle, valeurParDefaut) {
+  try {
+    const valeur = localStorage.getItem(cle);
+    return valeur ? JSON.parse(valeur) : valeurParDefaut;
+  } catch {
+    return valeurParDefaut;
+  }
+}
+
+function chargerStockage() {
+  return {
+    recent: chargerValeur('bibliolearn.recent', []),
+    revoir: chargerValeur('bibliolearn.revoir', []),
+    lues: chargerValeur('bibliolearn.lues', [])
+  };
+}
+
+function sauvegarder(cle, valeur) {
+  etat.stockage[cle] = valeur;
+  try {
+    localStorage.setItem(clesStockage[cle], JSON.stringify(valeur));
+  } catch {
+    afficherToast('Le stockage local n’est pas disponible');
+  }
+  actualiserCompteurs();
+}
+
+async function chargerDocumentation() {
+  try {
+    const reponse = await fetch('/api/documentation');
+    if (!reponse.ok) throw new Error(`Réponse HTTP ${reponse.status}`);
+    etat.documentation = await reponse.json();
+    nettoyerStockage();
+    construireNavigation();
+    actualiserCompteurs();
+    router();
+  } catch (erreur) {
+    elements.contenu.innerHTML = `
+      <section class="error-state">
+        <span class="loading-state__mark">!/</span>
+        <h1>La bibliothèque n’a pas pu être chargée</h1>
+        <p>${echapperHTML(erreur.message)}</p>
+      </section>`;
+  }
+}
+
+function nettoyerStockage() {
+  const ids = new Set(etat.documentation.fiches.map((fiche) => fiche.id));
+  etat.stockage.recent = etat.stockage.recent
+    .map((element) => typeof element === 'string' ? { id: element, date: Date.now() } : element)
+    .filter((element) => ids.has(element.id))
+    .slice(0, 8);
+  etat.stockage.revoir = etat.stockage.revoir.filter((id) => ids.has(id));
+  etat.stockage.lues = etat.stockage.lues.filter((id) => ids.has(id));
+}
+
+function construireNavigation() {
+  const groupes = regrouper(etat.documentation.domaines, 'groupe');
+  elements.navigation.innerHTML = Object.entries(groupes).map(([nomGroupe, domaines]) => `
+    <section class="nav-group">
+      <p class="nav-group-label">${echapperHTML(nomGroupe)}</p>
+      ${domaines.map((domaine) => creerBoutonDomaine(domaine)).join('')}
+    </section>`).join('');
+}
+
+function creerBoutonDomaine(domaine) {
+  const fiches = obtenirFichesDomaine(domaine.id);
+  const actif = etat.domaineActif === domaine.id;
+  const categories = [...new Set(fiches.map((fiche) => fiche.categorie))];
+  return `
+    <button class="domain-button ${actif ? 'is-active' : ''}" type="button" data-domaine="${domaine.id}">
+      <span class="domain-button__icon">${echapperHTML(domaine.icone)}</span>
+      <span>${echapperHTML(domaine.nom)}</span>
+      <small>${fiches.length}</small>
+    </button>
+    ${actif ? `<div class="category-list">${categories.map((categorie) => `
+      <button class="category-button" type="button" data-categorie="${echapperAttribut(categorie)}">${echapperHTML(categorie)}</button>
+    `).join('')}</div>` : ''}`;
+}
+
+function actualiserNavigation() {
+  construireNavigation();
+  document.querySelectorAll('.nav-primary').forEach((bouton) => {
+    const route = bouton.dataset.route;
+    const actif = (!etat.domaineActif && !etat.ficheActive && route === routeCourante()) ||
+      (route === 'parcours' && routeCourante() === 'revoir');
+    bouton.classList.toggle('is-active', actif);
+  });
+}
+
+function actualiserCompteurs() {
+  if (!etat.documentation) return;
+  elements.compteurSidebar.textContent = `${etat.documentation.statistiques.nombreFiches} fiches`;
+  elements.compteurRevoir.textContent = etat.stockage.revoir.length;
+}
+
+function router() {
+  if (!etat.documentation) return;
+  const fragments = window.location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
+  const [route = 'accueil', parametre] = fragments;
+
+  etat.ficheActive = null;
+  etat.domaineActif = null;
+
+  if (route === 'fiche' && parametre) {
+    afficherFiche(parametre);
+  } else if (route === 'domaine' && parametre) {
+    afficherDomaine(parametre);
+  } else if (route === 'parcours') {
+    afficherParcours();
+  } else if (route === 'revoir') {
+    afficherListeARevoir();
+  } else {
+    afficherAccueil();
+  }
+
+  actualiserNavigation();
+  fermerMenuMobile();
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function naviguer(destination) {
+  const nouvelleRoute = `#/${destination}`;
+  if (window.location.hash === nouvelleRoute) {
+    router();
+  } else {
+    window.location.hash = nouvelleRoute;
+  }
+}
+
+function routeCourante() {
+  return window.location.hash.replace(/^#\/?/, '').split('/')[0] || 'accueil';
+}
+
+function afficherAccueil() {
+  definirFilAriane([{ label: 'Bibliothèque' }, { label: 'Vue d’ensemble' }]);
+  const recentes = obtenirFichesRecentes();
+  const aRevoir = etat.stockage.revoir.map(obtenirFiche).filter(Boolean).slice(0, 4);
+  const essentielles = ['dom-selection', 'js-map-filter-reduce', 'js-promises', 'express-middleware']
+    .map(obtenirFiche).filter(Boolean);
+
+  elements.contenu.innerHTML = `
+    <section class="home-hero">
+      <div class="eyebrow">Bibliothèque personnelle du développeur</div>
+      <h1 class="page-title">Comprendre le Web.<br>Retrouver l’essentiel.</h1>
+      <p class="page-intro">Une référence locale pensée pour expliquer la syntaxe, ce qui se passe réellement à l’exécution et les erreurs qui font perdre du temps.</p>
+      <button class="home-search" type="button" data-action="recherche">
+        <span class="home-search__icon" aria-hidden="true">⌕</span>
+        <span>Rechercher une API, une syntaxe, une erreur…</span>
+        <kbd>Ctrl K</kbd>
+      </button>
+      <div class="stats-row">
+        <span><strong>${etat.documentation.statistiques.nombreFiches}</strong> fiches structurées</span>
+        <span><strong>${etat.documentation.statistiques.nombreExemples}</strong> exemples de code</span>
+        <span><strong>${etat.documentation.statistiques.nombreDomaines}</strong> domaines</span>
+        <span>aucune donnée envoyée</span>
+      </div>
+    </section>
+
+    <section class="dashboard-section">
+      <div class="section-title-row">
+        <h2>Explorer la bibliothèque</h2>
+        <span>Du HTML aux frameworks frontend</span>
+      </div>
+      <div class="domain-grid">
+        ${etat.documentation.domaines.map(creerCarteDomaine).join('')}
+      </div>
+    </section>
+
+    <section class="dashboard-section">
+      <div class="section-title-row">
+        <h2>Votre espace d’étude</h2>
+        <span>Conservé uniquement dans ce navigateur</span>
+      </div>
+      <div class="study-grid">
+        <div class="panel">
+          <div class="panel__head"><h3>${recentes.length ? 'Récemment étudié' : 'Pour commencer'}</h3><span>${recentes.length || essentielles.length} notions</span></div>
+          <ul class="study-list">${(recentes.length ? recentes : essentielles).map(creerElementEtude).join('')}</ul>
+        </div>
+        <div class="panel">
+          <div class="panel__head"><h3>À revoir</h3><span>${etat.stockage.revoir.length} marquée${etat.stockage.revoir.length > 1 ? 's' : ''}</span></div>
+          ${aRevoir.length ? `<ul class="study-list">${aRevoir.map(creerElementEtude).join('')}</ul>` : `
+            <div class="review-empty"><span>◎</span><p>Marquez une fiche « À revoir » pour construire votre liste de révision.</p></div>`}
+        </div>
+      </div>
+    </section>`;
+}
+
+function creerCarteDomaine(domaine) {
+  const total = obtenirFichesDomaine(domaine.id).length;
+  return `
+    <button class="domain-card" type="button" data-domaine="${domaine.id}">
+      <span class="domain-card__head">
+        <span class="domain-card__icon">${echapperHTML(domaine.icone)}</span>
+        <span class="domain-card__count">${total} fiche${total > 1 ? 's' : ''}</span>
+      </span>
+      <h3>${echapperHTML(domaine.nom)}</h3>
+      <p>${echapperHTML(domaine.description)}</p>
+    </button>`;
+}
+
+function creerElementEtude(fiche) {
+  const domaine = obtenirDomaine(fiche.domaine);
+  const entreeRecente = etat.stockage.recent.find((element) => element.id === fiche.id);
+  return `
+    <li>
+      <button class="study-item" type="button" data-fiche="${fiche.id}">
+        <span class="study-item__icon">${echapperHTML(domaine?.icone || '•')}</span>
+        <span><strong>${echapperHTML(fiche.titre)}</strong><small>${echapperHTML(domaine?.nom || fiche.domaine)} · ${echapperHTML(fiche.categorie)}</small></span>
+        ${entreeRecente ? `<time>${formaterDateRelative(entreeRecente.date)}</time>` : '<time>ouvrir →</time>'}
+      </button>
+    </li>`;
+}
+
+function afficherDomaine(idDomaine) {
+  const domaine = obtenirDomaine(idDomaine);
+  if (!domaine) return afficherIntrouvable('Domaine introuvable');
+  etat.domaineActif = idDomaine;
+  const fiches = obtenirFichesDomaine(idDomaine);
+  const categories = regrouper(fiches, 'categorie');
+  const lues = fiches.filter((fiche) => etat.stockage.lues.includes(fiche.id)).length;
+
+  definirFilAriane([{ label: 'Bibliothèque', route: 'accueil' }, { label: domaine.nom }]);
+  elements.contenu.innerHTML = `
+    <header class="domain-header">
+      <div class="eyebrow">${echapperHTML(domaine.groupe)}</div>
+      <h1 class="page-title">${echapperHTML(domaine.nom)}</h1>
+      <p class="page-intro">${echapperHTML(domaine.description)}. Les fiches sont organisées par sujet pour servir à la fois de parcours et de référence rapide.</p>
+      <div class="domain-header__meta">
+        <span class="meta-pill">${fiches.length} fiches</span>
+        <span class="meta-pill">${Object.keys(categories).length} catégories</span>
+        <span class="meta-pill">${lues} maîtrisée${lues > 1 ? 's' : ''}</span>
+      </div>
+    </header>
+    ${Object.entries(categories).map(([categorie, elementsCategorie]) => `
+      <section class="category-section" id="${slugifier(categorie)}">
+        <header class="category-section__head">
+          <h2>${echapperHTML(categorie)}</h2>
+          <span>${elementsCategorie.length} notion${elementsCategorie.length > 1 ? 's' : ''}</span>
+        </header>
+        ${elementsCategorie.map(creerLigneFiche).join('')}
+      </section>`).join('')}`;
+}
+
+function creerLigneFiche(fiche) {
+  const estLue = etat.stockage.lues.includes(fiche.id);
+  return `
+    <button class="topic-row ${estLue ? 'is-read' : ''}" type="button" data-fiche="${fiche.id}">
+      <span class="topic-row__dot" title="${estLue ? 'Maîtrisée' : 'Non marquée'}"></span>
+      <span><h3>${echapperHTML(fiche.titre)}</h3><p>${echapperHTML(fiche.resume)}</p></span>
+      <span class="topic-row__arrow">→</span>
+    </button>`;
+}
+
+function afficherFiche(id) {
+  const fiche = obtenirFiche(id);
+  if (!fiche) return afficherIntrouvable('Fiche introuvable');
+  const domaine = obtenirDomaine(fiche.domaine);
+  etat.ficheActive = fiche;
+  etat.domaineActif = fiche.domaine;
+  enregistrerConsultation(id);
+
+  const fichesDomaine = obtenirFichesDomaine(fiche.domaine);
+  const index = fichesDomaine.findIndex((element) => element.id === id);
+  const precedente = fichesDomaine[index - 1];
+  const suivante = fichesDomaine[index + 1];
+  const aRevoir = etat.stockage.revoir.includes(id);
+  const estLue = etat.stockage.lues.includes(id);
+  const associees = fiche.associes.map(obtenirFiche).filter(Boolean);
+
+  definirFilAriane([
+    { label: 'Bibliothèque', route: 'accueil' },
+    { label: domaine.nom, route: `domaine/${domaine.id}` },
+    { label: fiche.categorie, route: `domaine/${domaine.id}`, categorie: fiche.categorie },
+    { label: fiche.titre }
+  ]);
+
+  elements.contenu.innerHTML = `
+    <header class="article-header">
+      <div class="article-header__meta">
+        <span class="article-badge">${echapperHTML(domaine.nom)}</span>
+        <span class="article-badge">${echapperHTML(fiche.categorie)}</span>
+        <span class="article-badge">${echapperHTML(fiche.niveau)}</span>
+      </div>
+      <h1>${echapperHTML(fiche.titre)}</h1>
+      <p class="article-header__summary">${echapperHTML(fiche.resume)}</p>
+      <div class="article-header__actions">
+        <button class="secondary-button ${aRevoir ? 'is-active' : ''}" type="button" data-toggle-revoir="${fiche.id}">◎ ${aRevoir ? 'Dans À revoir' : 'Marquer à revoir'}</button>
+        <button class="secondary-button ${estLue ? 'is-active' : ''}" type="button" data-toggle-lue="${fiche.id}">✓ ${estLue ? 'Maîtrisée' : 'Marquer maîtrisée'}</button>
+      </div>
+    </header>
+
+    <div class="article-layout">
+      <article class="article-body">
+        ${fiche.sections.map((section, sectionIndex) => creerSection(section, sectionIndex)).join('')}
+        <nav class="article-pagination" aria-label="Fiches précédente et suivante">
+          ${precedente ? creerLienPagination(precedente, 'Précédent', '') : '<span></span>'}
+          ${suivante ? creerLienPagination(suivante, 'Suivant', 'page-link--next') : ''}
+        </nav>
+      </article>
+      <aside class="article-aside">
+        <section class="aside-block">
+          <h3>Dans cette fiche</h3>
+          ${fiche.sections.map((section, sectionIndex) => `<button class="toc-link" type="button" data-scroll="section-${sectionIndex}">${echapperHTML(section.titre)}</button>`).join('')}
+        </section>
+        ${associees.length ? `<section class="aside-block"><h3>Concepts associés</h3>${associees.map((element) => `<button class="related-link" type="button" data-fiche="${element.id}">${echapperHTML(element.titre)}</button>`).join('')}</section>` : ''}
+      </aside>
+    </div>`;
+}
+
+function creerSection(section, index) {
+  const titre = `<h2>${echapperHTML(section.titre)}</h2>`;
+  let corps = '';
+
+  if (section.type === 'texte') {
+    corps = `<p>${echapperHTML(section.contenu)}</p>`;
+  } else if (section.type === 'liste') {
+    corps = `<ul class="doc-list">${section.contenu.map((element) => `<li>${echapperHTML(element)}</li>`).join('')}</ul>`;
+  } else if (section.type === 'decomposition') {
+    corps = `<div class="breakdown">${section.elements.map((element) => `
+      <div class="breakdown__row"><div class="breakdown__term">${echapperHTML(element.terme)}</div><div class="breakdown__explanation">${echapperHTML(element.explication)}</div></div>`).join('')}</div>`;
+  } else if (section.type === 'code') {
+    corps = `<div class="code-shell">
+      <div class="code-shell__head"><span class="code-shell__language">${echapperHTML(section.langage)}</span><button class="copy-button" type="button" data-copy>Copier</button></div>
+      <pre><code>${echapperHTML(section.contenu)}</code></pre>
+    </div>${section.legende ? `<p class="code-caption">${echapperHTML(section.legende)}</p>` : ''}`;
+  } else if (section.type === 'alerte') {
+    corps = `<div class="callout callout--${echapperAttribut(section.variante)}"><span class="callout__label">${libelleAlerte(section.variante)}</span><p>${echapperHTML(section.contenu)}</p></div>`;
+  } else if (section.type === 'comparaison') {
+    corps = `<div class="table-wrap"><table class="comparison-table"><thead><tr>${section.colonnes.map((colonne) => `<th>${echapperHTML(colonne)}</th>`).join('')}</tr></thead><tbody>${section.lignes.map((ligne) => `<tr>${ligne.map((cellule) => `<td>${echapperHTML(cellule)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  } else if (section.type === 'liens') {
+    corps = `<div class="official-links">${section.elements.map((lien) => `<a class="official-link" href="${echapperAttribut(lien.url)}" target="_blank" rel="noreferrer"><span>${echapperHTML(lien.label)}</span><span aria-hidden="true">↗</span></a>`).join('')}</div>`;
+  }
+
+  return `<section class="doc-section" id="section-${index}">${titre}${corps}</section>`;
+}
+
+function creerLienPagination(fiche, libelle, classe) {
+  return `<button class="page-link ${classe}" type="button" data-fiche="${fiche.id}"><small>${libelle}</small><strong>${echapperHTML(fiche.titre)}</strong></button>`;
+}
+
+function afficherParcours() {
+  definirFilAriane([{ label: 'Bibliothèque', route: 'accueil' }, { label: 'Mon parcours' }]);
+  const total = etat.documentation.fiches.length;
+  const lues = etat.stockage.lues.map(obtenirFiche).filter(Boolean);
+  const recentes = obtenirFichesRecentes();
+  const pourcentage = Math.round((lues.length / total) * 100);
+
+  elements.contenu.innerHTML = `
+    <header class="listing-header">
+      <div class="eyebrow">Progression locale</div>
+      <h1 class="page-title">Mon parcours</h1>
+      <p class="page-intro">Les marqueurs sont volontaires et restent dans ce navigateur. Ils servent à retrouver votre fil, pas à transformer l’apprentissage en course.</p>
+      <div class="domain-header__meta">
+        <span class="meta-pill">${lues.length} / ${total} maîtrisées</span>
+        <span class="meta-pill">${pourcentage} % du catalogue</span>
+        <span class="meta-pill">${etat.stockage.revoir.length} à revoir</span>
+      </div>
+    </header>
+    ${creerSectionListe('Récemment étudié', recentes, 'Les fiches ouvertes apparaissent ici automatiquement.')}
+    ${creerSectionListe('Fiches maîtrisées', lues, 'Marquez une fiche comme maîtrisée depuis son en-tête.')}`;
+}
+
+function afficherListeARevoir() {
+  const fiches = etat.stockage.revoir.map(obtenirFiche).filter(Boolean);
+  definirFilAriane([{ label: 'Bibliothèque', route: 'accueil' }, { label: 'À revoir' }]);
+  elements.contenu.innerHTML = `
+    <header class="listing-header">
+      <div class="eyebrow">Révision ciblée</div>
+      <h1 class="page-title">À revoir</h1>
+      <p class="page-intro">Votre file personnelle de notions à reprendre. Retirez une fiche lorsqu’elle est claire ou marquez-la comme maîtrisée.</p>
+    </header>
+    ${fiches.length ? `<section class="category-section"><header class="category-section__head"><h2>Fiches marquées</h2><span>${fiches.length} notions</span></header>${fiches.map(creerLigneFiche).join('')}</section>` : `
+      <div class="empty-page"><span>◎</span><h2>Rien à revoir pour le moment</h2><p>Ouvrez une fiche puis utilisez « Marquer à revoir » pour la retrouver ici.</p></div>`}`;
+}
+
+function creerSectionListe(titre, fiches, messageVide) {
+  if (!fiches.length) return `<section class="dashboard-section"><div class="section-title-row"><h2>${titre}</h2></div><div class="empty-page"><p>${messageVide}</p></div></section>`;
+  return `<section class="dashboard-section"><div class="section-title-row"><h2>${titre}</h2><span>${fiches.length} fiche${fiches.length > 1 ? 's' : ''}</span></div><div class="panel"><ul class="study-list">${fiches.map(creerElementEtude).join('')}</ul></div></section>`;
+}
+
+function afficherIntrouvable(titre) {
+  definirFilAriane([{ label: 'Bibliothèque', route: 'accueil' }, { label: 'Introuvable' }]);
+  elements.contenu.innerHTML = `<div class="empty-page"><span>404</span><h2>${echapperHTML(titre)}</h2><p>Cette adresse ne correspond à aucun contenu du catalogue.</p></div>`;
+}
+
+function ouvrirRecherche() {
+  if (!elements.dialogueRecherche.open) elements.dialogueRecherche.showModal();
+  elements.champRecherche.value = '';
+  etat.resultatActif = 0;
+  afficherSuggestionsRecherche();
+  requestAnimationFrame(() => elements.champRecherche.focus());
+}
+
+function fermerRecherche() {
+  if (elements.dialogueRecherche.open) elements.dialogueRecherche.close();
+}
+
+function afficherSuggestionsRecherche() {
+  const suggestions = ['js-map-filter-reduce', 'dom-selection', 'js-promises', 'node-fs', 'express-middleware', 'css-flexbox']
+    .map(obtenirFiche).filter(Boolean);
+  elements.metaRecherche.textContent = 'Suggestions · la recherche couvre titres, résumés, catégories, tags et contenu';
+  afficherResultatsRecherche(suggestions);
+}
+
+function rechercherNotion(terme) {
+  const recherche = normaliser(terme).trim();
+  if (!recherche) return afficherSuggestionsRecherche();
+  const mots = recherche.split(/\s+/).filter(Boolean);
+  const resultats = etat.documentation.fiches
+    .map((fiche) => ({ fiche, score: calculerScore(fiche, recherche, mots) }))
+    .filter((resultat) => resultat.score > 0)
+    .sort((a, b) => b.score - a.score || a.fiche.titre.localeCompare(b.fiche.titre, 'fr'))
+    .slice(0, 18)
+    .map((resultat) => resultat.fiche);
+
+  etat.resultatActif = 0;
+  elements.metaRecherche.textContent = `${resultats.length} résultat${resultats.length > 1 ? 's' : ''} pour « ${terme.trim()} »`;
+  afficherResultatsRecherche(resultats);
+}
+
+function calculerScore(fiche, recherche, mots) {
+  const titre = normaliser(fiche.titre);
+  const tags = normaliser(fiche.tags.join(' '));
+  const categorie = normaliser(fiche.categorie);
+  const domaine = normaliser(obtenirDomaine(fiche.domaine)?.nom || fiche.domaine);
+  const sections = normaliser(fiche.sections.map((section) => {
+    if (typeof section.contenu === 'string') return section.contenu;
+    if (Array.isArray(section.contenu)) return section.contenu.join(' ');
+    if (section.elements) return section.elements.map((element) => `${element.terme || ''} ${element.explication || ''} ${element.label || ''}`).join(' ');
+    return '';
+  }).join(' '));
+  const ensemble = `${titre} ${tags} ${categorie} ${domaine} ${normaliser(fiche.resume)} ${sections}`;
+
+  if (!mots.every((mot) => ensemble.includes(mot))) return 0;
+  let score = 1;
+  if (titre === recherche) score += 120;
+  if (titre.startsWith(recherche)) score += 70;
+  if (titre.includes(recherche)) score += 45;
+  if (tags.includes(recherche)) score += 30;
+  if (categorie.includes(recherche) || domaine.includes(recherche)) score += 16;
+  score += mots.reduce((total, mot) => total + (titre.includes(mot) ? 12 : 0) + (tags.includes(mot) ? 7 : 0), 0);
+  return score;
+}
+
+function afficherResultatsRecherche(resultats) {
+  if (!resultats.length) {
+    elements.resultatsRecherche.innerHTML = '<div class="search-no-result">Aucune fiche ne correspond. Essayez un nom d’API, un concept ou une erreur.</div>';
+    return;
+  }
+  elements.resultatsRecherche.innerHTML = resultats.map((fiche, index) => {
+    const domaine = obtenirDomaine(fiche.domaine);
+    return `<button class="search-result ${index === etat.resultatActif ? 'is-selected' : ''}" type="button" data-fiche="${fiche.id}">
+      <span class="search-result__icon">${echapperHTML(domaine?.icone || '•')}</span>
+      <span><strong>${echapperHTML(fiche.titre)}</strong><small>${echapperHTML(fiche.resume)}</small></span>
+      <span class="search-result__category">${echapperHTML(domaine?.nom || fiche.domaine)}</span>
+    </button>`;
+  }).join('');
+}
+
+function gererClavierRecherche(evenement) {
+  const resultats = [...elements.resultatsRecherche.querySelectorAll('.search-result')];
+  if (!resultats.length) return;
+  if (evenement.key === 'ArrowDown') {
+    evenement.preventDefault();
+    etat.resultatActif = Math.min(etat.resultatActif + 1, resultats.length - 1);
+  } else if (evenement.key === 'ArrowUp') {
+    evenement.preventDefault();
+    etat.resultatActif = Math.max(etat.resultatActif - 1, 0);
+  } else if (evenement.key === 'Enter') {
+    evenement.preventDefault();
+    resultats[etat.resultatActif]?.click();
+    return;
+  } else {
+    return;
+  }
+  resultats.forEach((resultat, index) => resultat.classList.toggle('is-selected', index === etat.resultatActif));
+  resultats[etat.resultatActif]?.scrollIntoView({ block: 'nearest' });
+}
+
+function enregistrerConsultation(id) {
+  const recent = etat.stockage.recent.filter((element) => element.id !== id);
+  recent.unshift({ id, date: Date.now() });
+  sauvegarder('recent', recent.slice(0, 8));
+}
+
+function basculerDansListe(cle, id) {
+  const liste = [...etat.stockage[cle]];
+  const index = liste.indexOf(id);
+  const ajoute = index === -1;
+  if (ajoute) liste.push(id); else liste.splice(index, 1);
+  sauvegarder(cle, liste);
+  afficherToast(cle === 'revoir' ? (ajoute ? 'Ajouté à votre liste de révision' : 'Retiré de votre liste de révision') : (ajoute ? 'Fiche marquée comme maîtrisée' : 'Marque de maîtrise retirée'));
+  if (etat.ficheActive?.id === id) afficherFiche(id);
+}
+
+async function copierCode(bouton) {
+  const code = bouton.closest('.code-shell')?.querySelector('code')?.textContent;
+  if (!code) return;
+  try {
+    await navigator.clipboard.writeText(code);
+  } catch {
+    const zone = document.createElement('textarea');
+    zone.value = code;
+    zone.style.position = 'fixed';
+    zone.style.opacity = '0';
+    document.body.append(zone);
+    zone.select();
+    document.execCommand('copy');
+    zone.remove();
+  }
+  const ancienTexte = bouton.textContent;
+  bouton.textContent = 'Copié ✓';
+  afficherToast('Code copié dans le presse-papiers');
+  setTimeout(() => { bouton.textContent = ancienTexte; }, 1500);
+}
+
+function definirFilAriane(elementsAriane) {
+  elements.filAriane.innerHTML = elementsAriane.map((element, index) => `${index ? '<i>/</i>' : ''}<button type="button" ${element.route ? `data-route="${element.route}"` : ''} ${element.categorie ? `data-categorie="${echapperAttribut(element.categorie)}"` : ''}>${echapperHTML(element.label)}</button>`).join('');
+}
+
+function afficherToast(message) {
+  elements.toast.textContent = message;
+  elements.toast.classList.add('is-visible');
+  clearTimeout(afficherToast.minuteur);
+  afficherToast.minuteur = setTimeout(() => elements.toast.classList.remove('is-visible'), 2200);
+}
+
+function ouvrirMenuMobile() {
+  elements.sidebar.classList.add('is-open');
+  elements.overlay.hidden = false;
+}
+
+function fermerMenuMobile() {
+  elements.sidebar.classList.remove('is-open');
+  elements.overlay.hidden = true;
+}
+
+function obtenirFiche(id) {
+  return etat.documentation?.fiches.find((fiche) => fiche.id === id);
+}
+
+function obtenirDomaine(id) {
+  return etat.documentation?.domaines.find((domaine) => domaine.id === id);
+}
+
+function obtenirFichesDomaine(id) {
+  return etat.documentation.fiches.filter((fiche) => fiche.domaine === id);
+}
+
+function obtenirFichesRecentes() {
+  return etat.stockage.recent.map((element) => obtenirFiche(element.id)).filter(Boolean);
+}
+
+function regrouper(liste, propriete) {
+  return liste.reduce((groupes, element) => {
+    const cle = element[propriete];
+    groupes[cle] ||= [];
+    groupes[cle].push(element);
+    return groupes;
+  }, {});
+}
+
+function normaliser(texte) {
+  return String(texte).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[(){}[\].,:;/\\_-]+/g, ' ');
+}
+
+function slugifier(texte) {
+  return normaliser(texte).trim().replace(/\s+/g, '-');
+}
+
+function echapperHTML(valeur) {
+  return String(valeur)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function echapperAttribut(valeur) {
+  return echapperHTML(valeur);
+}
+
+function libelleAlerte(variante) {
+  return {
+    erreur: 'Erreur fréquente',
+    attention: 'Attention',
+    obsolete: 'Obsolète / historique',
+    'bonne-pratique': 'Bonne pratique',
+    retenir: 'À retenir'
+  }[variante] || 'À noter';
+}
+
+function formaterDateRelative(date) {
+  const ecartMinutes = Math.floor((Date.now() - Number(date)) / 60000);
+  if (ecartMinutes < 1) return 'à l’instant';
+  if (ecartMinutes < 60) return `il y a ${ecartMinutes} min`;
+  const heures = Math.floor(ecartMinutes / 60);
+  if (heures < 24) return `il y a ${heures} h`;
+  return `il y a ${Math.floor(heures / 24)} j`;
+}
+
+document.addEventListener('click', (evenement) => {
+  const cible = evenement.target.closest('button, [data-copy]');
+  if (!cible) return;
+
+  if (cible.dataset.route) naviguer(cible.dataset.route);
+  if (cible.dataset.domaine) naviguer(`domaine/${cible.dataset.domaine}`);
+  if (cible.dataset.fiche) {
+    fermerRecherche();
+    naviguer(`fiche/${cible.dataset.fiche}`);
+  }
+  if (cible.dataset.categorie) {
+    const executerScroll = () => document.getElementById(slugifier(cible.dataset.categorie))?.scrollIntoView({ behavior: 'smooth' });
+    if (etat.domaineActif) executerScroll(); else setTimeout(executerScroll, 50);
+  }
+  if (cible.dataset.action === 'recherche') ouvrirRecherche();
+  if ('copy' in cible.dataset) copierCode(cible);
+  if (cible.dataset.toggleRevoir) basculerDansListe('revoir', cible.dataset.toggleRevoir);
+  if (cible.dataset.toggleLue) basculerDansListe('lues', cible.dataset.toggleLue);
+  if (cible.dataset.scroll) document.getElementById(cible.dataset.scroll)?.scrollIntoView({ behavior: 'smooth' });
+});
+
+elements.ouvrirRecherche.addEventListener('click', ouvrirRecherche);
+elements.fermerRecherche.addEventListener('click', fermerRecherche);
+elements.actionRevoir.addEventListener('click', () => naviguer('revoir'));
+elements.ouvrirMenu.addEventListener('click', ouvrirMenuMobile);
+elements.fermerMenu.addEventListener('click', fermerMenuMobile);
+elements.overlay.addEventListener('click', fermerMenuMobile);
+elements.champRecherche.addEventListener('input', (evenement) => rechercherNotion(evenement.target.value));
+elements.champRecherche.addEventListener('keydown', gererClavierRecherche);
+elements.dialogueRecherche.addEventListener('click', (evenement) => {
+  if (evenement.target === elements.dialogueRecherche) fermerRecherche();
+});
+
+document.addEventListener('keydown', (evenement) => {
+  if ((evenement.ctrlKey || evenement.metaKey) && evenement.key.toLowerCase() === 'k') {
+    evenement.preventDefault();
+    ouvrirRecherche();
+  }
+});
+
+window.addEventListener('hashchange', router);
+chargerDocumentation();
