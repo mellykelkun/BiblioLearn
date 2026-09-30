@@ -147,6 +147,10 @@ a {
   display: block;
 }
 
+.brand:hover strong {
+  color: var(--accent);
+}
+
 .brand strong {
   font-size: 15px;
   letter-spacing: -0.1px;
@@ -205,6 +209,10 @@ a {
   color: var(--texte);
 }
 
+.search-trigger:hover > span:nth-child(2) {
+  color: var(--accent);
+}
+
 .search-trigger > span:first-child {
   color: var(--accent);
   font-size: 20px;
@@ -253,7 +261,7 @@ kbd,
 .nav-primary:hover,
 .nav-primary.is-active {
   background: var(--panneau);
-  color: var(--texte);
+  color: var(--accent);
 }
 
 .nav-primary.is-active {
@@ -296,7 +304,7 @@ kbd,
 .domain-button:hover,
 .domain-button.is-active {
   background: var(--panneau);
-  color: var(--texte);
+  color: var(--accent);
 }
 
 .domain-button.is-active {
@@ -396,7 +404,7 @@ kbd,
 
 .breadcrumb button:hover,
 .breadcrumb button:last-child {
-  color: var(--texte-doux);
+  color: var(--accent);
 }
 
 .breadcrumb i {
@@ -634,6 +642,10 @@ kbd,
   background: var(--panneau-clair);
 }
 
+.domain-card:hover h3 {
+  color: var(--accent);
+}
+
 .domain-card__head {
   display: flex;
   align-items: center;
@@ -725,6 +737,10 @@ kbd,
 
 .study-item:hover {
   background: rgba(255, 255, 255, 0.018);
+}
+
+.study-item:hover strong {
+  color: var(--accent);
 }
 
 .study-item__icon {
@@ -1412,6 +1428,11 @@ kbd,
 .search-result.is-selected {
   border-color: var(--ligne);
   background: var(--panneau-clair);
+}
+
+.search-result:hover strong,
+.search-result.is-selected strong {
+  color: var(--accent);
 }
 
 .search-result__icon {
