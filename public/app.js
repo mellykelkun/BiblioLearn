@@ -358,7 +358,7 @@ function creerSection(section, index) {
       <div class="breakdown__row"><div class="breakdown__term">${echapperHTML(element.terme)}</div><div class="breakdown__explanation">${echapperHTML(element.explication)}</div></div>`).join('')}</div>`;
   } else if (section.type === 'code') {
     corps = `<div class="code-shell">
-      <div class="code-shell__head"><span class="code-shell__language">${echapperHTML(section.langage)}</span><button class="copy-button" type="button" data-copy>Copier</button></div>
+      <div class="code-shell__head"><span class="code-shell__language">${echapperHTML(section.langage)}</span><button class="copy-button" type="button" data-copy aria-label="Copier cet exemple ${echapperAttribut(section.langage)}">Copier</button></div>
       <pre><code>${echapperHTML(section.contenu)}</code></pre>
     </div>${section.legende ? `<p class="code-caption">${echapperHTML(section.legende)}</p>` : ''}`;
   } else if (section.type === 'alerte') {
@@ -394,6 +394,11 @@ function afficherParcours() {
         <span class="meta-pill">${lues.length} / ${total} maîtrisées</span>
         <span class="meta-pill">${pourcentage} % du catalogue</span>
         <span class="meta-pill">${etat.stockage.revoir.length} à revoir</span>
+      </div>
+      <div class="progress-wrap" aria-label="Progression du parcours">
+        <span>Progression</span>
+        <span class="progress-track"><span style="width: ${pourcentage}%"></span></span>
+        <strong>${pourcentage}%</strong>
       </div>
     </header>
     ${creerSectionListe(recentes.length ? 'Récemment étudié' : 'Récemment étudié', recentes, 'Aucune fiche ouverte pour le moment. Le parcours conseillé ci-dessous est un bon point de départ.')}
