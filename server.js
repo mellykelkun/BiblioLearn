@@ -18,7 +18,9 @@ app.use((requete, reponse, suivant) => {
 
 app.use(express.static(dossierPublic, {
   extensions: ['html'],
-  maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0
+  // Le contenu change pendant les itérations de la documentation ;
+  // on laisse Vercel revalider les fichiers à chaque nouvelle version.
+  maxAge: 0
 }));
 
 app.get('/api/sante', (requete, reponse) => {
