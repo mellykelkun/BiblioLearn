@@ -328,6 +328,7 @@ function afficherFiche(id) {
 
     <div class="article-layout">
       <article class="article-body">
+        <div class="callout callout--retenir article-reading-guide"><span class="callout__label">Comment lire cette fiche</span><p>Commencez par l’idée simple, puis lisez la syntaxe de haut en bas. Chaque exemple est commenté ou décomposé ; les encadrés signalent les pièges et les bonnes pratiques avant les liens officiels.</p></div>
         ${fiche.sections.map((section, sectionIndex) => creerSection(section, sectionIndex)).join('')}
         <nav class="article-pagination" aria-label="Fiches précédente et suivante">
           ${precedente ? creerLienPagination(precedente, 'Précédent', '') : '<span></span>'}
@@ -381,6 +382,8 @@ function afficherParcours() {
   const lues = etat.stockage.lues.map(obtenirFiche).filter(Boolean);
   const recentes = obtenirFichesRecentes();
   const pourcentage = Math.round((lues.length / total) * 100);
+  const parcoursConseille = ['html-document', 'css-box-model', 'js-variables', 'dom-selection', 'js-promises', 'node-runtime', 'http-requete-reponse', 'express-routes']
+    .map(obtenirFiche).filter(Boolean);
 
   elements.contenu.innerHTML = `
     <header class="listing-header">
@@ -393,8 +396,9 @@ function afficherParcours() {
         <span class="meta-pill">${etat.stockage.revoir.length} à revoir</span>
       </div>
     </header>
-    ${creerSectionListe('Récemment étudié', recentes, 'Les fiches ouvertes apparaissent ici automatiquement.')}
-    ${creerSectionListe('Fiches maîtrisées', lues, 'Marquez une fiche comme maîtrisée depuis son en-tête.')}`;
+    ${creerSectionListe(recentes.length ? 'Récemment étudié' : 'Récemment étudié', recentes, 'Aucune fiche ouverte pour le moment. Le parcours conseillé ci-dessous est un bon point de départ.')}
+    ${creerSectionListe('Fiches maîtrisées', lues, 'Marquez une fiche comme maîtrisée depuis son en-tête.')}
+    ${creerSectionListe('Parcours conseillé', parcoursConseille, 'Le catalogue est prêt à être parcouru.')}`;
 }
 
 function afficherListeARevoir() {

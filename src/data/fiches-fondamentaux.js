@@ -10,7 +10,7 @@ module.exports = [
     sections: [
       texte('Définition', 'HTML décrit la structure et le sens du contenu. Le navigateur analyse le document reçu et construit un arbre d’objets appelé DOM. HTML ne sert ni à programmer un comportement ni à définir toute la présentation.'),
       texte('Pourquoi cette structure existe', 'Le doctype sélectionne le mode standard du navigateur. html contient le document, head regroupe les métadonnées non affichées comme contenu principal, et body contient ce que la page présente.'),
-      code('Squelette moderne', 'HTML', '<!doctype html>\n<html lang="fr">\n  <head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Titre de la page</title>\n  </head>\n  <body>\n    <h1>Contenu principal</h1>\n  </body>\n</html>'),
+      code('Squelette moderne commenté', 'HTML', '<!doctype html>\n<html lang="fr">\n  <head>\n    <!-- Encodage des caractères et affichage mobile. -->\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <!-- Le titre apparaît dans l’onglet du navigateur. -->\n    <title>Titre de la page</title>\n  </head>\n  <body>\n    <!-- Le contenu visible commence ici. -->\n    <h1>Contenu principal</h1>\n  </body>\n</html>'),
       decomposition('Décomposition', [
         { terme: '<!doctype html>', explication: 'indique que le document utilise le standard HTML actuel ; ce n’est pas une balise.' },
         { terme: '<html lang="fr">', explication: 'élément racine ; lang aide lecteurs d’écran et moteurs de recherche.' },

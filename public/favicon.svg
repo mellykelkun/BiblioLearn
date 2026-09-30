@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Bibliolearn">
+  <rect width="64" height="64" rx="14" fill="#087f75"/>
+  <path d="M18 17h18c7 0 11 4 11 10 0 4-2 7-5 9 4 2 6 5 6 9 0 7-5 11-13 11H18V17Zm9 8v10h8c3 0 5-2 5-5s-2-5-5-5h-8Zm0 18v10h9c3 0 5-2 5-5s-2-5-5-5h-9Z" fill="#fff"/>
+</svg>

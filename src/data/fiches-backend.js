@@ -43,7 +43,7 @@ module.exports = [
     resume: 'Accéder aux fichiers sans bloquer la boucle d’événements et gérer encodage et erreurs.',
     tags: ['fs', 'readFile', 'writeFile', 'filesystem', 'promise', 'utf8'],
     sections: [
-      code('Exemple', 'Node.js', 'const { readFile, writeFile } = require("node:fs/promises");\n\nasync function ajouterVisite() {\n  const texte = await readFile("./stats.json", "utf8");\n  const stats = JSON.parse(texte);\n  stats.visites += 1;\n  await writeFile("./stats.json", JSON.stringify(stats, null, 2));\n}\n\najouterVisite().catch(console.error);'),
+      code('Exemple commenté', 'Node.js', 'const { readFile, writeFile } = require("node:fs/promises");\n\nasync function ajouterVisite() {\n  // utf8 demande directement une chaîne plutôt qu’un Buffer.\n  const texte = await readFile("./stats.json", "utf8");\n  // Le fichier est du texte : on le transforme en objet JavaScript.\n  const stats = JSON.parse(texte);\n  stats.visites += 1;\n  // On réécrit un JSON lisible avec deux espaces d’indentation.\n  await writeFile("./stats.json", JSON.stringify(stats, null, 2));\n}\n\n// Une erreur de lecture ou d’écriture est traitée ici.\najouterVisite().catch(console.error);'),
       decomposition('Paramètres et retours', [
         { terme: 'readFile(chemin, "utf8")', explication: 'retourne une Promise de chaîne ; sans encodage, retourne un Buffer.' },
         { terme: 'writeFile(chemin, contenu)', explication: 'écrit en remplaçant le fichier existant et retourne une Promise sans valeur utile.' },
@@ -259,7 +259,7 @@ module.exports = [
     resume: 'Associer méthode et chemin, puis distinguer params, query et body.',
     tags: ['app.get', 'app.post', 'route', 'params', 'query', 'body'],
     sections: [
-      code('Exemples', 'Node.js', 'app.get("/api/livres/:id", (req, res) => {\n  const id = Number(req.params.id);\n  const details = req.query.details === "true";\n  res.json({ id, details });\n});\n\napp.post("/api/livres", (req, res) => {\n  res.status(201).json(req.body);\n});'),
+      code('Exemples commentés', 'Node.js', '// :id est un paramètre de chemin.\napp.get("/api/livres/:id", (req, res) => {\n  const id = Number(req.params.id);\n  // Les valeurs de query sont toujours des chaînes au départ.\n  const details = req.query.details === "true";\n  res.json({ id, details });\n});\n\napp.post("/api/livres", (req, res) => {\n  // express.json() doit être déclaré avant cette route.\n  res.status(201).json(req.body);\n});'),
       comparaison('Où lire la donnée ?', ['Source', 'Exemple URL/message', 'Express'], [
         ['Paramètre de chemin', '/livres/42', 'req.params.id'],
         ['Chaîne de requête', '/livres?tri=titre', 'req.query.tri'],

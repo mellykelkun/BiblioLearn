@@ -110,7 +110,7 @@ module.exports = [
         ['reduce()', 'Comment combiner en une valeur ?', 'Accumulateur final'],
         ['forEach()', 'Quelle action exécuter ?', 'undefined']
       ]),
-      code('Exemple concret', 'JavaScript', 'const produits = [\n  { nom: "Clavier", prix: 80, stock: true },\n  { nom: "Écran", prix: 240, stock: false },\n  { nom: "Souris", prix: 35, stock: true }\n];\n\nconst totalDisponible = produits\n  .filter((produit) => produit.stock)\n  .map((produit) => produit.prix)\n  .reduce((total, prix) => total + prix, 0);\n\nconsole.log(totalDisponible); // 115'),
+      code('Exemple concret commenté', 'JavaScript', 'const produits = [\n  { nom: "Clavier", prix: 80, stock: true },\n  { nom: "Écran", prix: 240, stock: false },\n  { nom: "Souris", prix: 35, stock: true }\n];\n\n// 1. On garde seulement les produits disponibles.\nconst disponibles = produits.filter((produit) => produit.stock);\n// 2. On extrait leur prix.\nconst prix = disponibles.map((produit) => produit.prix);\n// 3. On additionne le tableau obtenu, en partant de 0.\nconst totalDisponible = prix.reduce((total, montant) => total + montant, 0);\n\nconsole.log(totalDisponible); // 115'),
       decomposition('Callback de map()', [
         { terme: 'produit', explication: 'élément courant ; seul paramètre généralement nécessaire.' },
         { terme: 'index', explication: 'deuxième paramètre optionnel : position courante.' },
@@ -190,7 +190,7 @@ module.exports = [
     tags: ['promise', 'async', 'await', 'then', 'catch', 'asynchrone'],
     sections: [
       texte('Définition', 'Une Promise est un objet représentant une réussite ou un échec futur. Elle passe de pending à fulfilled avec une valeur, ou rejected avec une raison. Une fois réglée, son état ne change plus.'),
-      code('Deux écritures équivalentes', 'JavaScript', 'function chargerAvecThen() {\n  return fetch("/api/livres")\n    .then((reponse) => reponse.json())\n    .then((livres) => livres.length);\n}\n\nasync function chargerAvecAwait() {\n  const reponse = await fetch("/api/livres");\n  const livres = await reponse.json();\n  return livres.length;\n}'),
+      code('Deux écritures équivalentes commentées', 'JavaScript', 'function chargerAvecThen() {\n  // fetch retourne une Promise de Response.\n  return fetch("/api/livres")\n    // json() lit le corps puis retourne une nouvelle Promise.\n    .then((reponse) => reponse.json())\n    // Le résultat final est le nombre de livres.\n    .then((livres) => livres.length);\n}\n\nasync function chargerAvecAwait() {\n  // await rend la succession plus proche d’une lecture ligne par ligne.\n  const reponse = await fetch("/api/livres");\n  const livres = await reponse.json();\n  return livres.length;\n}'),
       decomposition('Ce qui se passe', [
         { terme: 'async', explication: 'garantit que la fonction retourne une Promise.' },
         { terme: 'await', explication: 'suspend cette fonction async jusqu’au règlement de la Promise, sans bloquer le thread.' },
@@ -254,7 +254,7 @@ module.exports = [
     tags: ['document', 'getElementById', 'querySelector', 'querySelectorAll', 'null'],
     sections: [
       texte('Définition', 'document représente le document HTML chargé. Les méthodes de sélection parcourent sa structure pour retourner un élément, une collection, ou indiquer qu’aucune correspondance n’existe.'),
-      code('Syntaxe', 'JavaScript', 'const titre = document.getElementById("entete");\nconst premiereCarte = document.querySelector(".carte");\nconst cartes = document.querySelectorAll(".carte");'),
+      code('Syntaxe commentée', 'JavaScript', '// document représente la page HTML chargée.\nconst titre = document.getElementById("entete");\n\n// querySelector utilise un sélecteur CSS et retourne le premier résultat.\nconst premiereCarte = document.querySelector(".carte");\n\n// querySelectorAll retourne tous les résultats dans une NodeList.\nconst cartes = document.querySelectorAll(".carte");'),
       decomposition('document.getElementById("entete")', [
         { terme: 'document', explication: 'objet racine représentant le document HTML courant.' },
         { terme: '.getElementById', explication: 'méthode spécialisée dans la recherche d’un id exact.' },
