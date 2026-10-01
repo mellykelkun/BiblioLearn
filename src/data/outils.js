@@ -40,8 +40,40 @@ const reperesDomaine = {
   'css-outils': 'Les classes utilitaires accélèrent l’itération, mais les tokens, les états de focus et la structure sémantique restent des décisions de conception.'
 };
 
+const axesExercices = {
+  html: { entree: 'un formulaire ou un contenu à structurer', sortie: 'un HTML sémantique navigable au clavier', limite: 'un champ vide ou une information absente', decision: 'choisir la balise selon le sens avant de penser au style' },
+  css: { entree: 'un composant placé dans plusieurs largeurs', sortie: 'une mise en page lisible et responsive', limite: 'un texte long ou un conteneur très étroit', decision: 'préférer une contrainte simple avant d’ajouter une exception' },
+  javascript: { entree: 'un tableau de données venant d’une action', sortie: 'une transformation testable et observable', limite: 'un tableau vide, une valeur nulle ou une action répétée', decision: 'séparer donnée, transformation et effet extérieur' },
+  dom: { entree: 'un événement provenant d’un contrôle', sortie: 'un DOM synchronisé avec l’état attendu', limite: 'un élément ajouté après le chargement', decision: 'choisir écoute directe ou délégation selon la durée de vie' },
+  node: { entree: 'un fichier, argument ou résultat réseau', sortie: 'une donnée traitée sans bloquer inutilement le processus', limite: 'un fichier absent ou beaucoup plus grand que prévu', decision: 'choisir API promise ou stream selon la mémoire disponible' },
+  npm: { entree: 'un package.json et un environnement neuf', sortie: 'une commande reproductible', limite: 'une version incompatible ou un lockfile absent', decision: 'versionner le contrat et vérifier la commande en CI' },
+  http: { entree: 'une requête avec méthode, headers et corps', sortie: 'une réponse avec statut, type et représentation clairs', limite: 'un JSON invalide, un timeout ou une ressource absente', decision: 'choisir le statut avant d’écrire le message' },
+  express: { entree: 'un req.body ou req.params non fiable', sortie: 'un DTO métier puis une réponse publique minimale', limite: 'une entrée interdite ou une erreur de service', decision: 'valider à la route et centraliser les erreurs' },
+  shell: { entree: 'un argument ou une variable d’environnement texte', sortie: 'stdout, stderr et code retour cohérents', limite: 'un chemin avec espaces ou une variable manquante', decision: 'quoter les chemins et échouer tôt' },
+  typescript: { entree: 'une valeur unknown reçue d’une frontière', sortie: 'un type sûr après narrowing', limite: 'un champ absent ou du mauvais type', decision: 'valider à l’exécution puis laisser le compilateur guider le code' },
+  react: { entree: 'des props et un état d’interface', sortie: 'un rendu prévisible avec une interaction claire', limite: 'un état vide, un effet tardif ou une liste modifiée', decision: 'garder une seule source de vérité' },
+  nextjs: { entree: 'une donnée lue côté serveur ou dans un composant client', sortie: 'une page avec cache et navigation adaptés', limite: 'une donnée périmée ou personnalisée', decision: 'choisir serveur, client, cache et revalidation séparément' },
+  vue: { entree: 'une ref, une prop ou une donnée reçue', sortie: 'un template réactif et une API de composant claire', limite: 'une prop modifiée ou une liste vide', decision: 'utiliser computed pour dériver et watch pour synchroniser' },
+  angular: { entree: 'un contrôle de formulaire ou un service', sortie: 'un état de composant testable', limite: 'un champ invalide ou une API indisponible', decision: 'séparer composant, service et validation' },
+  'css-outils': { entree: 'un composant et ses tokens visuels', sortie: 'une interface cohérente et maintenable', limite: 'un état focus ou un thème différent', decision: 'choisir utilitaires, tokens ou CSS natif selon la durée du produit' }
+};
+
+function creerMiniExerciceSpecifique({ titre, domaine, sections, profil }) {
+  const axe = axesExercices[domaine] || axesExercices.javascript;
+  const source = sections.find((section) => section.type === 'code');
+  const langage = source?.langage || profil.flux.langage;
+  const codeSource = source?.contenu || profil.flux.code;
+  return {
+    langage,
+    code: codeSource,
+    consigne: `Dans « ${titre} », partez de ${axe.entree}. Produisez ${axe.sortie}. Avant de coder, écrivez le type reçu et le type attendu ; après le premier résultat, vérifiez ${axe.limite}. La décision à justifier est la suivante : ${axe.decision}.`,
+    legende: `Leçon « ${titre} ». Entrée : ${axe.entree}. Sortie attendue : ${axe.sortie}. Cas limite : ${axe.limite}. Décision : ${axe.decision}.`
+  };
+}
+
 function fiche({ id, domaine, categorie, titre, resume, tags = [], niveau = 'Fondamental', sections, sessions, associes = [] }) {
   const profil = profilsDomaine[domaine] || profilsDomaine.javascript;
+  const exerciceSpecifique = creerMiniExerciceSpecifique({ titre, domaine, sections, profil });
   const sectionsEnrichies = [
     ...sections,
     texte('Explication approfondie', profil.explication),
@@ -51,7 +83,8 @@ function fiche({ id, domaine, categorie, titre, resume, tags = [], niveau = 'Fon
     texte('Savoir transmettre la donnée', profil.flux.transmettre),
     decomposition('Cycle de la donnée', profil.flux.cycle),
     comparaison('Formats, transport et sécurité', ['Scénario', 'Type de donnée', 'Transmission', 'Contrôle'], profil.flux.scenarios),
-    code('Mini-exercice : produire et transmettre', profil.flux.langage, profil.flux.code, profil.flux.legende),
+    texte('Consigne personnalisée', exerciceSpecifique.consigne),
+    code(`Mini-exercice spécifique : ${titre}`, exerciceSpecifique.langage, exerciceSpecifique.code, exerciceSpecifique.legende),
     liste('Questions avant de transmettre', [
       'Quelle donnée est réellement nécessaire, et quelle donnée peut être supprimée ?',
       'Qui produit la donnée, qui la reçoit et qui a le droit de la lire ou de la modifier ?',
