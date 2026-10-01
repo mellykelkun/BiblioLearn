@@ -7,12 +7,18 @@ function creerSessions(sections, titre, domaine) {
   const dernierIndex = Math.max(0, sections.length - 1);
   const premierCode = indicesCode.length ? indicesCode[0] : Math.min(1, dernierIndex);
   const profil = profilsDomaine[domaine] || profilsDomaine.javascript;
+  const sectionIndex = (titreSection, remplacement = dernierIndex) => {
+    const index = sections.findIndex((section) => section.titre === titreSection);
+    return index >= 0 ? index : remplacement;
+  };
+  const indexScenarios = sectionIndex('Formats, transport et sécurité', sectionIndex('Scénarios et décisions'));
+  const indexDonnee = sectionIndex('Mini-exercice : produire et transmettre', premierCode);
   return [
     { id: 'comprendre', titre: 'Comprendre l’idée', duree: '10 min', objectif: `Identifier l’idée centrale de « ${titre} » et la reformuler avec vos mots.`, concepts: profil.concepts.slice(0, 2), activite: 'Lire la définition, puis expliquer le problème que cette notion résout.', scenario: profil.scenarios[0][0], sections: [0] },
-    { id: 'vocabulaire', titre: 'Installer le vocabulaire', duree: '15 min', objectif: 'Relier les mots importants à une observation concrète dans le code ou l’interface.', concepts: profil.concepts, activite: 'Surligner les concepts et écrire un exemple très simple pour chacun.', scenario: profil.scenarios[1][0], sections: [Math.min(1, dernierIndex)] },
-    { id: 'construire', titre: 'Construire pas à pas', duree: '25 min', objectif: 'Modifier un exemple, provoquer un résultat visible et vérifier chaque hypothèse.', concepts: ['entrée', 'transformation', 'résultat'], activite: 'Copier le mini-exemple, changer une seule chose à la fois et noter ce qui change.', scenario: 'Cas nominal', sections: [premierCode] },
-    { id: 'decider', titre: 'Choisir selon le scénario', duree: '20 min', objectif: 'Comparer plusieurs solutions et justifier celle qui convient à votre infrastructure.', concepts: ['coût', 'complexité', 'évolutivité'], activite: 'Lire la grille de scénarios et écrire la décision que vous prendriez pour votre projet.', scenario: profil.scenarios[2][0], sections: [Math.max(0, sections.length - 3)] },
-    { id: 'verifier', titre: 'Vérifier et transférer', duree: '15 min', objectif: 'Relire les pièges, tester un cas limite et formuler une règle réutilisable.', concepts: ['cas limite', 'diagnostic', 'transfert'], activite: 'Répondre à la question de contrôle puis appliquer la notion à un autre petit exemple.', scenario: 'Entrée vide, lente ou invalide', sections: [dernierIndex] }
+    { id: 'vocabulaire', titre: 'Installer le vocabulaire', duree: '15 min', objectif: 'Relier les mots importants à une observation concrète dans le code ou l’interface.', concepts: ['source', 'type', 'contrat'], activite: 'Identifier la source, le type attendu et la forme transmise.', scenario: profil.flux.scenarios[0][0], sections: [Math.min(1, dernierIndex)] },
+    { id: 'construire', titre: 'Construire pas à pas', duree: '25 min', objectif: 'Demander, valider, transformer et transmettre une donnée sans perdre son sens.', concepts: ['demander', 'valider', 'transformer'], activite: 'Copier l’exemple, changer une entrée, observer la sortie et traiter l’erreur.', scenario: 'Cas nominal', sections: [indexDonnee] },
+    { id: 'decider', titre: 'Choisir selon le scénario', duree: '20 min', objectif: 'Comparer type, transport, stockage et niveau de sécurité selon votre infrastructure.', concepts: ['type', 'transport', 'sécurité'], activite: 'Lire la grille et écrire qui produit, qui reçoit et qui a le droit de lire.', scenario: profil.flux.scenarios[1][0], sections: [indexScenarios] },
+    { id: 'verifier', titre: 'Vérifier et transférer', duree: '15 min', objectif: 'Tester une donnée absente, invalide ou trop grande et formuler une règle réutilisable.', concepts: ['stockage', 'erreur', 'transfert'], activite: 'Répondre à la question de contrôle puis dessiner le trajet de la donnée dans un autre projet.', scenario: 'Entrée vide, lente ou invalide', sections: [dernierIndex] }
   ];
 }
 
@@ -41,8 +47,19 @@ function fiche({ id, domaine, categorie, titre, resume, tags = [], niveau = 'Fon
     texte('Explication approfondie', profil.explication),
     liste('Concepts à retenir', profil.concepts.map((concept) => `${concept} : cherchez où ce concept apparaît dans cette fiche avant de continuer.`)),
     comparaison('Scénarios et décisions', ['Scénario', 'Décision conseillée', 'Pourquoi'], profil.scenarios),
-    code('Mini-exercice guidé', profil.langage, profil.code, profil.legende),
-    texte('Exercice de transfert (20 min)', `Reprenez l’idée de « ${titre} » dans un petit dossier isolé. Testez un cas normal, une entrée vide ou invalide et une entrée plus grande que prévu. Notez l’observation, la décision prise et ce que vous changeriez si le projet passait en production.`),
+    code('Mini-exercice de logique', profil.langage, profil.code, profil.legende),
+    texte('Savoir transmettre la donnée', profil.flux.transmettre),
+    decomposition('Cycle de la donnée', profil.flux.cycle),
+    comparaison('Formats, transport et sécurité', ['Scénario', 'Type de donnée', 'Transmission', 'Contrôle'], profil.flux.scenarios),
+    code('Mini-exercice : produire et transmettre', profil.flux.langage, profil.flux.code, profil.flux.legende),
+    liste('Questions avant de transmettre', [
+      'Quelle donnée est réellement nécessaire, et quelle donnée peut être supprimée ?',
+      'Qui produit la donnée, qui la reçoit et qui a le droit de la lire ou de la modifier ?',
+      'Quel type, format, encodage et taille maximale le contrat impose-t-il ?',
+      'À quelle frontière faut-il valider, convertir, journaliser ou refuser ?',
+      'Comment signaler succès, absence, erreur, donnée périmée ou accès interdit ?'
+    ]),
+    texte('Exercice de transfert (25 min)', `Reprenez l’idée de « ${titre} » dans un petit dossier isolé. Dessinez le trajet de la donnée : source, type reçu, validation, transformation, transport, stockage éventuel, réponse et affichage. Testez un cas normal, une entrée vide ou invalide et une entrée plus grande que prévu. Notez l’observation, la décision prise et ce que vous changeriez si le projet passait en production.`),
     texte('Mise en situation', reperesDomaine[domaine] || 'Reliez cette notion à un petit cas d’usage concret avant de passer à la suivante.'),
     alerte('retenir', 'Question de contrôle', `Pouvez-vous expliquer ce qui change si l’entrée est vide, invalide ou beaucoup plus grande dans « ${titre} » ?`)
   ];

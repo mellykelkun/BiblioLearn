@@ -56,7 +56,7 @@ npm run check   # syntaxe JavaScript + intégrité du catalogue
 
 Le navigateur charge le catalogue depuis `GET /api/documentation`. La recherche est entièrement locale. Les fiches récemment ouvertes, maîtrisées ou marquées « À revoir » sont enregistrées dans `localStorage` et ne quittent jamais la machine.
 
-Chaque leçon expose désormais cinq sessions (« Comprendre », « Vocabulaire », « Construire », « Choisir selon le scénario », « Vérifier et transférer ») qui pointent vers les sections de la fiche. Les fiches reçoivent aussi une explication approfondie, une grille de décisions, un mini-exercice de code, un exercice de transfert, une mise en situation et une question de contrôle. Le catalogue contient 113 fiches, 237 exemples et 129 ateliers. Chaque atelier dure 15 minutes de plus et se termine par un débrief lié à l’infrastructure visée.
+Chaque leçon expose désormais cinq sessions (« Comprendre », « Vocabulaire », « Construire », « Choisir selon le scénario », « Vérifier et transférer ») qui pointent vers les sections de la fiche. Les fiches reçoivent aussi une explication approfondie, un cycle de donnée (demander, valider, transformer, transmettre, stocker, observer), une grille de décisions, deux mini-exercices de code, un exercice de transfert, une mise en situation et une question de contrôle. Le catalogue contient 113 fiches, 350 exemples et 129 ateliers. Chaque atelier dure 15 minutes de plus et se termine par un débrief sur le type de donnée, la validation, le transport, la sécurité et l’infrastructure visée.
 
 ## Migration Supabase optionnelle
 

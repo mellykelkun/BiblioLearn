@@ -8,9 +8,9 @@ function ajouterDuree(duree, supplement = 15) {
 function enrichirEtapes(etapes) {
   return [...etapes, {
     titre: 'Débrief et transfert',
-    explication: 'Après la validation, écrivez la décision prise, le cas dans lequel elle serait mauvaise et la variante à tester dans votre propre infrastructure. Cette étape transforme une recette en savoir réutilisable.',
+    explication: 'Après la validation, suivez la donnée de bout en bout : qui la produit, quel type elle a, où elle est validée, comment elle est transformée, où elle est transmise ou stockée et quel message apparaît en cas d’échec. Écrivez ensuite la décision prise, le cas dans lequel elle serait mauvaise et la variante à tester dans votre propre infrastructure.',
     langage: 'Markdown',
-    code: '# Décision retenue\n- Infrastructure : local / navigateur / serveur / CI\n- Cas limite testé :\n- Variante à essayer ensuite :'
+    code: '# Contrat de donnée\n- Entrée et type :\n- Validation :\n- Transformation :\n- Sortie et transport :\n- Donnée sensible à exclure :\n- Infrastructure : local / navigateur / serveur / CI\n- Variante à essayer ensuite :'
   }];
 }
 

@@ -127,5 +127,93 @@ const profilsDomaine = {
   )
 };
 
-module.exports = profilsDomaine;
+const fluxParFamille = {
+  interface: {
+    transmettre: 'Dans une interface, la donnée passe souvent de l’utilisateur vers l’état, puis de l’état vers le rendu. Ne transmettez que ce qui est nécessaire : un composant enfant reçoit des props lisibles, une API reçoit un DTO validé et le navigateur ne reçoit jamais un secret.',
+    cycle: [
+      { terme: 'Demander', explication: 'Définir le besoin visible : texte, nombre, choix, fichier ou action. Un champ doit avoir un nom et une règle compréhensibles.' },
+      { terme: 'Valider', explication: 'Vérifier présence, type, taille et format avant de modifier l’état. La validation du navigateur améliore le confort, mais le serveur doit la refaire.' },
+      { terme: 'Transformer', explication: 'Convertir seulement quand le contrat le demande : trim pour un texte, Number pour un nombre explicite, FormData pour un fichier.' },
+      { terme: 'Transmettre', explication: 'Envoyer un objet stable, avec Content-Type adapté et sans données privées inutiles. Une réponse doit avoir un état de chargement et un état d’erreur.' },
+      { terme: 'Stocker', explication: 'Garder l’état local dans le composant si possible. localStorage ne convient pas aux secrets et une donnée serveur doit avoir une source de vérité.' },
+      { terme: 'Observer', explication: 'Afficher un résultat, un message d’erreur et un état vide. Sans observation, on ne sait pas si la donnée a été reçue ou simplement ignorée.' }
+    ],
+    scenarios: [
+      ['État local d’un formulaire', 'string / number / boolean validés', 'État React/Vue/Angular ou DOM', 'Ne pas stocker de secret dans le navigateur.'],
+      ['Réponse d’API', 'DTO JSON validé à la frontière', 'fetch avec timeout et états UI', 'Ne jamais faire confiance au type annoncé par le serveur.'],
+      ['Fichier envoyé', 'File puis FormData', 'multipart/form-data', 'Limiter taille, MIME et nom ; contrôler côté serveur.']
+    ],
+    code: 'async function envoyerFormulaire(formulaire) {\n  const donnees = {\n    nom: formulaire.nom.trim(),\n    age: Number(formulaire.age)\n  };\n  if (!donnees.nom || !Number.isInteger(donnees.age)) {\n    throw new Error("Donnée invalide");\n  }\n  const reponse = await fetch("/api/profil", {\n    method: "POST",\n    headers: { "Content-Type": "application/json" },\n    body: JSON.stringify(donnees)\n  });\n  if (!reponse.ok) throw new Error("Transmission refusée");\n  return reponse.json();\n}',
+    langage: 'JavaScript',
+    legende: 'Mini-exercice : dessinez l’entrée, la donnée validée, le transport et la réponse avant d’ajouter l’affichage.'
+  },
+  serveur: {
+    transmettre: 'Sur le serveur, toute donnée reçue est inconnue jusqu’à validation. Séparez le transport HTTP, la validation, la logique métier et la persistance : cela évite de mettre directement req.body en base ou de renvoyer une erreur interne au client.',
+    cycle: [
+      { terme: 'Demander', explication: 'Décrire un contrat d’entrée : champs obligatoires, types, tailles, autorisation et format de réponse attendu.' },
+      { terme: 'Valider', explication: 'Parser JSON et contrôler les champs avec une règle côté serveur. Refuser tôt avec 400 si le client peut corriger.' },
+      { terme: 'Transformer', explication: 'Convertir le DTO HTTP en modèle métier : normaliser un email, calculer une valeur et retirer les champs interdits.' },
+      { terme: 'Transmettre', explication: 'Répondre avec le bon statut, Content-Type et une forme stable. Ne pas exposer stack, SQL, token ou chemin interne.' },
+      { terme: 'Stocker', explication: 'Utiliser des requêtes paramétrées, des contraintes de base et une transaction lorsque plusieurs écritures doivent réussir ensemble.' },
+      { terme: 'Observer', explication: 'Journaliser un identifiant de requête, la durée et la classe d’erreur sans journaliser les mots de passe ou tokens.' }
+    ],
+    scenarios: [
+      ['Entrée JSON publique', 'unknown puis schéma validé', 'HTTP JSON avec 400/422 en cas d’erreur', 'Limiter taille et débit, puis journaliser sans contenu sensible.'],
+      ['Donnée authentifiée', 'DTO validé + utilisateur issu de la session', 'HTTP avec contrôle d’autorisation', 'L’identité ne doit pas venir d’un champ modifiable du corps.'],
+      ['Écriture multi-table', 'Modèle métier et transaction', '201 seulement après commit', 'Éviter les états partiellement écrits et prévoir l’idempotence.']
+    ],
+    code: 'app.post("/api/livres", async (req, res, next) => {\n  try {\n    const entree = validerLivre(req.body);\n    const livre = await livresService.creer(entree, req.user.id);\n    return res.status(201).json({ id: livre.id, titre: livre.titre });\n  } catch (erreur) {\n    return next(erreur);\n  }\n});',
+    langage: 'Node.js / Express',
+    legende: 'Mini-exercice : séparez la donnée HTTP, le modèle métier et la réponse publique ; écrivez ce qui doit rester secret.'
+  },
+  contrat: {
+    transmettre: 'Une API réussie n’est pas seulement une fonction qui retourne une valeur : c’est un contrat de transport. Le client doit connaître la méthode, l’URL, le statut, le type de contenu, les champs et la signification d’une erreur.',
+    cycle: [
+      { terme: 'Demander', explication: 'Définir la ressource, la méthode, les paramètres et les droits nécessaires avant d’écrire le endpoint.' },
+      { terme: 'Valider', explication: 'Vérifier méthode, Content-Type, authentification, paramètres et corps. Une requête incorrecte doit être refusée de façon prévisible.' },
+      { terme: 'Transformer', explication: 'Mapper le format externe vers un modèle interne et inversement. Ne pas exposer toute la ligne de base de données.' },
+      { terme: 'Transmettre', explication: 'Choisir 200, 201, 204, 400, 401, 403, 404 ou 500 selon le sens. Le corps d’erreur doit aider sans révéler l’interne.' },
+      { terme: 'Stocker', explication: 'Le cache, ETag et CDN ne sont sûrs que si la réponse est publique et versionnée. Une réponse personnalisée demande une stratégie différente.' },
+      { terme: 'Observer', explication: 'Tester le contrat avec curl ou un test automatisé : succès, absence, entrée invalide, droit refusé et erreur serveur.' }
+    ],
+    scenarios: [
+      ['API publique', 'JSON documenté et versionné', 'HTTPS avec cache contrôlé', 'Rate limit, pagination et données minimales.'],
+      ['API interne', 'DTO partagé et tests de contrat', 'Réseau privé ou authentifié', 'Les versions doivent évoluer sans casser les consommateurs.'],
+      ['Webhook', 'Payload signé et idempotent', 'POST avec accusé rapide', 'Vérifier signature, rejouer sans double effet et traiter en arrière-plan.']
+    ],
+    code: 'GET /api/livres/42 HTTP/1.1\nAccept: application/json\nAuthorization: Bearer <jeton>\n\nHTTP/1.1 200 OK\nContent-Type: application/json\nCache-Control: private, no-store\n\n{"id":42,"titre":"Comprendre les contrats"}',
+    langage: 'HTTP',
+    legende: 'Mini-exercice : documentez la requête et quatre réponses possibles, puis vérifiez-les avec curl.'
+  },
+  outils: {
+    transmettre: 'Dans les outils et la CI, les données arrivent souvent sous forme de chaînes : arguments, variables d’environnement, fichiers et sorties de commandes. Parsez-les au bord du système, échouez tôt et ne mettez jamais un secret dans une sortie ou un commit.',
+    cycle: [
+      { terme: 'Demander', explication: 'Définir arguments, variables obligatoires, fichiers attendus et code retour avant de lancer le script.' },
+      { terme: 'Valider', explication: 'Vérifier que le chemin existe, que le nombre est réellement un nombre et que les variables sensibles ne sont pas vides.' },
+      { terme: 'Transformer', explication: 'Parser une chaîne vers le type utile, normaliser un chemin avec l’outil adapté et convertir un JSON seulement après contrôle.' },
+      { terme: 'Transmettre', explication: 'Utiliser stdout pour le résultat, stderr pour le diagnostic et un code retour non nul pour l’échec.' },
+      { terme: 'Stocker', explication: 'Conserver les secrets dans le gestionnaire de secrets de la CI, jamais dans .env commité, un log ou une commande copiée.' },
+      { terme: 'Observer', explication: 'Afficher le contexte non sensible, la durée et l’étape en échec pour rendre le script dépannable.' }
+    ],
+    scenarios: [
+      ['Commande locale', 'Arguments texte vérifiés', 'stdout, stderr et exit code', 'Éviter les chemins implicites et les variables non quotées.'],
+      ['CI/CD', 'Variables injectées et types parsés', 'Logs masqués et artefact contrôlé', 'Utiliser secrets de plateforme et permissions minimales.'],
+      ['Configuration serveur', 'JSON ou env validé au démarrage', 'Processus qui échoue tôt', 'Ne pas démarrer avec une configuration partiellement valide.']
+    ],
+    code: '#!/usr/bin/env bash\nset -euo pipefail\n\nif [[ -z "${API_URL:-}" ]]; then\n  printf "API_URL est obligatoire\\n" >&2\n  exit 2\nfi\nprintf "Configuration vérifiée\\n"',
+    langage: 'Bash',
+    legende: 'Mini-exercice : distinguez une erreur de configuration, une erreur réseau et un résultat vide avec des codes différents.'
+  }
+};
 
+const familleParDomaine = {
+  html: 'interface', css: 'interface', dom: 'interface', react: 'interface', vue: 'interface', angular: 'interface', 'css-outils': 'interface',
+  javascript: 'interface', typescript: 'interface', nextjs: 'contrat',
+  node: 'serveur', express: 'serveur', http: 'contrat', npm: 'outils', shell: 'outils'
+};
+
+for (const [domaine, profilDomaine] of Object.entries(profilsDomaine)) {
+  profilDomaine.flux = fluxParFamille[familleParDomaine[domaine] || 'interface'];
+}
+
+module.exports = profilsDomaine;
