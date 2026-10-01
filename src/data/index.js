@@ -10,6 +10,7 @@ const complementaires = require('./fiches-complementaires');
 const ecosystemes = require('./fiches-ecosystemes');
 const ateliers = require('./ateliers');
 const ateliersPlus = require('./ateliers-plus');
+const bibliotheque = require('./bibliotheque');
 
 const domaines = [
   { id: 'html', nom: 'HTML', groupe: 'Fondations', icone: '<>', description: 'Structure, sémantique et accessibilité' },
@@ -45,6 +46,20 @@ function validerCatalogue() {
     ids.add(element.id);
   }
 
+  const bibliothequeIds = new Set();
+  for (const entree of bibliotheque) {
+    if (!entree.id || !entree.terme || !entree.definition || !entree.exemples?.length || !entree.exercice?.etapes?.length) {
+      throw new Error(`Entrée de bibliothèque incomplète : ${entree.id || entree.terme || 'sans identifiant'}`);
+    }
+    if (bibliothequeIds.has(entree.id)) throw new Error(`Identifiant de bibliothèque dupliqué : ${entree.id}`);
+    bibliothequeIds.add(entree.id);
+    for (const lien of entree.associes) {
+      if (!bibliothequeIds.has(lien) && !bibliotheque.some((element) => element.id === lien)) {
+        throw new Error(`Association inconnue dans la bibliothèque ${entree.id} : ${lien}`);
+      }
+    }
+  }
+
   const fichesConnues = new Set(fiches.map((fiche) => fiche.id));
   for (const element of tousLesAteliers) {
     if (!element.id || !element.titre || !element.objectif || !element.etapes?.length) {
@@ -69,7 +84,8 @@ const statistiques = {
   nombreFiches: fiches.length,
   nombreDomaines: domaines.length,
   nombreAteliers: tousLesAteliers.length,
-  nombreExemples: fiches.reduce((total, element) => total + element.sections.filter((section) => section.type === 'code').length, 0)
+  nombreExemples: fiches.reduce((total, element) => total + element.sections.filter((section) => section.type === 'code').length, 0),
+  nombreBibliotheque: bibliotheque.length
 };
 
 module.exports = {
@@ -77,5 +93,6 @@ module.exports = {
   domaines,
   fiches,
   ateliers: tousLesAteliers,
+  bibliotheque,
   statistiques
 };

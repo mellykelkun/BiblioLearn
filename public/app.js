@@ -24,6 +24,8 @@ const etat = {
   documentation: null,
   domaineActif: null,
   ficheActive: null,
+  bibliothequeRecherche: '',
+  bibliothequeCategorie: 'Toutes',
   resultatActif: 0,
   stockage: chargerStockage()
 };
@@ -138,7 +140,7 @@ function actualiserNavigation() {
   construireNavigation();
   document.querySelectorAll('.nav-primary').forEach((bouton) => {
     const route = bouton.dataset.route;
-    const actif = (!etat.domaineActif && !etat.ficheActive && (route === routeCourante() || (route === 'ateliers' && routeCourante() === 'atelier'))) ||
+    const actif = (!etat.domaineActif && !etat.ficheActive && (route === routeCourante() || (route === 'ateliers' && routeCourante() === 'atelier') || (route === 'bibliotheque' && routeCourante() === 'terme'))) ||
       (route === 'parcours' && routeCourante() === 'revoir');
     bouton.classList.toggle('is-active', actif);
   });
@@ -146,7 +148,7 @@ function actualiserNavigation() {
 
 function actualiserCompteurs() {
   if (!etat.documentation) return;
-  elements.compteurSidebar.textContent = `${etat.documentation.statistiques.nombreFiches} fiches`;
+  elements.compteurSidebar.textContent = `${etat.documentation.statistiques.nombreFiches} fiches · ${etat.documentation.statistiques.nombreBibliotheque || 0} références`;
   elements.compteurRevoir.textContent = etat.stockage.revoir.length;
 }
 
@@ -160,10 +162,14 @@ function router() {
 
   if (route === 'fiche' && parametre) {
     afficherFiche(parametre);
+  } else if (route === 'terme' && parametre) {
+    afficherTermeBibliotheque(parametre);
   } else if (route === 'atelier' && parametre) {
     afficherAtelier(parametre);
   } else if (route === 'domaine' && parametre) {
     afficherDomaine(parametre);
+  } else if (route === 'bibliotheque') {
+    afficherBibliotheque();
   } else if (route === 'ateliers') {
     afficherAteliers();
   } else if (route === 'parcours') {
@@ -212,6 +218,7 @@ function afficherAccueil() {
       <div class="stats-row">
         <span><strong>${etat.documentation.statistiques.nombreFiches}</strong> fiches structurées</span>
         <span><strong>${etat.documentation.statistiques.nombreExemples}</strong> exemples de code</span>
+        <span><strong>${etat.documentation.statistiques.nombreBibliotheque || 0}</strong> références techniques</span>
         <span><strong>${etat.documentation.statistiques.nombreDomaines}</strong> domaines</span>
         <span>aucune donnée envoyée</span>
       </div>
@@ -225,6 +232,11 @@ function afficherAccueil() {
       <div class="domain-grid">
         ${etat.documentation.domaines.map(creerCarteDomaine).join('')}
       </div>
+    </section>
+
+    <section class="dashboard-section library-promo">
+      <div class="library-promo__copy"><div class="eyebrow">Nouvelle référence interne</div><h2>Comprendre les outils derrière le code</h2><p>${etat.documentation.statistiques.nombreBibliotheque || 0} entrées expliquent les packages, services, formats, données, structures, risques et décisions d’architecture avec un mini-atelier propre à chaque notion.</p></div>
+      <button class="primary-button" type="button" data-route="bibliotheque">Ouvrir la référence technique <span aria-hidden="true">→</span></button>
     </section>
 
     <section class="dashboard-section">
@@ -308,6 +320,86 @@ function afficherDomaine(idDomaine) {
         </header>
         ${elementsCategorie.map(creerLigneFiche).join('')}
       </section>`).join('')}`;
+}
+
+function afficherBibliotheque() {
+  const entrees = etat.documentation.bibliotheque || [];
+  const categories = [...new Set(entrees.map((entree) => entree.categorie))];
+  definirFilAriane([{ label: 'Bibliothèque', route: 'accueil' }, { label: 'Référence technique' }]);
+  elements.contenu.innerHTML = `
+    <header class="listing-header library-header">
+      <div class="eyebrow">Référence interne · code · données · infrastructure</div>
+      <h1 class="page-title">Bibliothèque technique</h1>
+      <p class="page-intro">Une entrée ne donne pas seulement une définition. Elle explique la fonction, le bon moment pour l’utiliser, les situations où l’éviter, les avertissements, la structure de code, le type de données manipulé et la manière de transmettre le résultat à la couche suivante.</p>
+      <div class="domain-header__meta"><span class="meta-pill">${entrees.length} références</span><span class="meta-pill">${categories.length} familles</span><span class="meta-pill">code + décisions + pratique</span></div>
+    </header>
+    <section class="library-controls" aria-label="Filtrer la bibliothèque technique">
+      <label class="library-search"><span aria-hidden="true">⌕</span><input id="filtre-bibliotheque" type="search" value="${echapperAttribut(etat.bibliothequeRecherche)}" placeholder="Rechercher React, RLS, cache, package…" aria-label="Rechercher dans la bibliothèque technique"></label>
+      <div class="library-filters" role="group" aria-label="Filtrer par famille">
+        <button class="filter-chip ${etat.bibliothequeCategorie === 'Toutes' ? 'is-active' : ''}" type="button" data-library-category="Toutes">Toutes</button>
+        ${categories.map((categorie) => `<button class="filter-chip ${etat.bibliothequeCategorie === categorie ? 'is-active' : ''}" type="button" data-library-category="${echapperAttribut(categorie)}">${echapperHTML(categorie)}</button>`).join('')}
+      </div>
+    </section>
+    <div class="library-grid" id="liste-bibliotheque"></div>`;
+  actualiserCartesBibliotheque();
+}
+
+function actualiserCartesBibliotheque() {
+  const conteneur = document.querySelector('#liste-bibliotheque');
+  if (!conteneur || !etat.documentation) return;
+  const recherche = normaliser(etat.bibliothequeRecherche).trim();
+  const entrees = (etat.documentation.bibliotheque || []).filter((entree) => {
+    const bonneCategorie = etat.bibliothequeCategorie === 'Toutes' || entree.categorie === etat.bibliothequeCategorie;
+    const texte = normaliser([entree.terme, ...(entree.aliases || []), entree.resume, entree.definition].join(' '));
+    return bonneCategorie && (!recherche || recherche.split(/\s+/).every((mot) => texte.includes(mot)));
+  });
+  conteneur.innerHTML = entrees.length ? entrees.map(creerCarteBibliotheque).join('') : '<div class="empty-page library-empty"><span>⌕</span><h2>Aucune référence trouvée</h2><p>Essayez un nom d’outil, un format de donnée ou une famille différente.</p></div>';
+}
+
+function creerCarteBibliotheque(entree) {
+  return `<button class="library-card" type="button" data-terme="${echapperAttribut(entree.id)}">
+    <span class="library-card__top"><span class="article-badge">${echapperHTML(entree.famille)}</span><span class="library-card__level">${echapperHTML(entree.niveau)}</span></span>
+    <h2>${echapperHTML(entree.terme)}</h2>
+    <p>${echapperHTML(entree.resume)}</p>
+    <span class="library-card__foot"><span>${entree.exemples.length} exemple · ${entree.exercice.duree}</span><strong>Lire la fiche →</strong></span>
+  </button>`;
+}
+
+function afficherTermeBibliotheque(id) {
+  const entree = obtenirEntreeBibliotheque(id);
+  if (!entree) return afficherIntrouvable('Référence technique introuvable');
+  const associes = entree.associes.map(obtenirEntreeBibliotheque).filter(Boolean);
+  definirFilAriane([{ label: 'Bibliothèque', route: 'accueil' }, { label: 'Référence technique', route: 'bibliotheque' }, { label: entree.terme }]);
+  elements.contenu.innerHTML = `
+    <header class="article-header library-article-header">
+      <div class="article-header__meta"><span class="article-badge">${echapperHTML(entree.categorie)}</span><span class="article-badge">${echapperHTML(entree.famille)}</span><span class="article-badge">${echapperHTML(entree.niveau)}</span></div>
+      <h1>${echapperHTML(entree.terme)}</h1>
+      <p class="article-header__summary">${echapperHTML(entree.resume)}</p>
+      <div class="library-aliases"><span>On peut aussi dire :</span>${entree.aliases.map((alias) => `<span class="tool-chip">${echapperHTML(alias)}</span>`).join('')}</div>
+    </header>
+    <div class="article-layout library-layout">
+      <article class="article-body">
+        <div class="callout callout--retenir"><span class="callout__label">Idée simple</span><p>${echapperHTML(entree.definition)}</p></div>
+        ${creerSectionBibliotheque('Rôles et responsabilités', entree.roles, 'library-section--roles')}
+        ${creerSectionBibliotheque('Pourquoi l’utiliser', entree.pourquoiUtiliser, 'library-section--why')}
+        ${creerSectionBibliotheque('Quand éviter ou limiter son usage', entree.nePasUtiliser, 'library-section--avoid')}
+        ${creerSectionBibliotheque('Avertissements à retenir', entree.avertissements, 'library-section--warning')}
+        <section class="library-section" id="library-scenarios"><h2>Scénarios et décisions</h2><p class="section-intro">Le meilleur choix dépend du niveau de risque, de la durée de vie de la donnée, du trafic et de l’équipe qui devra maintenir le code.</p><div class="table-wrap"><table class="comparison-table library-scenario-table"><thead><tr><th>Situation</th><th>Décision</th><th>Pourquoi</th></tr></thead><tbody>${entree.scenarios.map((scenario) => `<tr><td><strong>${echapperHTML(scenario.cas)}</strong><br><small>${echapperHTML(scenario.application)}</small></td><td>${echapperHTML(scenario.decision)}</td><td>${echapperHTML(scenario.pourquoi)}</td></tr>`).join('')}</tbody></table></div></section>
+        <section class="library-section" id="library-data"><h2>Données et cycle de transmission</h2><div class="data-type-grid">${entree.typesDonnees.map((type) => `<span class="data-type-chip">${echapperHTML(type)}</span>`).join('')}</div><div class="callout callout--bonne-pratique"><span class="callout__label">Chemin conseillé</span><p>${echapperHTML(entree.cycleDonnees)}</p></div></section>
+        <section class="library-section" id="library-structure"><h2>Place dans la structure du code</h2>${entree.structure.map((texte) => `<p>${echapperHTML(texte)}</p>`).join('')}</section>
+        <section class="library-section" id="library-code"><h2>Exemple de code expliqué</h2>${entree.exemples.map(creerExempleBibliotheque).join('')}</section>
+        <section class="library-section library-exercise" id="library-exercise"><div class="library-exercise__head"><div><span class="eyebrow">Mini-atelier spécifique</span><h2>${echapperHTML(entree.exercice.objectif)}</h2></div><span class="meta-pill">${echapperHTML(entree.exercice.duree)}</span></div><p>${echapperHTML(entree.exercice.contexte)}</p><ol class="step-list">${entree.exercice.etapes.map((etape, index) => `<li class="step-item"><span class="step-item__number">${index + 1}</span><span class="step-item__body"><strong>${echapperHTML(etape)}</strong></span></li>`).join('')}</ol><h3>Validation</h3><ul class="checklist">${entree.exercice.validation.map((item) => `<li>${echapperHTML(item)}</li>`).join('')}</ul></section>
+      </article>
+      <aside class="article-aside library-aside"><section class="aside-block"><h3>Dans cette référence</h3><button class="toc-link" type="button" data-scroll="library-scenarios">Scénarios et décisions</button><button class="toc-link" type="button" data-scroll="library-data">Données et transmission</button><button class="toc-link" type="button" data-scroll="library-structure">Structure du code</button><button class="toc-link" type="button" data-scroll="library-code">Exemple de code</button><button class="toc-link" type="button" data-scroll="library-exercise">Mini-atelier</button></section>${associes.length ? `<section class="aside-block"><h3>Entrées associées</h3>${associes.map((associe) => `<button class="related-link" type="button" data-terme="${echapperAttribut(associe.id)}">${echapperHTML(associe.terme)}</button>`).join('')}</section>` : ''}<section class="aside-block"><h3>Documentation externe</h3>${entree.liens.map((lien) => `<a class="official-link" href="${echapperAttribut(lien.url)}" target="_blank" rel="noreferrer"><span>${echapperHTML(lien.label)}</span><span aria-hidden="true">↗</span></a>`).join('')}</section></aside>
+    </div>`;
+}
+
+function creerSectionBibliotheque(titre, elementsSection, classe) {
+  return `<section class="library-section ${classe}"><h2>${echapperHTML(titre)}</h2><ul class="doc-list">${elementsSection.map((element) => `<li>${echapperHTML(element)}</li>`).join('')}</ul></section>`;
+}
+
+function creerExempleBibliotheque(exemple) {
+  return `<div class="library-example"><div class="code-shell"><div class="code-shell__head"><span class="code-shell__language">${echapperHTML(exemple.langage)}</span><button class="copy-button" type="button" data-copy aria-label="Copier l’exemple de ${echapperAttribut(exemple.titre)}">Copier</button></div><pre><code>${echapperHTML(exemple.contenu)}</code></pre></div><p class="code-caption">${echapperHTML(exemple.explication)}</p></div>`;
 }
 
 function creerLigneFiche(fiche) {
@@ -562,8 +654,9 @@ function fermerRecherche() {
 function afficherSuggestionsRecherche() {
   const suggestions = ['js-map-filter-reduce', 'dom-selection', 'js-promises', 'node-fs', 'express-middleware', 'css-flexbox']
     .map(obtenirFiche).filter(Boolean);
-  elements.metaRecherche.textContent = 'Suggestions · la recherche couvre titres, résumés, catégories, tags et contenu';
-  afficherResultatsRecherche(suggestions);
+  const references = ['react', 'rls', 'cache', 'package-json'].map(obtenirEntreeBibliotheque).filter(Boolean);
+  elements.metaRecherche.textContent = 'Suggestions · fiches, ateliers et référence technique';
+  afficherResultatsRecherche([...suggestions, ...references.map((entree) => ({ ...entree, resultatType: 'terme' }))]);
 }
 
 function rechercherNotion(terme) {
@@ -572,12 +665,13 @@ function rechercherNotion(terme) {
   const mots = recherche.split(/\s+/).filter(Boolean);
   const catalogue = [
     ...etat.documentation.fiches.map((fiche) => ({ element: fiche, type: 'fiche' })),
-    ...etat.documentation.ateliers.map((atelier) => ({ element: atelier, type: 'atelier' }))
+    ...etat.documentation.ateliers.map((atelier) => ({ element: atelier, type: 'atelier' })),
+    ...(etat.documentation.bibliotheque || []).map((entree) => ({ element: entree, type: 'terme' }))
   ];
   const resultats = catalogue
     .map(({ element, type }) => ({ element, type, score: calculerScore(element, recherche, mots, type) }))
     .filter((resultat) => resultat.score > 0)
-    .sort((a, b) => b.score - a.score || a.element.titre.localeCompare(b.element.titre, 'fr'))
+    .sort((a, b) => b.score - a.score || (a.element.terme || a.element.titre).localeCompare(b.element.terme || b.element.titre, 'fr'))
     .slice(0, 18)
     .map((resultat) => ({ ...resultat.element, resultatType: resultat.type }));
 
@@ -587,18 +681,20 @@ function rechercherNotion(terme) {
 }
 
 function calculerScore(fiche, recherche, mots, type = 'fiche') {
-  const titre = normaliser(fiche.titre);
-  const tags = normaliser((fiche.tags || fiche.outils || []).join(' '));
-  const categorie = normaliser(fiche.categorie || '');
-  const domaine = normaliser(obtenirDomaine(fiche.domaine)?.nom || fiche.domaine);
-  const sections = normaliser((fiche.sections || fiche.etapes || []).map((section) => {
+  const titre = normaliser(type === 'terme' ? fiche.terme : fiche.titre);
+  const tags = normaliser((type === 'terme' ? fiche.aliases : (fiche.tags || fiche.outils || [])).join(' '));
+  const categorie = normaliser(type === 'terme' ? fiche.categorie : (fiche.categorie || ''));
+  const domaine = normaliser(type === 'terme' ? fiche.famille : (obtenirDomaine(fiche.domaine)?.nom || fiche.domaine));
+  const sections = type === 'terme'
+    ? normaliser([fiche.definition, ...(fiche.roles || []), ...(fiche.pourquoiUtiliser || []), ...(fiche.typesDonnees || [])].join(' '))
+    : normaliser((fiche.sections || fiche.etapes || []).map((section) => {
     if (typeof section.contenu === 'string') return section.contenu;
     if (typeof section.code === 'string') return `${section.code} ${section.explication || ''}`;
     if (Array.isArray(section.contenu)) return section.contenu.join(' ');
     if (section.elements) return section.elements.map((element) => `${element.terme || ''} ${element.explication || ''} ${element.label || ''}`).join(' ');
     return '';
   }).join(' '));
-  const ensemble = `${titre} ${tags} ${categorie} ${domaine} ${normaliser(fiche.resume)} ${sections}`;
+  const ensemble = `${titre} ${tags} ${categorie} ${domaine} ${normaliser(fiche.resume || '')} ${sections}`;
 
   if (!mots.every((mot) => ensemble.includes(mot))) return 0;
   let score = 1;
@@ -609,6 +705,7 @@ function calculerScore(fiche, recherche, mots, type = 'fiche') {
   if (categorie.includes(recherche) || domaine.includes(recherche)) score += 16;
   score += mots.reduce((total, mot) => total + (titre.includes(mot) ? 12 : 0) + (tags.includes(mot) ? 7 : 0), 0);
   if (type === 'atelier') score += 4;
+  if (type === 'terme') score += 8;
   return score;
 }
 
@@ -620,10 +717,13 @@ function afficherResultatsRecherche(resultats) {
   elements.resultatsRecherche.innerHTML = resultats.map((fiche, index) => {
     const domaine = obtenirDomaine(fiche.domaine);
     const estAtelier = fiche.resultatType === 'atelier';
-    return `<button class="search-result ${index === etat.resultatActif ? 'is-selected' : ''}" type="button" ${estAtelier ? `data-atelier="${fiche.id}"` : `data-fiche="${fiche.id}"`}>
-      <span class="search-result__icon">${echapperHTML(domaine?.icone || '•')}</span>
-      <span><strong>${echapperHTML(fiche.titre)}</strong><small>${echapperHTML(fiche.resume || fiche.objectif)}</small></span>
-      <span class="search-result__category">${estAtelier ? 'Atelier' : echapperHTML(domaine?.nom || fiche.domaine)}</span>
+    const estTerme = fiche.resultatType === 'terme';
+    const titre = estTerme ? fiche.terme : fiche.titre;
+    const destination = estAtelier ? `data-atelier="${fiche.id}"` : estTerme ? `data-terme="${fiche.id}"` : `data-fiche="${fiche.id}"`;
+    return `<button class="search-result ${index === etat.resultatActif ? 'is-selected' : ''}" type="button" ${destination}>
+      <span class="search-result__icon">${echapperHTML(estTerme ? 'REF' : (domaine?.icone || '•'))}</span>
+      <span><strong>${echapperHTML(titre)}</strong><small>${echapperHTML(fiche.resume || fiche.objectif || fiche.definition)}</small></span>
+      <span class="search-result__category">${estAtelier ? 'Atelier' : estTerme ? echapperHTML(fiche.categorie) : echapperHTML(domaine?.nom || fiche.domaine)}</span>
     </button>`;
   }).join('');
 }
@@ -725,6 +825,10 @@ function obtenirAtelier(id) {
   return etat.documentation?.ateliers.find((atelier) => atelier.id === id);
 }
 
+function obtenirEntreeBibliotheque(id) {
+  return etat.documentation?.bibliotheque?.find((entree) => entree.id === id);
+}
+
 function obtenirDomaine(id) {
   return etat.documentation?.domaines.find((domaine) => domaine.id === id);
 }
@@ -796,6 +900,10 @@ document.addEventListener('click', (evenement) => {
     fermerRecherche();
     naviguer(`fiche/${cible.dataset.fiche}`);
   }
+  if (cible.dataset.terme) {
+    fermerRecherche();
+    naviguer(`terme/${cible.dataset.terme}`);
+  }
   if (cible.dataset.atelier) {
     fermerRecherche();
     naviguer(`atelier/${cible.dataset.atelier}`);
@@ -813,6 +921,11 @@ document.addEventListener('click', (evenement) => {
     document.querySelectorAll('[data-atelier-filter]').forEach((filtre) => filtre.classList.toggle('is-active', filtre === cible));
     document.querySelectorAll('[data-atelier-domain]').forEach((carte) => { carte.hidden = cible.dataset.atelierFilter !== 'tous' && carte.dataset.atelierDomain !== cible.dataset.atelierFilter; });
   }
+  if (cible.dataset.libraryCategory) {
+    etat.bibliothequeCategorie = cible.dataset.libraryCategory;
+    document.querySelectorAll('[data-library-category]').forEach((filtre) => filtre.classList.toggle('is-active', filtre.dataset.libraryCategory === etat.bibliothequeCategorie));
+    actualiserCartesBibliotheque();
+  }
   if (cible.dataset.scroll) document.getElementById(cible.dataset.scroll)?.scrollIntoView({ behavior: 'smooth' });
 });
 
@@ -823,6 +936,11 @@ elements.ouvrirMenu.addEventListener('click', ouvrirMenuMobile);
 elements.fermerMenu.addEventListener('click', fermerMenuMobile);
 elements.overlay.addEventListener('click', fermerMenuMobile);
 elements.champRecherche.addEventListener('input', (evenement) => rechercherNotion(evenement.target.value));
+document.addEventListener('input', (evenement) => {
+  if (evenement.target.id !== 'filtre-bibliotheque') return;
+  etat.bibliothequeRecherche = evenement.target.value;
+  actualiserCartesBibliotheque();
+});
 elements.champRecherche.addEventListener('keydown', gererClavierRecherche);
 elements.dialogueRecherche.addEventListener('click', (evenement) => {
   if (evenement.target === elements.dialogueRecherche) fermerRecherche();
