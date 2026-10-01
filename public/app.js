@@ -381,11 +381,11 @@ function afficherFiche(id) {
 function creerPlanSessions(fiche) {
   if (!fiche.sessions?.length) return '';
   return `<section class="session-plan" aria-labelledby="session-plan-title">
-    <div class="session-plan__head"><div><span class="eyebrow">Progression guidée</span><h2 id="session-plan-title">3 sessions pour retenir la notion</h2></div><span class="session-plan__hint">à votre rythme</span></div>
+    <div class="session-plan__head"><div><span class="eyebrow">Progression guidée</span><h2 id="session-plan-title">${fiche.sessions.length} sessions pour retenir la notion</h2></div><span class="session-plan__hint">à votre rythme · concepts, code, décisions</span></div>
     <div class="session-grid">${fiche.sessions.map((session) => `
       <button class="session-card" type="button" data-scroll="section-${session.sections?.[0] ?? 0}">
         <span class="session-card__number">${fiche.sessions.indexOf(session) + 1}</span>
-        <span><strong>${echapperHTML(session.titre)}</strong><small>${echapperHTML(session.duree)} · ${echapperHTML(session.objectif)}</small></span>
+        <span><strong>${echapperHTML(session.titre)}</strong><small>${echapperHTML(session.duree)} · ${session.concepts?.length || 0} concepts</small><small>${echapperHTML(session.activite || session.objectif)}</small><small class="session-card__scenario">Scénario : ${echapperHTML(session.scenario || 'cas courant')}</small></span>
         <span aria-hidden="true">↓</span>
       </button>`).join('')}</div>
   </section>`;

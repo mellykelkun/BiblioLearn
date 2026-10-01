@@ -37,7 +37,8 @@ npm run check   # syntaxe JavaScript + intégrité du catalogue
 │   └── verifier-catalogue.js  # contrôle les fiches et leurs liens internes
 ├── src/data/
 │   ├── index.js               # domaines, agrégation et validation
-│   ├── outils.js              # petits constructeurs de sections
+│   ├── outils.js              # constructeurs et sessions guidées
+│   ├── profils.js             # approfondissement par écosystème
 │   ├── fiches-approfondissement.js # sessions et notions avancées
 │   ├── fiches-complementaires.js # accessibilité, sécurité et pratique avancée
 │   ├── fiches-fondamentaux.js # HTML et CSS
@@ -46,7 +47,8 @@ npm run check   # syntaxe JavaScript + intégrité du catalogue
 │   └── fiches-frontend.js     # TypeScript et frameworks frontend
 │   ├── fiches-shell.js        # Terminal, Bash, npm avancé et Git
 │   ├── ateliers.js            # exercices guidés de construction
-│   └── ateliers-plus.js       # banque générée de 120 ateliers supplémentaires
+│   ├── ateliers-plus.js       # banque générée de 120 ateliers supplémentaires
+│   └── fiches-ecosystemes.js  # parcours frontend approfondis
 ├── scripts/generer-migration.js # export SQL du catalogue
 └── supabase/migrations/       # schéma et données Bibliolearn isolés
 └── server.js                  # serveur Express et API locale
@@ -54,7 +56,7 @@ npm run check   # syntaxe JavaScript + intégrité du catalogue
 
 Le navigateur charge le catalogue depuis `GET /api/documentation`. La recherche est entièrement locale. Les fiches récemment ouvertes, maîtrisées ou marquées « À revoir » sont enregistrées dans `localStorage` et ne quittent jamais la machine.
 
-Chaque leçon expose désormais trois sessions (« Comprendre », « Mettre en pratique », « Vérifier ») qui pointent vers les sections de la fiche. Les fiches existantes reçoivent aussi une mise en situation et une question de contrôle. Le catalogue contient 103 fiches, 114 exemples et 129 ateliers.
+Chaque leçon expose désormais cinq sessions (« Comprendre », « Vocabulaire », « Construire », « Choisir selon le scénario », « Vérifier et transférer ») qui pointent vers les sections de la fiche. Les fiches reçoivent aussi une explication approfondie, une grille de décisions, un mini-exercice de code, un exercice de transfert, une mise en situation et une question de contrôle. Le catalogue contient 113 fiches, 237 exemples et 129 ateliers. Chaque atelier dure 15 minutes de plus et se termine par un débrief lié à l’infrastructure visée.
 
 ## Migration Supabase optionnelle
 

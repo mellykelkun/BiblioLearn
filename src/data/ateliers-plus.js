@@ -7,8 +7,22 @@
  * indépendantes dans l’API et pourront être migrés sans transformation.
  */
 
+function ajouterDuree(duree, supplement = 15) {
+  const correspondance = String(duree || '').match(/(\d+)\s*min/);
+  return correspondance ? `${Number(correspondance[1]) + supplement} min` : duree;
+}
+
+function enrichirEtapes(etapes) {
+  return [...etapes, {
+    titre: 'Débrief et transfert',
+    explication: 'Après la validation, écrivez la décision prise, le cas dans lequel elle serait mauvaise et la variante à tester dans votre propre infrastructure. Cette étape transforme une recette en savoir réutilisable.',
+    langage: 'Markdown',
+    code: '# Décision retenue\n- Infrastructure : local / navigateur / serveur / CI\n- Cas limite testé :\n- Variante à essayer ensuite :'
+  }];
+}
+
 function atelier({ id, titre, domaine, niveau = 'Débutant', duree = '35 min', objectif, outils, prerequis, structure, etapes, validation, indice, associes }) {
-  return { id, titre, domaine, niveau, duree, objectif, outils, prerequis, structure, etapes, validation, indice, associes };
+  return { id, titre, domaine, niveau, duree: ajouterDuree(duree), objectif, outils, prerequis, structure, etapes: enrichirEtapes(etapes), validation, indice, associes };
 }
 
 function slugifier(texte) {

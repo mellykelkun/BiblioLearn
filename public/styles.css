@@ -1172,6 +1172,7 @@ kbd,
 .session-card strong, .session-card small { display: block; }
 .session-card strong { font-size: 13px; }
 .session-card small { margin-top: 3px; color: var(--texte-faible); font-size: 11px; line-height: 1.4; }
+.session-card__scenario { color: var(--accent-fort) !important; }
 .session-card__number { display: grid; width: 25px; height: 25px; flex: 0 0 25px; place-items: center; border-radius: 50%; background: var(--accent-fond); color: var(--accent-fort); font: 700 12px var(--mono); }
 .session-card > span:last-child { color: var(--accent); font-size: 16px; }
 

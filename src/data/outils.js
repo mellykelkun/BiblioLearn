@@ -1,13 +1,18 @@
 'use strict';
 
-function creerSessions(sections, titre) {
+const profilsDomaine = require('./profils');
+
+function creerSessions(sections, titre, domaine) {
   const indicesCode = sections.map((section, index) => section.type === 'code' ? index : -1).filter((index) => index >= 0);
   const dernierIndex = Math.max(0, sections.length - 1);
-  const pratique = indicesCode.length ? [indicesCode[0]] : [Math.min(1, dernierIndex)];
+  const premierCode = indicesCode.length ? indicesCode[0] : Math.min(1, dernierIndex);
+  const profil = profilsDomaine[domaine] || profilsDomaine.javascript;
   return [
-    { id: 'comprendre', titre: 'Comprendre', duree: '10 min', objectif: `Identifier l’idée centrale de « ${titre} ».`, sections: [0] },
-    { id: 'pratiquer', titre: 'Mettre en pratique', duree: '15 min', objectif: 'Lire un exemple, le modifier et observer son résultat.', sections: pratique },
-    { id: 'verifier', titre: 'Vérifier', duree: '10 min', objectif: 'Relire les pièges et formuler une règle que vous pourrez réutiliser.', sections: [dernierIndex] }
+    { id: 'comprendre', titre: 'Comprendre l’idée', duree: '10 min', objectif: `Identifier l’idée centrale de « ${titre} » et la reformuler avec vos mots.`, concepts: profil.concepts.slice(0, 2), activite: 'Lire la définition, puis expliquer le problème que cette notion résout.', scenario: profil.scenarios[0][0], sections: [0] },
+    { id: 'vocabulaire', titre: 'Installer le vocabulaire', duree: '15 min', objectif: 'Relier les mots importants à une observation concrète dans le code ou l’interface.', concepts: profil.concepts, activite: 'Surligner les concepts et écrire un exemple très simple pour chacun.', scenario: profil.scenarios[1][0], sections: [Math.min(1, dernierIndex)] },
+    { id: 'construire', titre: 'Construire pas à pas', duree: '25 min', objectif: 'Modifier un exemple, provoquer un résultat visible et vérifier chaque hypothèse.', concepts: ['entrée', 'transformation', 'résultat'], activite: 'Copier le mini-exemple, changer une seule chose à la fois et noter ce qui change.', scenario: 'Cas nominal', sections: [premierCode] },
+    { id: 'decider', titre: 'Choisir selon le scénario', duree: '20 min', objectif: 'Comparer plusieurs solutions et justifier celle qui convient à votre infrastructure.', concepts: ['coût', 'complexité', 'évolutivité'], activite: 'Lire la grille de scénarios et écrire la décision que vous prendriez pour votre projet.', scenario: profil.scenarios[2][0], sections: [Math.max(0, sections.length - 3)] },
+    { id: 'verifier', titre: 'Vérifier et transférer', duree: '15 min', objectif: 'Relire les pièges, tester un cas limite et formuler une règle réutilisable.', concepts: ['cas limite', 'diagnostic', 'transfert'], activite: 'Répondre à la question de contrôle puis appliquer la notion à un autre petit exemple.', scenario: 'Entrée vide, lente ou invalide', sections: [dernierIndex] }
   ];
 }
 
@@ -30,12 +35,18 @@ const reperesDomaine = {
 };
 
 function fiche({ id, domaine, categorie, titre, resume, tags = [], niveau = 'Fondamental', sections, sessions, associes = [] }) {
+  const profil = profilsDomaine[domaine] || profilsDomaine.javascript;
   const sectionsEnrichies = [
     ...sections,
+    texte('Explication approfondie', profil.explication),
+    liste('Concepts à retenir', profil.concepts.map((concept) => `${concept} : cherchez où ce concept apparaît dans cette fiche avant de continuer.`)),
+    comparaison('Scénarios et décisions', ['Scénario', 'Décision conseillée', 'Pourquoi'], profil.scenarios),
+    code('Mini-exercice guidé', profil.langage, profil.code, profil.legende),
+    texte('Exercice de transfert (20 min)', `Reprenez l’idée de « ${titre} » dans un petit dossier isolé. Testez un cas normal, une entrée vide ou invalide et une entrée plus grande que prévu. Notez l’observation, la décision prise et ce que vous changeriez si le projet passait en production.`),
     texte('Mise en situation', reperesDomaine[domaine] || 'Reliez cette notion à un petit cas d’usage concret avant de passer à la suivante.'),
     alerte('retenir', 'Question de contrôle', `Pouvez-vous expliquer ce qui change si l’entrée est vide, invalide ou beaucoup plus grande dans « ${titre} » ?`)
   ];
-  return { id, domaine, categorie, titre, resume, tags, niveau, sections: sectionsEnrichies, sessions: sessions || creerSessions(sectionsEnrichies, titre), associes };
+  return { id, domaine, categorie, titre, resume, tags, niveau, sections: sectionsEnrichies, sessions: sessions || creerSessions(sectionsEnrichies, titre, domaine), associes };
 }
 
 function texte(titre, contenu) { return { type: 'texte', titre, contenu }; }

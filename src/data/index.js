@@ -7,6 +7,7 @@ const frontend = require('./fiches-frontend');
 const shell = require('./fiches-shell');
 const approfondissement = require('./fiches-approfondissement');
 const complementaires = require('./fiches-complementaires');
+const ecosystemes = require('./fiches-ecosystemes');
 const ateliers = require('./ateliers');
 const ateliersPlus = require('./ateliers-plus');
 
@@ -28,7 +29,7 @@ const domaines = [
   { id: 'css-outils', nom: 'Tailwind & Bootstrap', groupe: 'Écosystème frontend', icone: 'UI', description: 'Outils CSS et conséquences pratiques' }
 ];
 
-const fiches = [...fondamentaux, ...javascriptDom, ...backend, ...frontend, ...shell, ...approfondissement, ...complementaires];
+const fiches = [...fondamentaux, ...javascriptDom, ...backend, ...frontend, ...shell, ...approfondissement, ...complementaires, ...ecosystemes];
 const tousLesAteliers = [...ateliers, ...ateliersPlus];
 
 function validerCatalogue() {
