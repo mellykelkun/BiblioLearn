@@ -31,7 +31,8 @@ const etat = {
 const clesStockage = {
   recent: 'bibliolearn.recent',
   revoir: 'bibliolearn.revoir',
-  lues: 'bibliolearn.lues'
+  lues: 'bibliolearn.lues',
+  ateliers: 'bibliolearn.ateliers'
 };
 
 function chargerValeur(cle, valeurParDefaut) {
@@ -47,7 +48,8 @@ function chargerStockage() {
   return {
     recent: chargerValeur('bibliolearn.recent', []),
     revoir: chargerValeur('bibliolearn.revoir', []),
-    lues: chargerValeur('bibliolearn.lues', [])
+    lues: chargerValeur('bibliolearn.lues', []),
+    ateliers: chargerValeur('bibliolearn.ateliers', [])
   };
 }
 
@@ -88,6 +90,8 @@ function nettoyerStockage() {
     .slice(0, 8);
   etat.stockage.revoir = etat.stockage.revoir.filter((id) => ids.has(id));
   etat.stockage.lues = etat.stockage.lues.filter((id) => ids.has(id));
+  const ateliers = new Set(etat.documentation.ateliers.map((atelier) => atelier.id));
+  etat.stockage.ateliers = etat.stockage.ateliers.filter((id) => ateliers.has(id));
 }
 
 function construireNavigation() {
@@ -118,7 +122,7 @@ function actualiserNavigation() {
   construireNavigation();
   document.querySelectorAll('.nav-primary').forEach((bouton) => {
     const route = bouton.dataset.route;
-    const actif = (!etat.domaineActif && !etat.ficheActive && route === routeCourante()) ||
+    const actif = (!etat.domaineActif && !etat.ficheActive && (route === routeCourante() || (route === 'ateliers' && routeCourante() === 'atelier'))) ||
       (route === 'parcours' && routeCourante() === 'revoir');
     bouton.classList.toggle('is-active', actif);
   });
@@ -140,8 +144,12 @@ function router() {
 
   if (route === 'fiche' && parametre) {
     afficherFiche(parametre);
+  } else if (route === 'atelier' && parametre) {
+    afficherAtelier(parametre);
   } else if (route === 'domaine' && parametre) {
     afficherDomaine(parametre);
+  } else if (route === 'ateliers') {
+    afficherAteliers();
   } else if (route === 'parcours') {
     afficherParcours();
   } else if (route === 'revoir') {
@@ -219,6 +227,14 @@ function afficherAccueil() {
             <div class="review-empty"><span>◎</span><p>Marquez une fiche « À revoir » pour construire votre liste de révision.</p></div>`}
         </div>
       </div>
+    </section>`;
+
+  const ateliers = etat.documentation.ateliers.slice(0, 3);
+  elements.contenu.innerHTML += `
+    <section class="dashboard-section home-workshops">
+      <div class="section-title-row"><h2>Passer de la lecture à la pratique</h2><button class="text-link" type="button" data-route="ateliers">Voir tous les ateliers →</button></div>
+      <p class="section-intro">Des exercices guidés pour créer une carte, manipuler le DOM, lancer une API, utiliser npm et pratiquer le terminal.</p>
+      <div class="atelier-grid atelier-grid--compact">${ateliers.map(creerCarteAtelier).join('')}</div>
     </section>`;
 }
 
@@ -419,6 +435,71 @@ function afficherListeARevoir() {
       <div class="empty-page"><span>◎</span><h2>Rien à revoir pour le moment</h2><p>Ouvrez une fiche puis utilisez « Marquer à revoir » pour la retrouver ici.</p></div>`}`;
 }
 
+function afficherAteliers() {
+  definirFilAriane([{ label: 'Bibliothèque', route: 'accueil' }, { label: 'Ateliers pratiques' }]);
+  const ateliers = etat.documentation.ateliers;
+  const domaines = [...new Set(ateliers.map((atelier) => atelier.domaine))];
+  elements.contenu.innerHTML = `
+    <header class="listing-header workshop-header">
+      <div class="eyebrow">Apprendre en construisant</div>
+      <h1 class="page-title">Ateliers pratiques</h1>
+      <p class="page-intro">Chaque atelier donne un objectif concret, les outils nécessaires, une structure de fichiers, des étapes commentées et une validation. Copiez le code, modifiez-le, cassez-le puis réparez-le.</p>
+      <div class="domain-header__meta"><span class="meta-pill">${ateliers.length} ateliers</span><span class="meta-pill">${etat.stockage.ateliers.length} terminés</span><span class="meta-pill">100 % local</span></div>
+    </header>
+    <div class="atelier-filters" role="group" aria-label="Filtrer les ateliers">
+      <button class="filter-chip is-active" type="button" data-atelier-filter="tous">Tous</button>
+      ${domaines.map((domaine) => `<button class="filter-chip" type="button" data-atelier-filter="${domaine}">${echapperHTML(obtenirDomaine(domaine)?.nom || domaine)}</button>`).join('')}
+    </div>
+    <div class="atelier-grid" id="liste-ateliers">${ateliers.map(creerCarteAtelier).join('')}</div>`;
+}
+
+function creerCarteAtelier(atelier) {
+  const domaine = obtenirDomaine(atelier.domaine);
+  const termine = etat.stockage.ateliers.includes(atelier.id);
+  return `<article class="atelier-card ${termine ? 'is-complete' : ''}" data-atelier-domain="${echapperAttribut(atelier.domaine)}">
+    <div class="atelier-card__head"><span class="article-badge">${echapperHTML(domaine?.nom || atelier.domaine)}</span><span class="atelier-card__status">${termine ? '✓ Terminé' : echapperHTML(atelier.duree)}</span></div>
+    <h2>${echapperHTML(atelier.titre)}</h2>
+    <p>${echapperHTML(atelier.objectif)}</p>
+    <div class="atelier-card__meta"><span>${echapperHTML(atelier.niveau)}</span><span>${atelier.etapes.length} étapes</span><span>${atelier.outils.length} outils</span></div>
+    <button class="secondary-button" type="button" data-atelier="${atelier.id}">${termine ? 'Recommencer l’atelier' : 'Ouvrir l’atelier'} <span aria-hidden="true">→</span></button>
+  </article>`;
+}
+
+function afficherAtelier(id) {
+  const atelier = obtenirAtelier(id);
+  if (!atelier) return afficherIntrouvable('Atelier introuvable');
+  const domaine = obtenirDomaine(atelier.domaine);
+  const index = etat.documentation.ateliers.findIndex((element) => element.id === id);
+  const precedent = etat.documentation.ateliers[index - 1];
+  const suivant = etat.documentation.ateliers[index + 1];
+  const termine = etat.stockage.ateliers.includes(id);
+  const fichesAssociees = atelier.associes.map(obtenirFiche).filter(Boolean);
+  definirFilAriane([{ label: 'Bibliothèque', route: 'accueil' }, { label: 'Ateliers pratiques', route: 'ateliers' }, { label: atelier.titre }]);
+  elements.contenu.innerHTML = `
+    <header class="article-header atelier-page__header">
+      <div class="article-header__meta"><span class="article-badge">Atelier</span><span class="article-badge">${echapperHTML(domaine?.nom || atelier.domaine)}</span><span class="article-badge">${echapperHTML(atelier.niveau)}</span><span class="article-badge">${echapperHTML(atelier.duree)}</span></div>
+      <h1>${echapperHTML(atelier.titre)}</h1><p class="article-header__summary">${echapperHTML(atelier.objectif)}</p>
+      <div class="article-header__actions"><button class="secondary-button ${termine ? 'is-active' : ''}" type="button" data-toggle-atelier="${atelier.id}">${termine ? '✓ Atelier terminé' : '□ Marquer comme terminé'}</button></div>
+    </header>
+    <div class="atelier-layout">
+      <article class="article-body">
+        <div class="callout callout--retenir"><span class="callout__label">Méthode</span><p>Lisez l’objectif, préparez les outils, exécutez une étape à la fois, puis utilisez la validation. Une erreur est une information : lisez le message avant de modifier le code.</p></div>
+        <section class="workshop-section" id="atelier-outils"><h2>Outils nécessaires</h2><div class="tool-list">${atelier.outils.map((outil) => `<span class="tool-chip">${echapperHTML(outil)}</span>`).join('')}</div></section>
+        <section class="workshop-section"><h2>Avant de commencer</h2><ul class="checklist">${atelier.prerequis.map((item) => `<li>${echapperHTML(item)}</li>`).join('')}</ul></section>
+        <section class="workshop-section"><h2>Structure à créer</h2><pre class="tree-block"><code>${echapperHTML(atelier.structure.join('\n'))}</code></pre></section>
+        <section class="workshop-section" id="atelier-etapes"><h2>Étapes guidées</h2><ol class="step-list">${atelier.etapes.map((etape, etapeIndex) => creerEtapeAtelier(etape, etapeIndex)).join('')}</ol></section>
+        <section class="workshop-section" id="atelier-validation"><h2>Validation finale</h2><ul class="checklist checklist--interactive">${atelier.validation.map((item) => `<li><label><input type="checkbox"> <span>${echapperHTML(item)}</span></label></li>`).join('')}</ul></section>
+        <details class="hint-box"><summary>Afficher un indice</summary><p>${echapperHTML(atelier.indice)}</p></details>
+        <nav class="article-pagination workshop-pagination" aria-label="Atelier précédent et suivant">${precedent ? `<button class="page-link" type="button" data-atelier="${precedent.id}"><small>Précédent</small><strong>${echapperHTML(precedent.titre)}</strong></button>` : '<span></span>'}${suivant ? `<button class="page-link page-link--next" type="button" data-atelier="${suivant.id}"><small>Suivant</small><strong>${echapperHTML(suivant.titre)}</strong></button>` : ''}</nav>
+      </article>
+      <aside class="article-aside"><section class="aside-block"><h3>Dans cet atelier</h3><button class="toc-link" type="button" data-scroll="atelier-outils">Outils nécessaires</button><button class="toc-link" type="button" data-scroll="atelier-etapes">Étapes guidées</button><button class="toc-link" type="button" data-scroll="atelier-validation">Validation finale</button></section>${fichesAssociees.length ? `<section class="aside-block"><h3>Fiches utiles</h3>${fichesAssociees.map((fiche) => `<button class="related-link" type="button" data-fiche="${fiche.id}">${echapperHTML(fiche.titre)}</button>`).join('')}</section>` : ''}</aside>
+    </div>`;
+}
+
+function creerEtapeAtelier(etape, index) {
+  return `<li class="step-item"><div class="step-item__number">${index + 1}</div><div class="step-item__body"><h3>${echapperHTML(etape.titre)}</h3><p>${echapperHTML(etape.explication)}</p><div class="code-shell"><div class="code-shell__head"><span class="code-shell__language">${echapperHTML(etape.langage)}</span><button class="copy-button" type="button" data-copy aria-label="Copier l’étape ${index + 1}">Copier</button></div><pre><code>${echapperHTML(etape.code)}</code></pre></div></div></li>`;
+}
+
 function creerSectionListe(titre, fiches, messageVide) {
   if (!fiches.length) return `<section class="dashboard-section"><div class="section-title-row"><h2>${titre}</h2></div><div class="empty-page"><p>${messageVide}</p></div></section>`;
   return `<section class="dashboard-section"><div class="section-title-row"><h2>${titre}</h2><span>${fiches.length} fiche${fiches.length > 1 ? 's' : ''}</span></div><div class="panel"><ul class="study-list">${fiches.map(creerElementEtude).join('')}</ul></div></section>`;
@@ -452,25 +533,30 @@ function rechercherNotion(terme) {
   const recherche = normaliser(terme).trim();
   if (!recherche) return afficherSuggestionsRecherche();
   const mots = recherche.split(/\s+/).filter(Boolean);
-  const resultats = etat.documentation.fiches
-    .map((fiche) => ({ fiche, score: calculerScore(fiche, recherche, mots) }))
+  const catalogue = [
+    ...etat.documentation.fiches.map((fiche) => ({ element: fiche, type: 'fiche' })),
+    ...etat.documentation.ateliers.map((atelier) => ({ element: atelier, type: 'atelier' }))
+  ];
+  const resultats = catalogue
+    .map(({ element, type }) => ({ element, type, score: calculerScore(element, recherche, mots, type) }))
     .filter((resultat) => resultat.score > 0)
-    .sort((a, b) => b.score - a.score || a.fiche.titre.localeCompare(b.fiche.titre, 'fr'))
+    .sort((a, b) => b.score - a.score || a.element.titre.localeCompare(b.element.titre, 'fr'))
     .slice(0, 18)
-    .map((resultat) => resultat.fiche);
+    .map((resultat) => ({ ...resultat.element, resultatType: resultat.type }));
 
   etat.resultatActif = 0;
   elements.metaRecherche.textContent = `${resultats.length} résultat${resultats.length > 1 ? 's' : ''} pour « ${terme.trim()} »`;
   afficherResultatsRecherche(resultats);
 }
 
-function calculerScore(fiche, recherche, mots) {
+function calculerScore(fiche, recherche, mots, type = 'fiche') {
   const titre = normaliser(fiche.titre);
-  const tags = normaliser(fiche.tags.join(' '));
-  const categorie = normaliser(fiche.categorie);
+  const tags = normaliser((fiche.tags || fiche.outils || []).join(' '));
+  const categorie = normaliser(fiche.categorie || '');
   const domaine = normaliser(obtenirDomaine(fiche.domaine)?.nom || fiche.domaine);
-  const sections = normaliser(fiche.sections.map((section) => {
+  const sections = normaliser((fiche.sections || fiche.etapes || []).map((section) => {
     if (typeof section.contenu === 'string') return section.contenu;
+    if (typeof section.code === 'string') return `${section.code} ${section.explication || ''}`;
     if (Array.isArray(section.contenu)) return section.contenu.join(' ');
     if (section.elements) return section.elements.map((element) => `${element.terme || ''} ${element.explication || ''} ${element.label || ''}`).join(' ');
     return '';
@@ -485,6 +571,7 @@ function calculerScore(fiche, recherche, mots) {
   if (tags.includes(recherche)) score += 30;
   if (categorie.includes(recherche) || domaine.includes(recherche)) score += 16;
   score += mots.reduce((total, mot) => total + (titre.includes(mot) ? 12 : 0) + (tags.includes(mot) ? 7 : 0), 0);
+  if (type === 'atelier') score += 4;
   return score;
 }
 
@@ -495,10 +582,11 @@ function afficherResultatsRecherche(resultats) {
   }
   elements.resultatsRecherche.innerHTML = resultats.map((fiche, index) => {
     const domaine = obtenirDomaine(fiche.domaine);
-    return `<button class="search-result ${index === etat.resultatActif ? 'is-selected' : ''}" type="button" data-fiche="${fiche.id}">
+    const estAtelier = fiche.resultatType === 'atelier';
+    return `<button class="search-result ${index === etat.resultatActif ? 'is-selected' : ''}" type="button" ${estAtelier ? `data-atelier="${fiche.id}"` : `data-fiche="${fiche.id}"`}>
       <span class="search-result__icon">${echapperHTML(domaine?.icone || '•')}</span>
-      <span><strong>${echapperHTML(fiche.titre)}</strong><small>${echapperHTML(fiche.resume)}</small></span>
-      <span class="search-result__category">${echapperHTML(domaine?.nom || fiche.domaine)}</span>
+      <span><strong>${echapperHTML(fiche.titre)}</strong><small>${echapperHTML(fiche.resume || fiche.objectif)}</small></span>
+      <span class="search-result__category">${estAtelier ? 'Atelier' : echapperHTML(domaine?.nom || fiche.domaine)}</span>
     </button>`;
   }).join('');
 }
@@ -537,6 +625,17 @@ function basculerDansListe(cle, id) {
   sauvegarder(cle, liste);
   afficherToast(cle === 'revoir' ? (ajoute ? 'Ajouté à votre liste de révision' : 'Retiré de votre liste de révision') : (ajoute ? 'Fiche marquée comme maîtrisée' : 'Marque de maîtrise retirée'));
   if (etat.ficheActive?.id === id) afficherFiche(id);
+}
+
+function basculerAtelier(id) {
+  const liste = [...etat.stockage.ateliers];
+  const index = liste.indexOf(id);
+  const termine = index === -1;
+  if (termine) liste.push(id); else liste.splice(index, 1);
+  sauvegarder('ateliers', liste);
+  afficherToast(termine ? 'Atelier marqué comme terminé' : 'Atelier retiré des ateliers terminés');
+  if (routeCourante() === 'atelier') afficherAtelier(id);
+  if (routeCourante() === 'ateliers') afficherAteliers();
 }
 
 async function copierCode(bouton) {
@@ -583,6 +682,10 @@ function fermerMenuMobile() {
 
 function obtenirFiche(id) {
   return etat.documentation?.fiches.find((fiche) => fiche.id === id);
+}
+
+function obtenirAtelier(id) {
+  return etat.documentation?.ateliers.find((atelier) => atelier.id === id);
 }
 
 function obtenirDomaine(id) {
@@ -656,6 +759,10 @@ document.addEventListener('click', (evenement) => {
     fermerRecherche();
     naviguer(`fiche/${cible.dataset.fiche}`);
   }
+  if (cible.dataset.atelier) {
+    fermerRecherche();
+    naviguer(`atelier/${cible.dataset.atelier}`);
+  }
   if (cible.dataset.categorie) {
     const executerScroll = () => document.getElementById(slugifier(cible.dataset.categorie))?.scrollIntoView({ behavior: 'smooth' });
     if (etat.domaineActif) executerScroll(); else setTimeout(executerScroll, 50);
@@ -664,6 +771,11 @@ document.addEventListener('click', (evenement) => {
   if ('copy' in cible.dataset) copierCode(cible);
   if (cible.dataset.toggleRevoir) basculerDansListe('revoir', cible.dataset.toggleRevoir);
   if (cible.dataset.toggleLue) basculerDansListe('lues', cible.dataset.toggleLue);
+  if (cible.dataset.toggleAtelier) basculerAtelier(cible.dataset.toggleAtelier);
+  if (cible.dataset.atelierFilter) {
+    document.querySelectorAll('[data-atelier-filter]').forEach((filtre) => filtre.classList.toggle('is-active', filtre === cible));
+    document.querySelectorAll('[data-atelier-domain]').forEach((carte) => { carte.hidden = cible.dataset.atelierFilter !== 'tous' && carte.dataset.atelierDomain !== cible.dataset.atelierFilter; });
+  }
   if (cible.dataset.scroll) document.getElementById(cible.dataset.scroll)?.scrollIntoView({ behavior: 'smooth' });
 });
 

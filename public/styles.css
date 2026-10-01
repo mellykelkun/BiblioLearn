@@ -1,5 +1,5 @@
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   --fond: #f5f7fa;
   --fond-eleve: #ffffff;
   --panneau: #ffffff;
@@ -1498,7 +1498,45 @@ kbd,
   opacity: 1;
 }
 
+.text-link { border: 0; background: transparent; color: var(--accent); cursor: pointer; padding: 3px 0; font-weight: 700; }
+.text-link:hover { color: var(--accent-fort); text-decoration: underline; }
+.section-intro { max-width: 720px; margin: -10px 0 20px; color: var(--texte-doux); }
+.workshop-header { max-width: 850px; }
+.atelier-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 24px; }
+.filter-chip { border: 1px solid var(--ligne); border-radius: 999px; background: var(--panneau); color: var(--texte-doux); cursor: pointer; padding: 7px 13px; font-size: 13px; font-weight: 700; }
+.filter-chip:hover, .filter-chip.is-active { border-color: var(--accent); background: var(--accent-fond); color: var(--accent-fort); }
+.atelier-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.atelier-grid--compact { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.atelier-card { display: flex; min-height: 285px; flex-direction: column; gap: 12px; border: 1px solid var(--ligne); border-radius: var(--rayon); background: var(--panneau); padding: 20px; box-shadow: 0 8px 24px rgba(20, 43, 65, .06); }
+.atelier-card:hover { border-color: #8bcfc6; box-shadow: 0 12px 28px rgba(8, 127, 117, .12); }
+.atelier-card.is-complete { border-color: #8dcaa2; }
+.atelier-card__head, .atelier-card__meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.atelier-card__status, .atelier-card__meta { color: var(--texte-faible); font-size: 12px; }
+.atelier-card h2 { margin: 0; font-size: 20px; line-height: 1.25; }
+.atelier-card p { margin: 0; color: var(--texte-doux); font-size: 14px; line-height: 1.55; }
+.atelier-card .secondary-button { align-self: flex-start; margin-top: auto; }
+.atelier-layout { display: grid; grid-template-columns: minmax(0, 1fr) 235px; gap: 38px; align-items: start; }
+.workshop-section { margin: 36px 0; scroll-margin-top: 90px; }
+.workshop-section h2 { margin-bottom: 14px; }
+.tool-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.tool-chip { border: 1px solid #b7d8d4; border-radius: 999px; background: #f0fbf9; color: #11645d; padding: 6px 11px; font-size: 13px; font-weight: 700; }
+.checklist { display: grid; gap: 9px; margin: 0; padding-left: 22px; color: var(--texte-doux); }
+.checklist--interactive { list-style: none; padding-left: 0; }
+.checklist--interactive input { accent-color: var(--accent); margin-right: 8px; }
+.tree-block { overflow: auto; border: 1px solid var(--ligne); border-radius: var(--rayon-petit); background: #f6f8fb; padding: 16px 18px; color: #34485c; font: 14px/1.7 var(--mono); }
+.step-list { display: grid; gap: 22px; margin: 0; padding: 0; list-style: none; }
+.step-item { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 14px; }
+.step-item__number { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 50%; background: var(--accent-fond); color: var(--accent-fort); font-weight: 800; }
+.step-item__body h3 { margin: 2px 0 5px; font-size: 18px; }
+.step-item__body p { margin: 0 0 12px; color: var(--texte-doux); }
+.hint-box { margin: 25px 0; border: 1px solid #ecd49e; border-radius: var(--rayon); background: #fffaf0; padding: 13px 16px; color: #6d4a00; }
+.hint-box summary { cursor: pointer; font-weight: 800; }
+.hint-box p { margin: 10px 0 2px; }
+.atelier-page__header { max-width: 900px; }
+.workshop-pagination { margin-top: 34px; }
+
 @media (max-width: 1180px) {
+  .atelier-grid, .atelier-grid--compact { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .domain-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -1510,6 +1548,8 @@ kbd,
 }
 
 @media (max-width: 940px) {
+  .atelier-layout { grid-template-columns: 1fr; }
+  .atelier-layout .article-aside { position: static; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px solid var(--ligne); padding-top: 26px; }
   .sidebar {
     transform: translateX(-100%);
     box-shadow: var(--ombre);
@@ -1620,6 +1660,9 @@ kbd,
   .domain-grid {
     grid-template-columns: 1fr;
   }
+
+  .atelier-grid, .atelier-grid--compact { grid-template-columns: 1fr; }
+  .atelier-layout .article-aside { grid-template-columns: 1fr; }
 
   .domain-card {
     min-height: 118px;

@@ -31,7 +31,7 @@ npm run check   # syntaxe JavaScript + intégrité du catalogue
 .
 ├── public/
 │   ├── index.html             # structure de l’interface
-│   ├── styles.css             # design sombre et responsive
+│   ├── styles.css             # design clair, lisible et responsive
 │   └── app.js                 # navigation, recherche et progression
 ├── scripts/
 │   └── verifier-catalogue.js  # contrôle les fiches et leurs liens internes
@@ -42,10 +42,22 @@ npm run check   # syntaxe JavaScript + intégrité du catalogue
 │   ├── fiches-javascript-dom.js
 │   ├── fiches-backend.js      # Node.js, npm, HTTP et Express
 │   └── fiches-frontend.js     # TypeScript et frameworks frontend
+│   ├── fiches-shell.js        # Terminal, Bash, npm avancé et Git
+│   └── ateliers.js            # exercices guidés de construction
 └── server.js                  # serveur Express et API locale
 ```
 
 Le navigateur charge le catalogue depuis `GET /api/documentation`. La recherche est entièrement locale. Les fiches récemment ouvertes, maîtrisées ou marquées « À revoir » sont enregistrées dans `localStorage` et ne quittent jamais la machine.
+
+L’entrée « Ateliers pratiques » propose des exercices orientés production : carte HTML/CSS, interaction DOM, recherche locale, serveur Node, API Express, package npm, commandes shell, `fetch` et premier cycle Git. Chaque atelier indique les outils nécessaires, les prérequis, l’arborescence à créer, des étapes commentées, des commandes exécutables et une checklist de validation. La progression des ateliers est également conservée localement.
+
+## Ajouter un atelier
+
+1. Ajouter un objet `atelier({ ... })` dans `src/data/ateliers.js`.
+2. Décrire un objectif concret, les outils, les prérequis et une structure de fichiers.
+3. Découper le travail en étapes courtes avec `titre`, `explication`, `langage` et `code`.
+4. Terminer par des critères de validation et un indice de dépannage.
+5. Vérifier les fiches liées dans `associes`, puis lancer `npm run check`.
 
 ## Ajouter une fiche
 

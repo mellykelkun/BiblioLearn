@@ -24,7 +24,7 @@ app.use(express.static(dossierPublic, {
 }));
 
 app.get('/api/sante', (requete, reponse) => {
-  reponse.json({ statut: 'ok', fiches: documentation.statistiques.nombreFiches });
+  reponse.json({ statut: 'ok', fiches: documentation.statistiques.nombreFiches, ateliers: documentation.statistiques.nombreAteliers });
 });
 
 app.get('/api/documentation', (request, response) => {

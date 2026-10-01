@@ -25,3 +25,4 @@ for (const fiche of documentation.fiches) {
 if (liensInvalides.length) throw new Error(`Liens invalides :\n${liensInvalides.join('\n')}`);
 
 console.log(`Catalogue valide : ${documentation.statistiques.nombreFiches} fiches, ${documentation.statistiques.nombreExemples} exemples de code.`);
+console.log(`Ateliers valides : ${documentation.statistiques.nombreAteliers}.`);
