@@ -419,7 +419,8 @@ function afficherParcours() {
     </header>
     ${creerSectionListe(recentes.length ? 'Récemment étudié' : 'Récemment étudié', recentes, 'Aucune fiche ouverte pour le moment. Le parcours conseillé ci-dessous est un bon point de départ.')}
     ${creerSectionListe('Fiches maîtrisées', lues, 'Marquez une fiche comme maîtrisée depuis son en-tête.')}
-    ${creerSectionListe('Parcours conseillé', parcoursConseille, 'Le catalogue est prêt à être parcouru.')}`;
+    ${creerSectionListe('Parcours conseillé', parcoursConseille, 'Le catalogue est prêt à être parcouru.')}
+    ${creerSectionAteliersTermines()}`;
 }
 
 function afficherListeARevoir() {
@@ -503,6 +504,12 @@ function creerEtapeAtelier(etape, index) {
 function creerSectionListe(titre, fiches, messageVide) {
   if (!fiches.length) return `<section class="dashboard-section"><div class="section-title-row"><h2>${titre}</h2></div><div class="empty-page"><p>${messageVide}</p></div></section>`;
   return `<section class="dashboard-section"><div class="section-title-row"><h2>${titre}</h2><span>${fiches.length} fiche${fiches.length > 1 ? 's' : ''}</span></div><div class="panel"><ul class="study-list">${fiches.map(creerElementEtude).join('')}</ul></div></section>`;
+}
+
+function creerSectionAteliersTermines() {
+  const ateliers = etat.stockage.ateliers.map(obtenirAtelier).filter(Boolean);
+  if (!ateliers.length) return `<section class="dashboard-section"><div class="section-title-row"><h2>Ateliers terminés</h2></div><div class="empty-page"><p>Les ateliers terminés apparaîtront ici. Commencez par l’<button class="text-link" type="button" data-route="ateliers">atelier pratique</button> de votre choix.</p></div></section>`;
+  return `<section class="dashboard-section"><div class="section-title-row"><h2>Ateliers terminés</h2><span>${ateliers.length} exercice${ateliers.length > 1 ? 's' : ''}</span></div><div class="atelier-grid atelier-grid--compact">${ateliers.map(creerCarteAtelier).join('')}</div></section>`;
 }
 
 function afficherIntrouvable(titre) {
