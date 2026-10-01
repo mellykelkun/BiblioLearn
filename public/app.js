@@ -655,7 +655,7 @@ function afficherSuggestionsRecherche() {
   const suggestions = ['js-map-filter-reduce', 'dom-selection', 'js-promises', 'node-fs', 'express-middleware', 'css-flexbox']
     .map(obtenirFiche).filter(Boolean);
   const references = ['react', 'rls', 'cache', 'package-json'].map(obtenirEntreeBibliotheque).filter(Boolean);
-  elements.metaRecherche.textContent = 'Suggestions · fiches, ateliers et référence technique';
+  elements.metaRecherche.textContent = 'Suggestions · fiches, ateliers, définitions, exemples et code';
   afficherResultatsRecherche([...suggestions, ...references.map((entree) => ({ ...entree, resultatType: 'terme' }))]);
 }
 
@@ -686,7 +686,7 @@ function calculerScore(fiche, recherche, mots, type = 'fiche') {
   const categorie = normaliser(type === 'terme' ? fiche.categorie : (fiche.categorie || ''));
   const domaine = normaliser(type === 'terme' ? fiche.famille : (obtenirDomaine(fiche.domaine)?.nom || fiche.domaine));
   const sections = type === 'terme'
-    ? normaliser([fiche.definition, ...(fiche.roles || []), ...(fiche.pourquoiUtiliser || []), ...(fiche.typesDonnees || [])].join(' '))
+    ? normaliser(JSON.stringify(fiche))
     : normaliser((fiche.sections || fiche.etapes || []).map((section) => {
     if (typeof section.contenu === 'string') return section.contenu;
     if (typeof section.code === 'string') return `${section.code} ${section.explication || ''}`;
@@ -720,12 +720,30 @@ function afficherResultatsRecherche(resultats) {
     const estTerme = fiche.resultatType === 'terme';
     const titre = estTerme ? fiche.terme : fiche.titre;
     const destination = estAtelier ? `data-atelier="${fiche.id}"` : estTerme ? `data-terme="${fiche.id}"` : `data-fiche="${fiche.id}"`;
+    const extrait = estTerme ? extraireExtraitBibliotheque(fiche, elements.champRecherche.value) : '';
     return `<button class="search-result ${index === etat.resultatActif ? 'is-selected' : ''}" type="button" ${destination}>
       <span class="search-result__icon">${echapperHTML(estTerme ? 'REF' : (domaine?.icone || '•'))}</span>
-      <span><strong>${echapperHTML(titre)}</strong><small>${echapperHTML(fiche.resume || fiche.objectif || fiche.definition)}</small></span>
+      <span><strong>${echapperHTML(titre)}</strong><small>${echapperHTML(fiche.resume || fiche.objectif || fiche.definition)}</small>${extrait ? `<small class="search-result__match">${echapperHTML(extrait)}</small>` : ''}</span>
       <span class="search-result__category">${estAtelier ? 'Atelier' : estTerme ? echapperHTML(fiche.categorie) : echapperHTML(domaine?.nom || fiche.domaine)}</span>
     </button>`;
   }).join('');
+}
+
+function extraireExtraitBibliotheque(entree, recherche) {
+  const mots = normaliser(recherche).trim().split(/\s+/).filter(Boolean);
+  if (!mots.length) return '';
+  const sources = [
+    ...(entree.exemples || []).flatMap((exemple) => [`Code : ${exemple.contenu}`, exemple.explication]),
+    entree.definition,
+    ...(entree.roles || []),
+    ...(entree.avertissements || []),
+    ...(entree.structure || [])
+  ].filter(Boolean);
+  const source = sources.find((texte) => {
+    const normalise = normaliser(texte);
+    return mots.every((mot) => normalise.includes(mot));
+  });
+  return source ? String(source).replace(/\s+/g, ' ').slice(0, 190) : '';
 }
 
 function gererClavierRecherche(evenement) {
@@ -851,7 +869,7 @@ function regrouper(liste, propriete) {
 }
 
 function normaliser(texte) {
-  return String(texte).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[(){}[\].,:;/\\_-]+/g, ' ');
+  return String(texte).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[(){}[\].,:;/\\_<>-]+/g, ' ');
 }
 
 function slugifier(texte) {
