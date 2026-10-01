@@ -65,20 +65,36 @@ function sauvegarder(cle, valeur) {
 
 async function chargerDocumentation() {
   try {
-    const reponse = await fetch('/api/documentation');
+    let reponse = await fetch('/api/documentation');
     if (!reponse.ok) throw new Error(`Réponse HTTP ${reponse.status}`);
-    etat.documentation = await reponse.json();
+    try {
+      etat.documentation = await reponse.json();
+    } catch {
+      reponse = await fetch('/documentation.json');
+      if (!reponse.ok) throw new Error(`Catalogue statique HTTP ${reponse.status}`);
+      etat.documentation = await reponse.json();
+    }
     nettoyerStockage();
     construireNavigation();
     actualiserCompteurs();
     router();
   } catch (erreur) {
-    elements.contenu.innerHTML = `
-      <section class="error-state">
-        <span class="loading-state__mark">!/</span>
-        <h1>La bibliothèque n’a pas pu être chargée</h1>
-        <p>${echapperHTML(erreur.message)}</p>
-      </section>`;
+    try {
+      const reponseStatique = await fetch('/documentation.json');
+      if (!reponseStatique.ok) throw new Error(`Catalogue statique HTTP ${reponseStatique.status}`);
+      etat.documentation = await reponseStatique.json();
+      nettoyerStockage();
+      construireNavigation();
+      actualiserCompteurs();
+      router();
+    } catch (erreurStatique) {
+      elements.contenu.innerHTML = `
+        <section class="error-state">
+          <span class="loading-state__mark">!/</span>
+          <h1>La bibliothèque n’a pas pu être chargée</h1>
+          <p>${echapperHTML(erreurStatique.message || erreur.message)}</p>
+        </section>`;
+    }
   }
 }
 

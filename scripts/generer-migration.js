@@ -5,6 +5,7 @@ const path = require('node:path');
 const documentation = require('../src/data');
 
 const destination = path.join(__dirname, '..', 'supabase', 'migrations', '20261001000000_bibliolearn_catalogue.sql');
+const destinationStatique = path.join(__dirname, '..', 'public', 'documentation.json');
 
 function json(valeur) {
   return '\'' + JSON.stringify(valeur).replaceAll("'", "''") + '\'::jsonb';
@@ -55,5 +56,7 @@ for (const [index, atelier] of documentation.ateliers.entries()) {
 lignes.push('commit;');
 fs.mkdirSync(path.dirname(destination), { recursive: true });
 fs.writeFileSync(destination, lignes.join('\n') + '\n');
+fs.writeFileSync(destinationStatique, JSON.stringify(documentation));
 console.log('Migration générée : ' + destination);
+console.log('Catalogue statique généré : ' + destinationStatique);
 console.log(documentation.statistiques.nombreFiches + ' fiches, ' + documentation.statistiques.nombreAteliers + ' ateliers, ' + lignes.length + ' lignes SQL.');
