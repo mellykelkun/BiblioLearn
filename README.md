@@ -38,16 +38,34 @@ npm run check   # syntaxe JavaScript + intégrité du catalogue
 ├── src/data/
 │   ├── index.js               # domaines, agrégation et validation
 │   ├── outils.js              # petits constructeurs de sections
+│   ├── fiches-approfondissement.js # sessions et notions avancées
+│   ├── fiches-complementaires.js # accessibilité, sécurité et pratique avancée
 │   ├── fiches-fondamentaux.js # HTML et CSS
 │   ├── fiches-javascript-dom.js
 │   ├── fiches-backend.js      # Node.js, npm, HTTP et Express
 │   └── fiches-frontend.js     # TypeScript et frameworks frontend
 │   ├── fiches-shell.js        # Terminal, Bash, npm avancé et Git
-│   └── ateliers.js            # exercices guidés de construction
+│   ├── ateliers.js            # exercices guidés de construction
+│   └── ateliers-plus.js       # banque générée de 120 ateliers supplémentaires
+├── scripts/generer-migration.js # export SQL du catalogue
+└── supabase/migrations/       # schéma et données Bibliolearn isolés
 └── server.js                  # serveur Express et API locale
 ```
 
 Le navigateur charge le catalogue depuis `GET /api/documentation`. La recherche est entièrement locale. Les fiches récemment ouvertes, maîtrisées ou marquées « À revoir » sont enregistrées dans `localStorage` et ne quittent jamais la machine.
+
+Chaque leçon expose désormais trois sessions (« Comprendre », « Mettre en pratique », « Vérifier ») qui pointent vers les sections de la fiche. Les fiches existantes reçoivent aussi une mise en situation et une question de contrôle. Le catalogue contient 103 fiches, 114 exemples et 129 ateliers.
+
+## Migration Supabase optionnelle
+
+Le contenu peut être stocké dans Supabase sans modifier les autres tables : la migration utilise uniquement les tables préfixées `bibliolearn_` et active une lecture publique en RLS. Le serveur continue d’utiliser le catalogue local si `SUPABASE_URL` ou `SUPABASE_ANON_KEY` manque, ou si Supabase est indisponible.
+
+```bash
+npm run generate:migration
+SUPABASE_URL=https://... SUPABASE_ANON_KEY=... npm start
+```
+
+La migration est générée depuis les données JavaScript afin d’éviter une divergence entre le mode local et le mode distant. Elle crée les domaines, les leçons, les sessions intégrées dans les leçons et les ateliers guidés.
 
 L’entrée « Ateliers pratiques » propose des exercices orientés production : carte HTML/CSS, interaction DOM, recherche locale, serveur Node, API Express, package npm, commandes shell, `fetch` et premier cycle Git. Chaque atelier indique les outils nécessaires, les prérequis, l’arborescence à créer, des étapes commentées, des commandes exécutables et une checklist de validation. La progression des ateliers est également conservée localement.
 

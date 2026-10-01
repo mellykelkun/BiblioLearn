@@ -2,11 +2,14 @@
 
 const path = require('node:path');
 const express = require('express');
-const documentation = require('./src/data');
+const documentationLocale = require('./src/data');
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
 const dossierPublic = path.join(__dirname, 'public');
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+let documentationDistante;
 
 app.disable('x-powered-by');
 
@@ -23,12 +26,13 @@ app.use(express.static(dossierPublic, {
   maxAge: 0
 }));
 
-app.get('/api/sante', (requete, reponse) => {
-  reponse.json({ statut: 'ok', fiches: documentation.statistiques.nombreFiches, ateliers: documentation.statistiques.nombreAteliers });
+app.get('/api/sante', async (requete, reponse) => {
+  const documentation = await chargerDocumentation();
+  reponse.json({ statut: 'ok', fiches: documentation.statistiques.nombreFiches, ateliers: documentation.statistiques.nombreAteliers, source: documentation === documentationLocale ? 'local' : 'supabase' });
 });
 
-app.get('/api/documentation', (request, response) => {
-  response.json(documentation);
+app.get('/api/documentation', async (request, response) => {
+  response.json(await chargerDocumentation());
 });
 
 app.get('*', (request, response) => {
@@ -45,3 +49,43 @@ function arreterProprement() {
 
 process.on('SIGINT', arreterProprement);
 process.on('SIGTERM', arreterProprement);
+
+async function chargerDocumentation() {
+  if (!supabaseUrl || !supabaseKey) return documentationLocale;
+  if (!documentationDistante) documentationDistante = chargerDepuisSupabase().catch((erreur) => {
+    console.warn(`  Supabase indisponible, fallback local : ${erreur.message}`);
+    return documentationLocale;
+  });
+  return documentationDistante;
+}
+
+async function chargerDepuisSupabase() {
+  const [domaines, fiches, ateliers] = await Promise.all([
+    requeteSupabase('bibliolearn_domains', 'id,name,group_name,icon,description,sort_order'),
+    requeteSupabase('bibliolearn_lessons', 'id,domain_id,category,title,summary,tags,level,sections,sessions,related_ids,sort_order'),
+    requeteSupabase('bibliolearn_workshops', 'id,domain_id,title,objective,level,duration,tools,prerequisites,file_structure,steps,validation,hint,related_ids,sort_order')
+  ]);
+  if (!domaines.length || !fiches.length || !ateliers.length) throw new Error('les tables Bibliolearn sont vides');
+  const resultat = {
+    meta: { version: 2, miseAJour: '2026-10-01', source: 'supabase' },
+    domaines: domaines.map((domaine) => ({ id: domaine.id, nom: domaine.name, groupe: domaine.group_name, icone: domaine.icon, description: domaine.description })),
+    fiches: fiches.map((fiche) => ({ id: fiche.id, domaine: fiche.domain_id, categorie: fiche.category, titre: fiche.title, resume: fiche.summary, tags: fiche.tags, niveau: fiche.level, sections: fiche.sections, sessions: fiche.sessions, associes: fiche.related_ids })),
+    ateliers: ateliers.map((atelier) => ({ id: atelier.id, domaine: atelier.domain_id, titre: atelier.title, objectif: atelier.objective, niveau: atelier.level, duree: atelier.duration, outils: atelier.tools, prerequis: atelier.prerequisites, structure: atelier.file_structure, etapes: atelier.steps, validation: atelier.validation, indice: atelier.hint, associes: atelier.related_ids }))
+  };
+  resultat.statistiques = {
+    nombreFiches: resultat.fiches.length,
+    nombreDomaines: resultat.domaines.length,
+    nombreAteliers: resultat.ateliers.length,
+    nombreExemples: resultat.fiches.reduce((total, fiche) => total + fiche.sections.filter((section) => section.type === 'code').length, 0)
+  };
+  return resultat;
+}
+
+async function requeteSupabase(table, select) {
+  const url = new URL(`/rest/v1/${table}`, supabaseUrl);
+  url.searchParams.set('select', select);
+  url.searchParams.set('order', 'sort_order.asc');
+  const resultat = await fetch(url, { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } });
+  if (!resultat.ok) throw new Error(`${table}: HTTP ${resultat.status}`);
+  return resultat.json();
+}

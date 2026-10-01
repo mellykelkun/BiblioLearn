@@ -114,7 +114,7 @@ function creerBoutonDomaine(domaine) {
       <small>${fiches.length}</small>
     </button>
     ${actif ? `<div class="category-list">${categories.map((categorie) => `
-      <button class="category-button" type="button" data-categorie="${echapperAttribut(categorie)}">${echapperHTML(categorie)}</button>
+      <button class="category-button" type="button" data-route="domaine/${domaine.id}" data-categorie="${echapperAttribut(categorie)}">${echapperHTML(categorie)}</button>
     `).join('')}</div>` : ''}`;
 }
 
@@ -345,6 +345,7 @@ function afficherFiche(id) {
     <div class="article-layout">
       <article class="article-body">
         <div class="callout callout--retenir article-reading-guide"><span class="callout__label">Comment lire cette fiche</span><p>Commencez par l’idée simple, puis lisez la syntaxe de haut en bas. Chaque exemple est commenté ou décomposé ; les encadrés signalent les pièges et les bonnes pratiques avant les liens officiels.</p></div>
+        ${creerPlanSessions(fiche)}
         ${fiche.sections.map((section, sectionIndex) => creerSection(section, sectionIndex)).join('')}
         <nav class="article-pagination" aria-label="Fiches précédente et suivante">
           ${precedente ? creerLienPagination(precedente, 'Précédent', '') : '<span></span>'}
@@ -359,6 +360,19 @@ function afficherFiche(id) {
         ${associees.length ? `<section class="aside-block"><h3>Concepts associés</h3>${associees.map((element) => `<button class="related-link" type="button" data-fiche="${element.id}">${echapperHTML(element.titre)}</button>`).join('')}</section>` : ''}
       </aside>
     </div>`;
+}
+
+function creerPlanSessions(fiche) {
+  if (!fiche.sessions?.length) return '';
+  return `<section class="session-plan" aria-labelledby="session-plan-title">
+    <div class="session-plan__head"><div><span class="eyebrow">Progression guidée</span><h2 id="session-plan-title">3 sessions pour retenir la notion</h2></div><span class="session-plan__hint">à votre rythme</span></div>
+    <div class="session-grid">${fiche.sessions.map((session) => `
+      <button class="session-card" type="button" data-scroll="section-${session.sections?.[0] ?? 0}">
+        <span class="session-card__number">${fiche.sessions.indexOf(session) + 1}</span>
+        <span><strong>${echapperHTML(session.titre)}</strong><small>${echapperHTML(session.duree)} · ${echapperHTML(session.objectif)}</small></span>
+        <span aria-hidden="true">↓</span>
+      </button>`).join('')}</div>
+  </section>`;
 }
 
 function creerSection(section, index) {
@@ -772,7 +786,7 @@ document.addEventListener('click', (evenement) => {
   }
   if (cible.dataset.categorie) {
     const executerScroll = () => document.getElementById(slugifier(cible.dataset.categorie))?.scrollIntoView({ behavior: 'smooth' });
-    if (etat.domaineActif) executerScroll(); else setTimeout(executerScroll, 50);
+    setTimeout(executerScroll, cible.dataset.route ? 80 : 0);
   }
   if (cible.dataset.action === 'recherche') ouvrirRecherche();
   if ('copy' in cible.dataset) copierCode(cible);

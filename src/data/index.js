@@ -5,7 +5,10 @@ const javascriptDom = require('./fiches-javascript-dom');
 const backend = require('./fiches-backend');
 const frontend = require('./fiches-frontend');
 const shell = require('./fiches-shell');
+const approfondissement = require('./fiches-approfondissement');
+const complementaires = require('./fiches-complementaires');
 const ateliers = require('./ateliers');
+const ateliersPlus = require('./ateliers-plus');
 
 const domaines = [
   { id: 'html', nom: 'HTML', groupe: 'Fondations', icone: '<>', description: 'Structure, sémantique et accessibilité' },
@@ -25,7 +28,8 @@ const domaines = [
   { id: 'css-outils', nom: 'Tailwind & Bootstrap', groupe: 'Écosystème frontend', icone: 'UI', description: 'Outils CSS et conséquences pratiques' }
 ];
 
-const fiches = [...fondamentaux, ...javascriptDom, ...backend, ...frontend, ...shell];
+const fiches = [...fondamentaux, ...javascriptDom, ...backend, ...frontend, ...shell, ...approfondissement, ...complementaires];
+const tousLesAteliers = [...ateliers, ...ateliersPlus];
 
 function validerCatalogue() {
   const ids = new Set();
@@ -41,7 +45,7 @@ function validerCatalogue() {
   }
 
   const fichesConnues = new Set(fiches.map((fiche) => fiche.id));
-  for (const element of ateliers) {
+  for (const element of tousLesAteliers) {
     if (!element.id || !element.titre || !element.objectif || !element.etapes?.length) {
       throw new Error(`Atelier incomplet : ${element.id || element.titre || 'sans identifiant'}`);
     }
@@ -63,14 +67,14 @@ validerCatalogue();
 const statistiques = {
   nombreFiches: fiches.length,
   nombreDomaines: domaines.length,
-  nombreAteliers: ateliers.length,
+  nombreAteliers: tousLesAteliers.length,
   nombreExemples: fiches.reduce((total, element) => total + element.sections.filter((section) => section.type === 'code').length, 0)
 };
 
 module.exports = {
-  meta: { version: 1, miseAJour: '2026-09-30' },
+  meta: { version: 2, miseAJour: '2026-10-01' },
   domaines,
   fiches,
-  ateliers,
+  ateliers: tousLesAteliers,
   statistiques
 };
