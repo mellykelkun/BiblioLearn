@@ -236,6 +236,22 @@ module.exports = [
     ], associes: ['npm-ci-lockfile', 'npm-init-install']
   }),
   fiche({
+    id: 'npm-publish-package', domaine: 'npm', categorie: 'Publication', titre: 'npm pack et npm publish : publier un package',
+    resume: 'Préparer une archive, vérifier son contenu puis publier un package npm sans envoyer de fichiers secrets.',
+    tags: ['npm pack', 'npm publish', 'npm login', 'registry', 'package'],
+    sections: [
+      code('Préparer et inspecter', 'Bash', 'npm login\nnpm version patch\nnpm pack --dry-run\nnpm pack', 'npm pack --dry-run liste ce qui serait envoyé sans créer d’archive. npm pack crée ensuite un fichier .tgz inspectable.'),
+      decomposition('Avant la publication', [
+        { terme: 'name / version', explication: 'identifient le package ; une même version ne peut pas être publiée deux fois sur le registre public.' },
+        { terme: 'files', explication: 'liste blanche optionnelle dans package.json pour limiter les fichiers inclus.' },
+        { terme: 'npm pack --dry-run', explication: 'permet de repérer un .env, une clé ou un dossier inutile avant l’envoi.' }
+      ]),
+      code('Publier puis installer', 'Bash', 'npm publish --access public\n# Dans un autre projet :\nnpm install nom-de-votre-package', 'Pour un package privé ou un registre interne, configurez explicitement le registry et l’accès adaptés.'),
+      alerte('attention', 'Publication irréversible à court terme', 'Ne publiez jamais un secret. Vérifiez npm pack --dry-run, le nom, la licence et la version. La suppression d’une version publiée est fortement limitée ; préférez publier un correctif.'),
+      liens({ label: 'npm — publish', url: 'https://docs.npmjs.com/cli/v11/commands/npm-publish' }, { label: 'npm — pack', url: 'https://docs.npmjs.com/cli/v11/commands/npm-pack' })
+    ], associes: ['npm-init-install', 'npm-ci-lockfile', 'shell-env-path']
+  }),
+  fiche({
     id: 'git-cycle', domaine: 'shell', categorie: 'Git', titre: 'Cycle Git : init, status, add, commit, log',
     resume: 'Enregistrer des étapes compréhensibles et retrouver l’historique d’un projet.',
     tags: ['git', 'init', 'status', 'add', 'commit', 'log', 'versionnement'],
