@@ -26,6 +26,7 @@ const etat = {
   ficheActive: null,
   bibliothequeRecherche: '',
   bibliothequeCategorie: 'Toutes',
+  bibliothequeLimite: 60,
   resultatActif: 0,
   stockage: chargerStockage()
 };
@@ -334,7 +335,7 @@ function afficherBibliotheque() {
       <div class="domain-header__meta"><span class="meta-pill">${entrees.length} références</span><span class="meta-pill">${categories.length} familles</span><span class="meta-pill">code + décisions + pratique</span></div>
     </header>
     <section class="library-controls" aria-label="Filtrer la bibliothèque technique">
-      <label class="library-search"><span aria-hidden="true">⌕</span><input id="filtre-bibliotheque" type="search" value="${echapperAttribut(etat.bibliothequeRecherche)}" placeholder="Rechercher React, RLS, cache, package…" aria-label="Rechercher dans la bibliothèque technique"></label>
+      <label class="library-search"><span aria-hidden="true">⌕</span><input id="filtre-bibliotheque" type="search" value="${echapperAttribut(etat.bibliothequeRecherche)}" placeholder="Rechercher div, map, Dockerfile, RLS…" aria-label="Rechercher dans la bibliothèque technique"></label>
       <div class="library-filters" role="group" aria-label="Filtrer par famille">
         <button class="filter-chip ${etat.bibliothequeCategorie === 'Toutes' ? 'is-active' : ''}" type="button" data-library-category="Toutes">Toutes</button>
         ${categories.map((categorie) => `<button class="filter-chip ${etat.bibliothequeCategorie === categorie ? 'is-active' : ''}" type="button" data-library-category="${echapperAttribut(categorie)}">${echapperHTML(categorie)}</button>`).join('')}
@@ -350,10 +351,16 @@ function actualiserCartesBibliotheque() {
   const recherche = normaliser(etat.bibliothequeRecherche).trim();
   const entrees = (etat.documentation.bibliotheque || []).filter((entree) => {
     const bonneCategorie = etat.bibliothequeCategorie === 'Toutes' || entree.categorie === etat.bibliothequeCategorie;
-    const texte = normaliser([entree.terme, ...(entree.aliases || []), entree.resume, entree.definition].join(' '));
-    return bonneCategorie && (!recherche || recherche.split(/\s+/).every((mot) => texte.includes(mot)));
+    const texte = normaliser(JSON.stringify(entree));
+    return bonneCategorie && (!recherche || motsCorrespondent(texte, recherche.split(/\s+/).filter(Boolean)));
   });
-  conteneur.innerHTML = entrees.length ? entrees.map(creerCarteBibliotheque).join('') : '<div class="empty-page library-empty"><span>⌕</span><h2>Aucune référence trouvée</h2><p>Essayez un nom d’outil, un format de donnée ou une famille différente.</p></div>';
+  const visibles = entrees.slice(0, etat.bibliothequeLimite);
+  if (!entrees.length) {
+    conteneur.innerHTML = '<div class="empty-page library-empty"><span>⌕</span><h2>Aucune référence trouvée</h2><p>Essayez un nom d’outil, un format de donnée ou une famille différente.</p></div>';
+    return;
+  }
+  const reste = entrees.length - visibles.length;
+  conteneur.innerHTML = visibles.map(creerCarteBibliotheque).join('') + (reste > 0 ? `<div class="library-more"><p>${entrees.length} références correspondent à votre recherche. ${reste} restent à afficher.</p><button class="primary-button" type="button" data-library-more>Afficher 60 références supplémentaires</button></div>` : '');
 }
 
 function creerCarteBibliotheque(entree) {
@@ -380,6 +387,7 @@ function afficherTermeBibliotheque(id) {
     <div class="article-layout library-layout">
       <article class="article-body">
         <div class="callout callout--retenir"><span class="callout__label">Idée simple</span><p>${echapperHTML(entree.definition)}</p></div>
+        ${entree.article?.length ? `<section class="library-section" id="library-article"><h2>Article de référence</h2>${entree.article.map((paragraphe) => `<p>${echapperHTML(paragraphe)}</p>`).join('')}</section>` : ''}
         ${creerSectionBibliotheque('Rôles et responsabilités', entree.roles, 'library-section--roles')}
         ${creerSectionBibliotheque('Pourquoi l’utiliser', entree.pourquoiUtiliser, 'library-section--why')}
         ${creerSectionBibliotheque('Quand éviter ou limiter son usage', entree.nePasUtiliser, 'library-section--avoid')}
@@ -390,7 +398,7 @@ function afficherTermeBibliotheque(id) {
         <section class="library-section" id="library-code"><h2>Exemple de code expliqué</h2>${entree.exemples.map(creerExempleBibliotheque).join('')}</section>
         <section class="library-section library-exercise" id="library-exercise"><div class="library-exercise__head"><div><span class="eyebrow">Mini-atelier spécifique</span><h2>${echapperHTML(entree.exercice.objectif)}</h2></div><span class="meta-pill">${echapperHTML(entree.exercice.duree)}</span></div><p>${echapperHTML(entree.exercice.contexte)}</p><ol class="step-list">${entree.exercice.etapes.map((etape, index) => `<li class="step-item"><span class="step-item__number">${index + 1}</span><span class="step-item__body"><strong>${echapperHTML(etape)}</strong></span></li>`).join('')}</ol><h3>Validation</h3><ul class="checklist">${entree.exercice.validation.map((item) => `<li>${echapperHTML(item)}</li>`).join('')}</ul></section>
       </article>
-      <aside class="article-aside library-aside"><section class="aside-block"><h3>Dans cette référence</h3><button class="toc-link" type="button" data-scroll="library-scenarios">Scénarios et décisions</button><button class="toc-link" type="button" data-scroll="library-data">Données et transmission</button><button class="toc-link" type="button" data-scroll="library-structure">Structure du code</button><button class="toc-link" type="button" data-scroll="library-code">Exemple de code</button><button class="toc-link" type="button" data-scroll="library-exercise">Mini-atelier</button></section>${associes.length ? `<section class="aside-block"><h3>Entrées associées</h3>${associes.map((associe) => `<button class="related-link" type="button" data-terme="${echapperAttribut(associe.id)}">${echapperHTML(associe.terme)}</button>`).join('')}</section>` : ''}<section class="aside-block"><h3>Documentation externe</h3>${entree.liens.map((lien) => `<a class="official-link" href="${echapperAttribut(lien.url)}" target="_blank" rel="noreferrer"><span>${echapperHTML(lien.label)}</span><span aria-hidden="true">↗</span></a>`).join('')}</section></aside>
+      <aside class="article-aside library-aside"><section class="aside-block"><h3>Dans cette référence</h3>${entree.article?.length ? '<button class="toc-link" type="button" data-scroll="library-article">Article de référence</button>' : ''}<button class="toc-link" type="button" data-scroll="library-scenarios">Scénarios et décisions</button><button class="toc-link" type="button" data-scroll="library-data">Données et transmission</button><button class="toc-link" type="button" data-scroll="library-structure">Structure du code</button><button class="toc-link" type="button" data-scroll="library-code">Exemple de code</button><button class="toc-link" type="button" data-scroll="library-exercise">Mini-atelier</button></section>${associes.length ? `<section class="aside-block"><h3>Entrées associées</h3>${associes.map((associe) => `<button class="related-link" type="button" data-terme="${echapperAttribut(associe.id)}">${echapperHTML(associe.terme)}</button>`).join('')}</section>` : ''}<section class="aside-block"><h3>Documentation externe</h3>${entree.liens.map((lien) => `<a class="official-link" href="${echapperAttribut(lien.url)}" target="_blank" rel="noreferrer"><span>${echapperHTML(lien.label)}</span><span aria-hidden="true">↗</span></a>`).join('')}</section></aside>
     </div>`;
 }
 
@@ -741,9 +749,18 @@ function extraireExtraitBibliotheque(entree, recherche) {
   ].filter(Boolean);
   const source = sources.find((texte) => {
     const normalise = normaliser(texte);
-    return mots.every((mot) => normalise.includes(mot));
+    return motsCorrespondent(normalise, mots);
   });
   return source ? String(source).replace(/\s+/g, ' ').slice(0, 190) : '';
+}
+
+function motsCorrespondent(texte, mots) {
+  const contenu = normaliser(texte);
+  const tokens = contenu.split(/\s+/).filter(Boolean);
+  return mots.every((mot) => {
+    const recherche = normaliser(mot).trim();
+    return recherche && (tokens.includes(recherche) || tokens.some((token) => token.startsWith(recherche)));
+  });
 }
 
 function gererClavierRecherche(evenement) {
@@ -941,7 +958,12 @@ document.addEventListener('click', (evenement) => {
   }
   if (cible.dataset.libraryCategory) {
     etat.bibliothequeCategorie = cible.dataset.libraryCategory;
+    etat.bibliothequeLimite = 60;
     document.querySelectorAll('[data-library-category]').forEach((filtre) => filtre.classList.toggle('is-active', filtre.dataset.libraryCategory === etat.bibliothequeCategorie));
+    actualiserCartesBibliotheque();
+  }
+  if ('libraryMore' in cible.dataset) {
+    etat.bibliothequeLimite += 60;
     actualiserCartesBibliotheque();
   }
   if (cible.dataset.scroll) document.getElementById(cible.dataset.scroll)?.scrollIntoView({ behavior: 'smooth' });
@@ -957,6 +979,7 @@ elements.champRecherche.addEventListener('input', (evenement) => rechercherNotio
 document.addEventListener('input', (evenement) => {
   if (evenement.target.id !== 'filtre-bibliotheque') return;
   etat.bibliothequeRecherche = evenement.target.value;
+  etat.bibliothequeLimite = 60;
   actualiserCartesBibliotheque();
 });
 elements.champRecherche.addEventListener('keydown', gererClavierRecherche);

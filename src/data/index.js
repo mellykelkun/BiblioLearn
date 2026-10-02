@@ -10,7 +10,8 @@ const complementaires = require('./fiches-complementaires');
 const ecosystemes = require('./fiches-ecosystemes');
 const ateliers = require('./ateliers');
 const ateliersPlus = require('./ateliers-plus');
-const bibliotheque = require('./bibliotheque');
+const bibliothequeBase = require('./bibliotheque');
+const bibliothequePlus = require('./bibliotheque-plus');
 
 const domaines = [
   { id: 'html', nom: 'HTML', groupe: 'Fondations', icone: '<>', description: 'Structure, sémantique et accessibilité' },
@@ -32,6 +33,17 @@ const domaines = [
 
 const fiches = [...fondamentaux, ...javascriptDom, ...backend, ...frontend, ...shell, ...approfondissement, ...complementaires, ...ecosystemes];
 const tousLesAteliers = [...ateliers, ...ateliersPlus];
+const bibliotheque = [...bibliothequeBase, ...bibliothequePlus].map((entree) => {
+  if (entree.article?.length) return entree;
+  return {
+    ...entree,
+    article: [
+      `${entree.terme} répond à un besoin précis : ${entree.resume}`,
+      `Dans un projet réel, il faut relier ${entree.terme} à la donnée qui entre, au résultat attendu et à la couche qui en reste responsable. ${entree.definition}`,
+      `Avant de transmettre le résultat, vérifier la forme, traiter le cas vide ou en erreur et ne conserver que les informations utiles au prochain module. L’exemple associé sert de point de départ, pas de règle universelle.`
+    ]
+  };
+});
 
 function validerCatalogue() {
   const ids = new Set();
