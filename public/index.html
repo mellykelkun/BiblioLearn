@@ -3,9 +3,20 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Bibliolearn, bibliothèque locale pour comprendre et réviser le développement web.">
-    <meta name="theme-color" content="#f5f7fa">
+    <meta name="description" content="Apprenez le développement web pas à pas : cours expliqués, exercices corrigés, ateliers pratiques et référence technique.">
+    <meta name="theme-color" content="#087f75">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Bibliolearn">
+    <meta property="og:title" content="Bibliolearn — Apprendre le développement web ensemble">
+    <meta property="og:description" content="Du premier HTML aux applications complètes : un parcours accessible, des défis corrigés et une immense référence à partager avec vos amis devs.">
+    <meta property="og:url" content="https://biblio-learn.vercel.app/">
+    <meta property="og:image" content="https://biblio-learn.vercel.app/icon-512.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Bibliolearn — Apprendre le développement web ensemble">
+    <meta name="twitter:description" content="Cours progressifs, exercices corrigés et ateliers pratiques pour apprendre ensemble.">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <link rel="manifest" href="/manifest.webmanifest">
     <title>Bibliolearn — Bibliothèque du développeur</title>
     <link rel="stylesheet" href="/styles.css">
   </head>
@@ -46,7 +57,7 @@
         </nav>
 
         <footer class="sidebar__footer">
-          <span><i></i> 100 % local</span>
+          <span><i></i> Progression locale</span>
           <span id="compteur-sidebar"></span>
         </footer>
       </aside>
@@ -58,7 +69,9 @@
           <button class="icon-button menu-button" id="ouvrir-menu" type="button" aria-label="Ouvrir le menu">☰</button>
           <nav class="breadcrumb" id="fil-ariane" aria-label="Fil d’Ariane"></nav>
           <div class="topbar__actions">
-            <button class="topbar__button" id="action-revoir" type="button" title="Afficher les fiches à revoir">
+            <button class="topbar__button topbar__install" id="action-installer" type="button" title="Installer Bibliolearn sur cet appareil" aria-label="Installer Bibliolearn sur cet appareil">⊕ <span class="action-label">Installer</span></button>
+            <button class="topbar__button" id="action-partager" type="button" title="Inviter un ami à découvrir Bibliolearn" aria-label="Partager Bibliolearn avec un ami">↗ <span class="action-label">Partager</span></button>
+            <button class="topbar__button" id="action-revoir" type="button" title="Afficher les fiches à revoir" aria-label="Afficher les fiches à revoir">
               <span aria-hidden="true">◎</span><span class="action-label">À revoir</span><b id="compteur-revoir">0</b>
             </button>
           </div>
@@ -84,6 +97,15 @@
     </dialog>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <aside class="install-proposal" id="installation-proposition" aria-label="Installer l’application" hidden>
+      <div><strong>Gardez Bibliolearn à portée de main</strong><p>Installez l’application pour retrouver vos cours et ateliers, même après une coupure réseau.</p></div>
+      <div class="install-proposal__actions"><button class="primary-button" type="button" data-action="installer">Installer</button><button class="secondary-button" type="button" data-action="ignorer-installation">Plus tard</button></div>
+    </aside>
+    <dialog class="install-dialog" id="dialogue-installation" aria-labelledby="titre-installation">
+      <h2 id="titre-installation">Installer Bibliolearn</h2>
+      <p>Dans le menu de votre navigateur, choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil ». Sur iPhone, ouvrez Partager puis « Sur l’écran d’accueil ».</p>
+      <button class="primary-button" type="button" id="fermer-installation">Compris</button>
+    </dialog>
     <script src="/app.js"></script>
   </body>
 </html>

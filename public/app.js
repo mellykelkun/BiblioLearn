@@ -17,8 +17,15 @@ const elements = {
   compteurSidebar: document.querySelector('#compteur-sidebar'),
   compteurRevoir: document.querySelector('#compteur-revoir'),
   actionRevoir: document.querySelector('#action-revoir'),
+  actionInstaller: document.querySelector('#action-installer'),
+  actionPartager: document.querySelector('#action-partager'),
+  propositionInstallation: document.querySelector('#installation-proposition'),
+  dialogueInstallation: document.querySelector('#dialogue-installation'),
+  fermerInstallation: document.querySelector('#fermer-installation'),
   toast: document.querySelector('#toast')
 };
+
+let inviteInstallation = null;
 
 const etat = {
   documentation: null,
@@ -37,6 +44,14 @@ const clesStockage = {
   lues: 'bibliolearn.lues',
   ateliers: 'bibliolearn.ateliers'
 };
+
+const parcoursDebutant = [
+  { titre: '1. Construire une page', description: 'Comprendre le document avant de le styliser.', fiches: ['html-document', 'html-texte-listes', 'html-attributs', 'html-liens-images', 'html-semantique', 'html-formulaires'] },
+  { titre: '2. Mettre en forme', description: 'Modifier un style, comprendre les dimensions, puis organiser les éléments.', fiches: ['css-selecteurs', 'css-box-model', 'css-typographie', 'css-flexbox', 'css-grid', 'css-responsive'] },
+  { titre: '3. Donner un comportement', description: 'Manipuler des valeurs, écrire une logique, puis relier cette logique à la page.', fiches: ['js-variables', 'js-types', 'js-egalite', 'js-conditions', 'js-fonctions', 'js-tableaux', 'js-boucles', 'dom-selection', 'dom-modification', 'dom-evenements', 'dom-formulaires'] },
+  { titre: '4. Échanger des données', description: 'Comprendre le réseau avant de construire une API.', fiches: ['js-json', 'js-erreurs', 'js-promises', 'http-requete-reponse', 'http-methodes', 'http-status', 'js-fetch', 'node-runtime', 'npm-package-json', 'express-demarrage', 'express-routes', 'express-donnees'] }
+];
+const idsParcoursDebutant = parcoursDebutant.flatMap((etape) => etape.fiches);
 
 function chargerValeur(cle, valeurParDefaut) {
   try {
@@ -203,14 +218,14 @@ function afficherAccueil() {
   definirFilAriane([{ label: 'Bibliothèque' }, { label: 'Vue d’ensemble' }]);
   const recentes = obtenirFichesRecentes();
   const aRevoir = etat.stockage.revoir.map(obtenirFiche).filter(Boolean).slice(0, 4);
-  const essentielles = ['dom-selection', 'js-map-filter-reduce', 'js-promises', 'express-middleware']
+  const essentielles = ['html-document', 'html-texte-listes', 'css-selecteurs', 'js-variables']
     .map(obtenirFiche).filter(Boolean);
 
   elements.contenu.innerHTML = `
     <section class="home-hero">
       <div class="eyebrow">Bibliothèque personnelle du développeur</div>
       <h1 class="page-title">Comprendre le Web.<br>Retrouver l’essentiel.</h1>
-      <p class="page-intro">Une référence locale pensée pour expliquer la syntaxe, ce qui se passe réellement à l’exécution et les erreurs qui font perdre du temps.</p>
+      <p class="page-intro">Un parcours progressif pour comprendre la syntaxe, voir ce qui se passe réellement, pratiquer puis retrouver les notions dans la référence technique.</p>
       <button class="home-search" type="button" data-action="recherche">
         <span class="home-search__icon" aria-hidden="true">⌕</span>
         <span>Rechercher une API, une syntaxe, une erreur…</span>
@@ -221,7 +236,7 @@ function afficherAccueil() {
         <span><strong>${etat.documentation.statistiques.nombreExemples}</strong> exemples de code</span>
         <span><strong>${etat.documentation.statistiques.nombreBibliotheque || 0}</strong> références techniques</span>
         <span><strong>${etat.documentation.statistiques.nombreDomaines}</strong> domaines</span>
-        <span>aucune donnée envoyée</span>
+        <span>progression privée sur cet appareil</span>
       </div>
     </section>
 
@@ -238,6 +253,11 @@ function afficherAccueil() {
     <section class="dashboard-section library-promo">
       <div class="library-promo__copy"><div class="eyebrow">Nouvelle référence interne</div><h2>Comprendre les outils derrière le code</h2><p>${etat.documentation.statistiques.nombreBibliotheque || 0} entrées expliquent les packages, services, formats, données, structures, risques et décisions d’architecture avec un mini-atelier propre à chaque notion.</p></div>
       <button class="primary-button" type="button" data-route="bibliotheque">Ouvrir la référence technique <span aria-hidden="true">→</span></button>
+    </section>
+
+    <section class="dashboard-section share-promo">
+      <div><div class="eyebrow">Apprendre ensemble</div><h2>Un ami développeur aimerait ce parcours ?</h2><p>Envoyez-lui le lien du site ou celui de la leçon que vous étudiez. Votre progression personnelle reste sur votre appareil.</p></div>
+      <div class="share-promo__actions"><button class="primary-button" type="button" data-action="partager">↗ Inviter un ami</button><button class="secondary-button" type="button" data-action="installer">⊕ Installer l’application</button></div>
     </section>
 
     <section class="dashboard-section">
@@ -430,11 +450,14 @@ function afficherFiche(id) {
 
   const fichesDomaine = obtenirFichesDomaine(fiche.domaine);
   const index = fichesDomaine.findIndex((element) => element.id === id);
-  const precedente = fichesDomaine[index - 1];
-  const suivante = fichesDomaine[index + 1];
   const aRevoir = etat.stockage.revoir.includes(id);
   const estLue = etat.stockage.lues.includes(id);
   const associees = fiche.associes.map(obtenirFiche).filter(Boolean);
+  const positionDebutant = idsParcoursDebutant.indexOf(id);
+  const precedentDebutant = positionDebutant > 0 ? obtenirFiche(idsParcoursDebutant[positionDebutant - 1]) : null;
+  const suivantDebutant = positionDebutant >= 0 ? obtenirFiche(idsParcoursDebutant[positionDebutant + 1]) : null;
+  const precedente = positionDebutant >= 0 ? precedentDebutant : fichesDomaine[index - 1];
+  const suivante = positionDebutant >= 0 ? suivantDebutant : fichesDomaine[index + 1];
 
   definirFilAriane([
     { label: 'Bibliothèque', route: 'accueil' },
@@ -455,12 +478,14 @@ function afficherFiche(id) {
       <div class="article-header__actions">
         <button class="secondary-button ${aRevoir ? 'is-active' : ''}" type="button" data-toggle-revoir="${fiche.id}">◎ ${aRevoir ? 'Dans À revoir' : 'Marquer à revoir'}</button>
         <button class="secondary-button ${estLue ? 'is-active' : ''}" type="button" data-toggle-lue="${fiche.id}">✓ ${estLue ? 'Maîtrisée' : 'Marquer maîtrisée'}</button>
+        <button class="secondary-button" type="button" data-action="partager">↗ Partager cette leçon</button>
       </div>
     </header>
 
     <div class="article-layout">
       <article class="article-body">
-        <div class="callout callout--retenir article-reading-guide"><span class="callout__label">Comment lire cette fiche</span><p>Commencez par l’idée simple, puis lisez la syntaxe de haut en bas. Chaque exemple est commenté ou décomposé ; les encadrés signalent les pièges et les bonnes pratiques avant les liens officiels.</p></div>
+        <div class="callout callout--retenir article-reading-guide"><span class="callout__label">Comment apprendre ici</span><p>Lisez d’abord l’idée et prédisez le résultat du code. Testez l’exemple dans votre navigateur ou terminal, faites le défi sans regarder la réponse, puis ouvrez le corrigé pour vérifier votre raisonnement.</p></div>
+        ${positionDebutant >= 0 ? `<div class="learning-position"><span>Parcours débutant · étape ${positionDebutant + 1}/${idsParcoursDebutant.length}</span>${precedentDebutant ? `<button type="button" data-fiche="${precedentDebutant.id}">← Prérequis : ${echapperHTML(precedentDebutant.titre)}</button>` : ''}${suivantDebutant ? `<button type="button" data-fiche="${suivantDebutant.id}">Ensuite : ${echapperHTML(suivantDebutant.titre)} →</button>` : ''}</div>` : ''}
         ${creerPlanSessions(fiche)}
         ${fiche.sections.map((section, sectionIndex) => creerSection(section, sectionIndex)).join('')}
         <nav class="article-pagination" aria-label="Fiches précédente et suivante">
@@ -481,11 +506,11 @@ function afficherFiche(id) {
 function creerPlanSessions(fiche) {
   if (!fiche.sessions?.length) return '';
   return `<section class="session-plan" aria-labelledby="session-plan-title">
-    <div class="session-plan__head"><div><span class="eyebrow">Progression guidée</span><h2 id="session-plan-title">${fiche.sessions.length} sessions pour retenir la notion</h2></div><span class="session-plan__hint">à votre rythme · concepts, code, décisions</span></div>
+    <div class="session-plan__head"><div><span class="eyebrow">Progression guidée</span><h2 id="session-plan-title">${fiche.sessions.length} étapes pour comprendre et pratiquer</h2></div><span class="session-plan__hint">durées indicatives · vous pouvez faire une pause</span></div>
     <div class="session-grid">${fiche.sessions.map((session) => `
       <button class="session-card" type="button" data-scroll="section-${session.sections?.[0] ?? 0}">
         <span class="session-card__number">${fiche.sessions.indexOf(session) + 1}</span>
-        <span><strong>${echapperHTML(session.titre)}</strong><small>${echapperHTML(session.duree)} · ${session.concepts?.length || 0} concepts</small><small>${echapperHTML(session.activite || session.objectif)}</small><small class="session-card__scenario">Scénario : ${echapperHTML(session.scenario || 'cas courant')}</small></span>
+        <span><strong>${echapperHTML(session.titre)}</strong><small>${echapperHTML(session.duree)}</small><small>${echapperHTML(session.activite || session.objectif)}</small></span>
         <span aria-hidden="true">↓</span>
       </button>`).join('')}</div>
   </section>`;
@@ -513,6 +538,10 @@ function creerSection(section, index) {
     corps = `<div class="table-wrap"><table class="comparison-table"><thead><tr>${section.colonnes.map((colonne) => `<th>${echapperHTML(colonne)}</th>`).join('')}</tr></thead><tbody>${section.lignes.map((ligne) => `<tr>${ligne.map((cellule) => `<td>${echapperHTML(cellule)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
   } else if (section.type === 'liens') {
     corps = `<div class="official-links">${section.elements.map((lien) => `<a class="official-link" href="${echapperAttribut(lien.url)}" target="_blank" rel="noreferrer"><span>${echapperHTML(lien.label)}</span><span aria-hidden="true">↗</span></a>`).join('')}</div>`;
+  } else if (section.type === 'exercice') {
+    corps = `<div class="lesson-exercise"><p>${echapperHTML(section.contenu)}</p>${section.indice ? `<details><summary>Voir un indice</summary><p>${echapperHTML(section.indice)}</p></details>` : ''}</div>`;
+  } else if (section.type === 'solution') {
+    corps = `<details class="lesson-solution"><summary>Afficher le corrigé après avoir essayé</summary><p>${echapperHTML(section.contenu)}</p></details>`;
   }
 
   return `<section class="doc-section" id="section-${index}">${titre}${corps}</section>`;
@@ -527,9 +556,8 @@ function afficherParcours() {
   const total = etat.documentation.fiches.length;
   const lues = etat.stockage.lues.map(obtenirFiche).filter(Boolean);
   const recentes = obtenirFichesRecentes();
-  const pourcentage = Math.round((lues.length / total) * 100);
-  const parcoursConseille = ['html-document', 'css-box-model', 'js-variables', 'dom-selection', 'js-promises', 'node-runtime', 'http-requete-reponse', 'express-routes']
-    .map(obtenirFiche).filter(Boolean);
+  const etapesValidees = idsParcoursDebutant.filter((id) => etat.stockage.lues.includes(id)).length;
+  const pourcentage = Math.round((etapesValidees / idsParcoursDebutant.length) * 100);
 
   elements.contenu.innerHTML = `
     <header class="listing-header">
@@ -537,11 +565,11 @@ function afficherParcours() {
       <h1 class="page-title">Mon parcours</h1>
       <p class="page-intro">Les marqueurs sont volontaires et restent dans ce navigateur. Ils servent à retrouver votre fil, pas à transformer l’apprentissage en course.</p>
       <div class="domain-header__meta">
-        <span class="meta-pill">${lues.length} / ${total} maîtrisées</span>
-        <span class="meta-pill">${pourcentage} % du catalogue</span>
+        <span class="meta-pill">${etapesValidees} / ${idsParcoursDebutant.length} étapes débutant</span>
+        <span class="meta-pill">${lues.length} / ${total} fiches maîtrisées</span>
         <span class="meta-pill">${etat.stockage.revoir.length} à revoir</span>
       </div>
-      <div class="progress-wrap" aria-label="Progression du parcours">
+      <div class="progress-wrap" aria-label="Progression du parcours débutant">
         <span>Progression</span>
         <span class="progress-track"><span style="width: ${pourcentage}%"></span></span>
         <strong>${pourcentage}%</strong>
@@ -549,7 +577,7 @@ function afficherParcours() {
     </header>
     ${creerSectionListe(recentes.length ? 'Récemment étudié' : 'Récemment étudié', recentes, 'Aucune fiche ouverte pour le moment. Le parcours conseillé ci-dessous est un bon point de départ.')}
     ${creerSectionListe('Fiches maîtrisées', lues, 'Marquez une fiche comme maîtrisée depuis son en-tête.')}
-    ${creerSectionListe('Parcours conseillé', parcoursConseille, 'Le catalogue est prêt à être parcouru.')}
+    ${parcoursDebutant.map((etape) => `<div class="path-stage"><p>${echapperHTML(etape.description)}</p>${creerSectionListe(etape.titre, etape.fiches.map(obtenirFiche).filter(Boolean), 'Étape indisponible.')}</div>`).join('')}
     ${creerSectionAteliersTermines()}`;
 }
 
@@ -575,7 +603,7 @@ function afficherAteliers() {
       <div class="eyebrow">Apprendre en construisant</div>
       <h1 class="page-title">Ateliers pratiques</h1>
       <p class="page-intro">Chaque atelier donne un objectif concret, les outils nécessaires, une structure de fichiers, des étapes commentées et une validation. Copiez le code, modifiez-le, cassez-le puis réparez-le.</p>
-      <div class="domain-header__meta"><span class="meta-pill">${ateliers.length} ateliers</span><span class="meta-pill">${etat.stockage.ateliers.length} terminés</span><span class="meta-pill">100 % local</span></div>
+      <div class="domain-header__meta"><span class="meta-pill">${ateliers.length} ateliers</span><span class="meta-pill">${etat.stockage.ateliers.length} terminés</span><span class="meta-pill">Progression locale</span></div>
     </header>
     <div class="atelier-filters" role="group" aria-label="Filtrer les ateliers">
       <button class="filter-chip is-active" type="button" data-atelier-filter="tous">Tous</button>
@@ -842,6 +870,83 @@ function afficherToast(message) {
   afficherToast.minuteur = setTimeout(() => elements.toast.classList.remove('is-visible'), 2200);
 }
 
+function estInstallee() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+function masquerPropositionInstallation() {
+  elements.propositionInstallation.hidden = true;
+}
+
+function proposerInstallation() {
+  if (estInstallee() || sessionStorage.getItem('bibliolearn.installation.ignoree')) return;
+  elements.propositionInstallation.hidden = false;
+}
+
+async function installerApplication() {
+  masquerPropositionInstallation();
+  if (estInstallee()) return afficherToast('Bibliolearn est déjà installé');
+  if (inviteInstallation) {
+    const invite = inviteInstallation;
+    inviteInstallation = null;
+    await invite.prompt();
+    const choix = await invite.userChoice;
+    afficherToast(choix.outcome === 'accepted' ? 'Installation lancée' : 'Installation reportée');
+    return;
+  }
+  elements.dialogueInstallation.showModal();
+}
+
+async function partagerSite() {
+  const url = window.location.href;
+  const titre = etat.ficheActive ? `${etat.ficheActive.titre} — Bibliolearn` : 'Bibliolearn — Apprendre le développement web';
+  const texte = etat.ficheActive
+    ? `J’étudie « ${etat.ficheActive.titre} » sur Bibliolearn. Viens apprendre avec moi !`
+    : 'Des cours progressifs et des ateliers pratiques pour apprendre le développement web ensemble.';
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: titre, text: texte, url });
+      return;
+    } catch (erreur) {
+      if (erreur.name === 'AbortError') return;
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    afficherToast('Lien copié : envoyez-le à vos amis devs !');
+  } catch {
+    const champ = document.createElement('textarea');
+    champ.value = url;
+    champ.style.position = 'fixed';
+    champ.style.opacity = '0';
+    document.body.append(champ);
+    champ.select();
+    document.execCommand('copy');
+    champ.remove();
+    afficherToast('Lien copié : envoyez-le à vos amis devs !');
+  }
+}
+
+function initialiserPwa() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {
+      // Le site reste utilisable lorsque l'installation hors ligne est indisponible.
+    }));
+  }
+  window.addEventListener('beforeinstallprompt', (evenement) => {
+    evenement.preventDefault();
+    inviteInstallation = evenement;
+  });
+  window.addEventListener('appinstalled', () => {
+    inviteInstallation = null;
+    masquerPropositionInstallation();
+    elements.actionInstaller.hidden = true;
+    afficherToast('Bibliolearn est installé !');
+  });
+  if (estInstallee()) elements.actionInstaller.hidden = true;
+  window.setTimeout(proposerInstallation, 14000);
+}
+
 function ouvrirMenuMobile() {
   elements.sidebar.classList.add('is-open');
   elements.overlay.hidden = false;
@@ -948,6 +1053,12 @@ document.addEventListener('click', (evenement) => {
     setTimeout(executerScroll, cible.dataset.route ? 80 : 0);
   }
   if (cible.dataset.action === 'recherche') ouvrirRecherche();
+  if (cible.dataset.action === 'partager') partagerSite();
+  if (cible.dataset.action === 'installer') installerApplication();
+  if (cible.dataset.action === 'ignorer-installation') {
+    masquerPropositionInstallation();
+    sessionStorage.setItem('bibliolearn.installation.ignoree', '1');
+  }
   if ('copy' in cible.dataset) copierCode(cible);
   if (cible.dataset.toggleRevoir) basculerDansListe('revoir', cible.dataset.toggleRevoir);
   if (cible.dataset.toggleLue) basculerDansListe('lues', cible.dataset.toggleLue);
@@ -972,6 +1083,9 @@ document.addEventListener('click', (evenement) => {
 elements.ouvrirRecherche.addEventListener('click', ouvrirRecherche);
 elements.fermerRecherche.addEventListener('click', fermerRecherche);
 elements.actionRevoir.addEventListener('click', () => naviguer('revoir'));
+elements.actionInstaller.addEventListener('click', installerApplication);
+elements.actionPartager.addEventListener('click', partagerSite);
+elements.fermerInstallation.addEventListener('click', () => elements.dialogueInstallation.close());
 elements.ouvrirMenu.addEventListener('click', ouvrirMenuMobile);
 elements.fermerMenu.addEventListener('click', fermerMenuMobile);
 elements.overlay.addEventListener('click', fermerMenuMobile);
@@ -995,4 +1109,5 @@ document.addEventListener('keydown', (evenement) => {
 });
 
 window.addEventListener('hashchange', router);
+initialiserPwa();
 chargerDocumentation();

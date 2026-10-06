@@ -1,4 +1,5 @@
 'use strict';
+const defis = require('./ateliers-defis');
 
 /*
  * Banque de pratique générée à partir de parcours courts.
@@ -13,6 +14,7 @@ function ajouterDuree(duree, supplement = 15) {
 }
 
 function enrichirEtapes(etapes) {
+  if (etapes.length >= 4) return etapes;
   return [...etapes, {
     titre: 'Débrief et transfert',
     explication: 'Après la validation, suivez la donnée de bout en bout : qui la produit, quel type elle a, où elle est validée, comment elle est transformée, où elle est transmise ou stockée et quel message apparaît en cas d’échec. Écrivez ensuite la décision prise, le cas dans lequel elle serait mauvaise et la variante à tester dans votre propre infrastructure.',
@@ -29,22 +31,29 @@ function slugifier(texte) {
   return texte.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-const exemples = {
-  html: '<main>\n  <h1>Mon écran</h1>\n  <p>Un contenu compréhensible.</p>\n</main>',
-  css: '.composant {\n  display: grid;\n  gap: 1rem;\n  color: #243447;\n}',
-  javascript: 'const resultat = donnees.filter((element) => element.actif);\nconsole.log(resultat);',
-  dom: 'const bouton = document.querySelector("#action");\nbouton.addEventListener("click", () => {\n  document.body.classList.toggle("is-active");\n});',
-  node: 'const { readFile } = require("node:fs/promises");\nconst contenu = await readFile("./donnees.txt", "utf8");\nconsole.log(contenu);',
-  npm: 'npm init -y\nnpm install --save-dev outil\nnpm run check',
-  http: 'curl -i http://localhost:3000/api/ressource\n# Observer le statut et Content-Type',
-  express: 'app.get("/api/ressource", (req, res) => {\n  res.json({ statut: "ok" });\n});',
-  shell: 'pwd\nfind . -maxdepth 2 -type f -print\nrg "motif" .',
-  typescript: 'type Element = { id: string; actif: boolean };\nconst element: Element = { id: "demo", actif: true };',
-  react: 'function Carte({ titre }) {\n  return <article><h2>{titre}</h2></article>;\n}',
-  nextjs: 'export default function Page() {\n  return <main><h1>Page rendue</h1></main>;\n}',
-  vue: '<script setup>\nconst titre = "Composant Vue";\n</script>\n<template><h1>{{ titre }}</h1></template>',
-  angular: '@Component({\n  selector: "app-carte",\n  template: "<h2>{{ titre }}</h2>"\n})',
-  'css-outils': '<div class="flex gap-4 rounded-lg p-4">\n  <h2>Composant utilitaire</h2>\n</div>'
+const fichiers = {
+  html: ['index.html'], css: ['index.html', 'styles.css'], javascript: ['index.html', 'app.js'], dom: ['index.html', 'app.js'],
+  node: ['main.js'], npm: ['package.json', 'index.js'], http: ['requêtes.http'], express: ['server.js', 'package.json'],
+  shell: ['exercice.sh'], typescript: ['index.ts', 'tsconfig.json'], react: ['App.jsx'], nextjs: ['app/page.tsx'],
+  vue: ['App.vue'], angular: ['app.component.ts'], 'css-outils': ['index.html', 'styles.css']
+};
+const langages = { html: 'HTML', css: 'CSS', javascript: 'JavaScript', dom: 'JavaScript', node: 'JavaScript', npm: 'JSON / Bash', http: 'HTTP', express: 'JavaScript', shell: 'Bash', typescript: 'TypeScript', react: 'JSX', nextjs: 'TSX', vue: 'Vue', angular: 'TypeScript', 'css-outils': 'HTML / CSS' };
+const fichesParDefi = {
+  html: ['html-semantique','html-focus-accessible','html-formulaires','html-tableaux','html-liens-images','html-dialog-details','html-document','html-semantique'],
+  css: ['css-selecteurs','css-grid','css-flexbox','css-variables','css-responsive','css-container-queries','css-typographie','css-selecteurs'],
+  javascript: ['js-objets','js-conditions','js-tableaux','js-map-filter-reduce','js-erreurs','js-modules','js-promises','js-boucles'],
+  dom: ['dom-modification','dom-delegation','dom-evenements','html-dialog-details','dom-evenements','dom-mutation-observer','dom-evenements','dom-formulaires'],
+  node: ['node-process','node-fs','node-fs','node-streams','node-process','node-runtime','node-process','node-process'],
+  npm: ['npm-package-json','npm-scripts','npm-semver','npm-package-json','npm-publish-package','npm-ci-lockfile','npm-update-outdated-audit','npm-publish-package'],
+  http: ['http-requete-reponse','http-status','http-status','http-headers-cors','http-rest','http-cache-etag','http-cookies-sessions','http-methodes'],
+  express: ['express-routes','express-middleware','express-donnees','express-erreurs','express-routes','http-rest','express-demarrage','express-securite-base'],
+  shell: ['shell-grep-rg-find','shell-pipes-redirections','shell-terminal','shell-env-path','shell-permissions','shell-pipes-redirections','shell-terminal','git-cycle'],
+  typescript: ['typescript-types','typescript-narrowing','typescript-narrowing','typescript-generiques','typescript-types-utilitaires','typescript-frontiere-api','typescript-types','typescript-configuration-stricte'],
+  react: ['react-composants','react-etat','react-composants','react-etat','react-effets','react-architecture-etat','react-effets','react-accessibilite-rendu'],
+  nextjs: ['next-routage','next-routage','next-rendu','next-routage','next-rendu','next-rendu','next-etats-chargement-erreurs','next-etats-chargement-erreurs'],
+  vue: ['vue-composants','vue-composants','vue-reactivite','vue-reactivite','vue-reactivite','vue-composables-testables','vue-composants','vue-composants'],
+  angular: ['angular-composants','angular-composants','angular-composants','angular-services','angular-formulaires-reactifs','angular-services','angular-composants','angular-services-tests'],
+  'css-outils': ['tailwind-utilitaires','tailwind-utilitaires','bootstrap-composants','tailwind-utilitaires','css-outils-comparaison','css-variables','css-outils-comparaison','css-outils-comparaison']
 };
 
 const parcours = [
@@ -67,33 +76,34 @@ const parcours = [
 
 function creerAtelier(parcoursCourant, theme, index) {
   const domaine = parcoursCourant.domaine;
+  const defi = defis[domaine]?.[index];
+  if (!defi) throw new Error(`Défi spécifique manquant : ${domaine} ${index + 1}`);
   const slug = slugifier(theme);
   const id = 'atelier-plus-' + domaine + '-' + String(index + 1).padStart(2, '0') + '-' + slug;
-  const exemple = exemples[domaine];
   const dossier = 'atelier-' + slug;
   return atelier({
     id,
     titre: 'Construire : ' + theme,
     domaine,
     niveau: index > 4 ? 'Intermédiaire' : 'Débutant',
-    duree: index > 4 ? '45 min' : '30 min',
-    objectif: 'Réaliser un mini-projet sur « ' + theme + ' », puis vérifier son comportement avec un résultat observable.',
+    duree: index > 4 ? '60 min' : '45 min',
+    objectif: defi.attendu,
     outils: ['Éditeur de code', 'Terminal', domaine === 'html' || domaine === 'css' ? 'Navigateur et DevTools' : 'Documentation officielle'],
-    prerequis: ['Lire la fiche associée', 'Savoir créer un dossier de projet', 'Pouvoir expliquer le résultat attendu avant de coder'],
-    structure: [dossier + '/README.md', dossier + '/index.' + (domaine === 'html' ? 'html' : domaine === 'css' ? 'css' : 'js'), dossier + '/tests/'],
+    prerequis: ['Lire la fiche utile liée à cet atelier', 'Savoir créer un dossier de projet', 'Pouvoir expliquer le résultat attendu avant de coder'],
+    structure: [dossier + '/README.md', ...(fichiers[domaine] || ['index.js']).map((fichier) => dossier + '/' + fichier)],
     etapes: [
-      { titre: 'Formuler le contrat', explication: 'Écrivez ce que l’utilisateur doit voir ou ce que la commande doit produire. Ajoutez un cas nominal et un cas limite.', langage: 'Markdown', code: '# ' + theme + '\n\n## Résultat attendu\n- Cas nominal : le comportement principal est observable.\n- Cas limite : l’erreur ou l’absence de donnée est expliquée.\n\n## Critère mesurable\nNoter une observation avant de modifier le code.' },
-      { titre: 'Construire une première version', explication: 'Partez d’une petite implémentation, puis adaptez-la au thème. Gardez les données et les responsabilités séparées pour pouvoir tester chaque morceau.', langage: domaine === 'shell' ? 'Bash' : domaine === 'typescript' ? 'TypeScript' : domaine === 'html' || domaine === 'css' ? domaine.toUpperCase() : 'JavaScript', code: exemple },
-      { titre: 'Casser puis vérifier', explication: 'Introduisez volontairement une erreur simple, lisez le message, corrigez-la et notez la règle retenue dans README.md.', langage: 'Bash', code: 'node --check index.js 2>/dev/null || true\nprintf "Sujet : ' + theme + '\\n"\nrg -n "TODO|FIXME|console\\.log" . || true\n# Vérifier aussi le cas limite décrit dans le contrat' }
+      { titre: 'Préparer le résultat attendu', explication: `Avant de coder « ${theme} », écrivez ce que la personne verra et comment vous vérifierez le résultat.`, langage: 'Markdown', code: `# ${theme}\n\nRésultat attendu : ${defi.attendu}\n\nCas à provoquer : ${defi.panne}` },
+      { titre: 'Construire et compléter', explication: `Ce code est un point de départ propre à « ${theme} ». Complétez-le dans les fichiers indiqués, puis faites-le fonctionner.`, langage: langages[domaine], code: defi.code },
+      { titre: 'Tester une panne réelle', explication: `Vérifiez d’abord : ${defi.attendu} Puis provoquez ce problème : ${defi.panne}`, langage: 'Protocole', code: `1. Observer le résultat normal.\n2. ${defi.panne}\n3. Lire le message ou l’état obtenu.\n4. Réparer et vérifier à nouveau.` },
+      { titre: 'Expliquer et transférer', explication: `Racontez pourquoi votre solution fonctionne et ce qui change dans le cas cassé de « ${theme} ».`, langage: 'Markdown', code: `# Bilan : ${theme}\n- Ce que j’ai construit :\n- Résultat observé : ${defi.attendu}\n- Panne reproduite : ${defi.panne}\n- Correction appliquée :\n- Si le projet grandit, je vérifierai :` }
     ],
     validation: [
-      'Le cas nominal produit le résultat annoncé dans le contrat.',
-      'Le cas limite est traité avec un message ou un état visible.',
-      'Le code est relisible après une pause de cinq minutes.',
-      'README.md explique la commande ou le geste de vérification.'
+      defi.attendu,
+      `Le cas cassé a été reproduit puis corrigé : ${defi.panne}`,
+      'Le résultat et sa vérification sont expliqués dans README.md.'
     ],
-    indice: 'Réduisez le problème à une donnée d’entrée, une transformation et une observation. Si le résultat est ambigu, ajoutez un log ou un test ciblé avant de modifier plusieurs fichiers.',
-    associes: [parcoursCourant.associe]
+    indice: `Commencez par vérifier le résultat normal. Ensuite, reproduisez exactement ce cas : ${defi.panne}`,
+    associes: [fichesParDefi[domaine][index]]
   });
 }
 

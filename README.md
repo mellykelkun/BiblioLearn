@@ -1,6 +1,6 @@
 # Bibliolearn
 
-Bibliolearn est une bibliothèque locale pour apprendre, réviser et retrouver rapidement les fondamentaux du développement web. L’interface est construite en HTML, CSS et JavaScript vanilla ; Express sert les fichiers et le catalogue documentaire.
+Bibliolearn est un parcours progressif pour apprendre le développement web, complété par des ateliers et une référence technique. L’interface est construite en HTML, CSS et JavaScript vanilla ; Express sert les fichiers et le catalogue documentaire. La progression personnelle reste dans le navigateur.
 
 ## Démarrer
 
@@ -23,6 +23,7 @@ PORT=3001 npm run dev
 npm run dev     # serveur avec redémarrage Nodemon
 npm start       # serveur sans Nodemon
 npm run check   # syntaxe JavaScript + intégrité du catalogue
+npm run build:catalogue # régénérer le JSON utilisé en mode statique/hors ligne
 ```
 
 ## Architecture
@@ -32,13 +33,18 @@ npm run check   # syntaxe JavaScript + intégrité du catalogue
 ├── public/
 │   ├── index.html             # structure de l’interface
 │   ├── styles.css             # design clair, lisible et responsive
-│   └── app.js                 # navigation, recherche et progression
+│   ├── app.js                 # navigation, recherche et progression
+│   ├── manifest.webmanifest   # installation PWA
+│   └── sw.js                  # lecture hors ligne après la première visite
 ├── scripts/
-│   └── verifier-catalogue.js  # contrôle les fiches et leurs liens internes
+│   ├── verifier-catalogue.js  # contrôle les fiches et leurs liens internes
+│   ├── test-pedagogie.js      # unicité des exercices et synchronisation du JSON
+│   └── construire-catalogue.js # publication statique du catalogue
 ├── src/data/
 │   ├── index.js               # domaines, agrégation et validation
 │   ├── outils.js              # constructeurs et sessions guidées
-│   ├── profils.js             # approfondissement par écosystème
+│   ├── pedagogie*.js          # modèles mentaux, défis et corrigés propres aux 113 leçons
+│   ├── ateliers-defis.js      # points de départ et validations propres aux 120 défis
 │   ├── fiches-approfondissement.js # sessions et notions avancées
 │   ├── fiches-complementaires.js # accessibilité, sécurité et pratique avancée
 │   ├── fiches-fondamentaux.js # HTML et CSS
@@ -54,9 +60,15 @@ npm run check   # syntaxe JavaScript + intégrité du catalogue
 └── server.js                  # serveur Express et API locale
 ```
 
-Le navigateur charge le catalogue depuis `GET /api/documentation`. La recherche est entièrement locale. Les fiches récemment ouvertes, maîtrisées ou marquées « À revoir » sont enregistrées dans `localStorage` et ne quittent jamais la machine.
+Le navigateur charge le catalogue depuis `GET /api/documentation` et peut utiliser `public/documentation.json` en secours. La recherche s’exécute dans le navigateur. Les fiches récemment ouvertes, maîtrisées ou marquées « À revoir » sont enregistrées dans `localStorage` et ne quittent pas l’appareil.
 
-Chaque leçon expose désormais cinq sessions (« Comprendre », « Vocabulaire », « Construire », « Choisir selon le scénario », « Vérifier et transférer ») qui pointent vers les sections de la fiche. Les fiches reçoivent aussi une explication approfondie, un cycle de donnée (demander, valider, transformer, transmettre, stocker, observer), une grille de décisions, deux mini-exercices de code, un exercice de transfert, une mise en situation et une question de contrôle. Le catalogue contient 113 fiches, 350 exemples et 129 ateliers. Chaque atelier dure 15 minutes de plus et se termine par un débrief sur le type de donnée, la validation, le transport, la sécurité et l’infrastructure visée.
+Le parcours débutant guide 35 leçons dans un ordre explicite : HTML, CSS, JavaScript/DOM, puis échanges réseau et serveur. Chacune des 113 leçons conserve sa documentation d’origine et ajoute un modèle mental, une situation, un défi et un corrigé propres à la notion. Les cinq étapes visibles pointent vers cinq parties différentes ; leurs durées sont indicatives. Le catalogue contient 129 ateliers, dont 120 défis avec leur propre code de départ, panne à reproduire et résultat à vérifier.
+
+## Installer et partager
+
+Le manifeste et le service worker rendent le site installable depuis les navigateurs compatibles. Le bouton « Installer » utilise l’invite du navigateur lorsqu’elle est disponible et donne des instructions de repli ailleurs. Une proposition discrète apparaît après un court délai et peut être remise à plus tard. Les fichiers de l’interface et le catalogue public sont mis en cache pour permettre la consultation hors ligne après une première visite complète. Une connexion est nécessaire pour obtenir les mises à jour.
+
+Le bouton « Partager » propose le partage natif sur les appareils compatibles, ou copie le lien de la page ou de la leçon en cours. Les marqueurs personnels ne sont pas inclus dans ce lien.
 
 ## Migration Supabase optionnelle
 
@@ -77,15 +89,16 @@ L’entrée « Ateliers pratiques » propose des exercices orientés production 
 2. Décrire un objectif concret, les outils, les prérequis et une structure de fichiers.
 3. Découper le travail en étapes courtes avec `titre`, `explication`, `langage` et `code`.
 4. Terminer par des critères de validation et un indice de dépannage.
-5. Vérifier les fiches liées dans `associes`, puis lancer `npm run check`.
+5. Vérifier les fiches liées dans `associes`, puis lancer `npm run build:catalogue` et `npm run check`.
 
 ## Ajouter une fiche
 
 1. Choisir le fichier correspondant au domaine dans `src/data/`.
 2. Ajouter un objet créé avec `fiche({ ... })`.
 3. Composer uniquement les sections utiles : `texte`, `code`, `liste`, `decomposition`, `comparaison`, `alerte` et `liens`.
-4. Ajouter les identifiants des fiches liées dans `associes`.
-5. Lancer `npm run check`.
+4. Rédiger une entrée de guide pédagogique unique dans `pedagogie*.js` : modèle mental, situation, défi et corrigé.
+5. Ajouter les identifiants des fiches liées dans `associes`.
+6. Lancer `npm run build:catalogue` puis `npm run check`.
 
 Exemple minimal :
 
@@ -105,6 +118,8 @@ fiche({
   associes: ['js-variables']
 })
 ```
+
+Les tests du catalogue vérifient l’unicité des guides, des codes d’atelier, les cibles des sessions, la synchronisation du JSON statique et les fichiers PWA. La vérification manuelle doit compléter ces tests sur ordinateur et mobile : navigation, recherche, lecture des corrigés, installation, partage et réouverture hors ligne.
 
 ## Ressource PDF
 

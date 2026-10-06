@@ -1,0 +1,22 @@
+{
+  "id": "/",
+  "name": "Bibliolearn — Apprendre le développement web",
+  "short_name": "Bibliolearn",
+  "description": "Des cours progressifs, des défis pratiques et une référence technique à emporter partout.",
+  "lang": "fr",
+  "start_url": "/#/accueil",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#087f75",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Mon parcours", "url": "/#/parcours" },
+    { "name": "Ateliers", "url": "/#/ateliers" },
+    { "name": "Référence technique", "url": "/#/bibliotheque" }
+  ]
+}

@@ -101,7 +101,7 @@ const statistiques = {
 };
 
 module.exports = {
-  meta: { version: 2, miseAJour: '2026-10-01' },
+  meta: { version: 3, miseAJour: '2026-10-06' },
   domaines,
   fiches,
   ateliers: tousLesAteliers,
