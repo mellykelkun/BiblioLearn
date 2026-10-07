@@ -16,6 +16,7 @@ const nouveauxParcours = require('./construire-nouveaux-parcours');
 const fichesEnvironnement = require('./fiches-environnement');
 const bibliothequeNouveaux = require('./bibliotheque-nouveaux');
 const environnements = require('./environnements');
+const { normaliserConnaissance, migrerReference, construireGraphe, parcours, niveaux } = require('../pedagogie/modele');
 
 const domaines = [
   { id: 'html', nom: 'HTML', groupe: 'Fondations', icone: '<>', description: 'Structure, sémantique et accessibilité' },
@@ -41,19 +42,10 @@ const domaines = [
   { id: 'php', nom: 'PHP', groupe: 'Autres langages', icone: 'PHP', description: 'Scripts serveur, formulaires et données' }
 ];
 
-const fiches = [...fondamentaux, ...javascriptDom, ...backend, ...frontend, ...shell, ...approfondissement, ...complementaires, ...ecosystemes, ...fichesEnvironnement, ...nouveauxParcours.fiches];
-const tousLesAteliers = [...ateliers, ...ateliersPlus, ...nouveauxParcours.ateliers];
-const bibliotheque = [...bibliothequeBase, ...bibliothequePlus, ...bibliothequeNouveaux].map((entree) => {
-  if (entree.article?.length) return entree;
-  return {
-    ...entree,
-    article: [
-      `${entree.terme} répond à un besoin précis : ${entree.resume}`,
-      `Dans un projet réel, il faut relier ${entree.terme} à la donnée qui entre, au résultat attendu et à la couche qui en reste responsable. ${entree.definition}`,
-      `Avant de transmettre le résultat, vérifier la forme, traiter le cas vide ou en erreur et ne conserver que les informations utiles au prochain module. L’exemple associé sert de point de départ, pas de règle universelle.`
-    ]
-  };
-});
+const fiches = [...fondamentaux, ...javascriptDom, ...backend, ...frontend, ...shell, ...approfondissement, ...complementaires, ...ecosystemes, ...fichesEnvironnement, ...nouveauxParcours.fiches].map(f => normaliserConnaissance(f, 'fiche'));
+const tousLesAteliers = [...ateliers, ...ateliersPlus, ...nouveauxParcours.ateliers].map(a => normaliserConnaissance(a, 'atelier'));
+const bibliotheque = [...bibliothequeBase.map(e => migrerReference(e, false)), ...[...bibliothequePlus, ...bibliothequeNouveaux].map(e => migrerReference(e, true))];
+construireGraphe([...fiches, ...tousLesAteliers, ...bibliotheque]);
 
 function validerCatalogue() {
   const ids = new Set();
@@ -70,7 +62,7 @@ function validerCatalogue() {
 
   const bibliothequeIds = new Set();
   for (const entree of bibliotheque) {
-    if (!entree.id || !entree.terme || !entree.definition || !entree.exemples?.length || !entree.exercice?.etapes?.length) {
+    if (!entree.id || !entree.terme || (entree.maturiteEditoriale !== 'draft' && (!entree.definition || !entree.exemples?.length || !entree.exercice?.etapes?.length))) {
       throw new Error(`Entrée de bibliothèque incomplète : ${entree.id || entree.terme || 'sans identifiant'}`);
     }
     if (bibliothequeIds.has(entree.id)) throw new Error(`Identifiant de bibliothèque dupliqué : ${entree.id}`);
@@ -111,8 +103,10 @@ const statistiques = {
 };
 
 module.exports = {
-  meta: { version: 4, miseAJour: '2026-10-07' },
+  meta: { version: 5, miseAJour: '2026-10-07' },
   domaines,
+  parcours,
+  niveaux,
   fiches,
   ateliers: tousLesAteliers,
   bibliotheque,
