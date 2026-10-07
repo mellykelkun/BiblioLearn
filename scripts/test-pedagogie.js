@@ -6,16 +6,53 @@ const path = require('node:path');
 const catalogue = require('../src/data');
 const defis = require('../src/data/ateliers-defis');
 const guides = require('../src/data/pedagogie');
+const nouveauxParcours = require('../src/data/construire-nouveaux-parcours');
+const fichesEnvironnement = require('../src/data/fiches-environnement');
+const bibliothequeNouveaux = require('../src/data/bibliotheque-nouveaux');
 
-assert.equal(catalogue.fiches.length, 113);
-assert.equal(catalogue.ateliers.length, 129);
-assert.equal(Object.keys(guides).length, catalogue.fiches.length);
+assert.equal(catalogue.fiches.length, 176);
+assert.equal(catalogue.ateliers.length, 369);
+assert.equal(catalogue.domaines.length, 21);
+assert.equal(catalogue.bibliotheque.length, 1978);
+assert.equal(Object.keys(catalogue.environnements.outils).length, 13);
+assert.equal(nouveauxParcours.fiches.length, 60);
+assert.equal(nouveauxParcours.ateliers.length, 240);
+assert.equal(fichesEnvironnement.length, 3);
+assert.equal(bibliothequeNouveaux.length, 79);
+assert.equal(Object.keys(guides).length, 113);
 assert.equal(Object.values(defis).flat().length, 120);
 
 for (const champ of ['modele', 'scenario', 'exercice', 'correction']) {
-  const valeurs = catalogue.fiches.map((fiche) => guides[fiche.id]?.[champ]);
+  const valeurs = Object.values(guides).map((guide) => guide[champ]);
   assert.ok(valeurs.every((valeur) => typeof valeur === 'string' && valeur.length >= 80), `Champ pédagogique incomplet : ${champ}`);
   assert.equal(new Set(valeurs).size, valeurs.length, `Répétition pédagogique : ${champ}`);
+}
+
+for (const fiche of [...nouveauxParcours.fiches, ...fichesEnvironnement]) {
+  assert.ok(fiche.sections.find((section) => section.type === 'code'), `Code absent : ${fiche.id}`);
+  assert.ok(fiche.sections.find((section) => section.type === 'liens')?.elements.every((lien) => lien.url.startsWith('https://')), `Source officielle absente : ${fiche.id}`);
+  assert.ok(fiche.sections.find((section) => section.type === 'exercice')?.contenu.length >= 100, `Exercice trop court : ${fiche.id}`);
+}
+
+const ateliersNouveaux = nouveauxParcours.ateliers;
+assert.equal(new Set(ateliersNouveaux.map((atelier) => atelier.id)).size, 240);
+assert.equal(new Set(ateliersNouveaux.map((atelier) => atelier.titre)).size, 240);
+for (const atelier of ateliersNouveaux) {
+  assert.deepEqual(Object.keys(atelier.execution).sort(), ['linux', 'mac', 'windows']);
+  assert.equal(atelier.etapes.length, 4);
+  assert.ok(atelier.validation.length >= 3);
+  assert.ok(atelier.duree.endsWith('min'));
+  assert.ok(catalogue.fiches.some((fiche) => fiche.id === atelier.associes[0]), `Leçon absente : ${atelier.id}`);
+}
+
+for (const [domaine, ids] of Object.entries(catalogue.environnements.domaines)) {
+  assert.ok(catalogue.domaines.some((element) => element.id === domaine), `Domaine d'environnement inconnu : ${domaine}`);
+  for (const id of ids) assert.ok(catalogue.environnements.outils[id], `Outil manquant : ${domaine}/${id}`);
+}
+for (const [id, outil] of Object.entries(catalogue.environnements.outils)) {
+  assert.deepEqual(Object.keys(outil.systemes).sort(), ['linux', 'mac', 'windows'], `Systèmes incomplets : ${id}`);
+  assert.deepEqual(Object.keys(outil.verifier).sort(), ['linux', 'mac', 'windows'], `Commandes incomplètes : ${id}`);
+  assert.ok(outil.sources.every((source) => source.url.startsWith('https://')), `Source invalide : ${id}`);
 }
 
 for (const fiche of catalogue.fiches) {
@@ -42,6 +79,7 @@ for (const atelier of ateliersGuides) {
 const statique = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'documentation.json'), 'utf8'));
 assert.equal(statique.meta.version, catalogue.meta.version, 'Catalogue statique non reconstruit');
 assert.deepEqual(statique.statistiques, catalogue.statistiques, 'Statistiques statiques divergentes');
+assert.deepEqual(statique.environnements, catalogue.environnements, 'Guides de préparation statiques divergents');
 assert.equal(statique.fiches[0].sections[0].titre, 'Le modèle mental', 'Ancienne version statique des fiches');
 assert.equal(statique.ateliers[10].etapes[1].code, catalogue.ateliers[10].etapes[1].code, 'Ancienne version statique des ateliers');
 

@@ -35,8 +35,18 @@ const etat = {
   bibliothequeCategorie: 'Toutes',
   bibliothequeLimite: 60,
   resultatActif: 0,
+  systeme: chargerValeur('bibliolearn.systeme', detecterSysteme()),
+  ateliersFiltre: 'tous',
+  ateliersLimite: 48,
   stockage: chargerStockage()
 };
+
+function detecterSysteme() {
+  const plateforme = navigator.userAgentData?.platform || navigator.platform || '';
+  if (/win/i.test(plateforme)) return 'windows';
+  if (/mac/i.test(plateforme)) return 'mac';
+  return 'linux';
+}
 
 const clesStockage = {
   recent: 'bibliolearn.recent',
@@ -186,6 +196,8 @@ function router() {
     afficherDomaine(parametre);
   } else if (route === 'bibliotheque') {
     afficherBibliotheque();
+  } else if (route === 'installation') {
+    afficherInstallation();
   } else if (route === 'ateliers') {
     afficherAteliers();
   } else if (route === 'parcours') {
@@ -224,7 +236,7 @@ function afficherAccueil() {
   elements.contenu.innerHTML = `
     <section class="home-hero">
       <div class="eyebrow">Bibliothèque personnelle du développeur</div>
-      <h1 class="page-title">Comprendre le Web.<br>Retrouver l’essentiel.</h1>
+      <h1 class="page-title">Comprendre le code.<br>Retrouver l’essentiel.</h1>
       <p class="page-intro">Un parcours progressif pour comprendre la syntaxe, voir ce qui se passe réellement, pratiquer puis retrouver les notions dans la référence technique.</p>
       <button class="home-search" type="button" data-action="recherche">
         <span class="home-search__icon" aria-hidden="true">⌕</span>
@@ -243,7 +255,7 @@ function afficherAccueil() {
     <section class="dashboard-section">
       <div class="section-title-row">
         <h2>Explorer la bibliothèque</h2>
-        <span>Du HTML aux frameworks frontend</span>
+        <span>Du HTML aux langages serveur et systèmes</span>
       </div>
       <div class="domain-grid">
         ${etat.documentation.domaines.map(creerCarteDomaine).join('')}
@@ -258,6 +270,11 @@ function afficherAccueil() {
     <section class="dashboard-section share-promo">
       <div><div class="eyebrow">Apprendre ensemble</div><h2>Un ami développeur aimerait ce parcours ?</h2><p>Envoyez-lui le lien du site ou celui de la leçon que vous étudiez. Votre progression personnelle reste sur votre appareil.</p></div>
       <div class="share-promo__actions"><button class="primary-button" type="button" data-action="partager">↗ Inviter un ami</button><button class="secondary-button" type="button" data-action="installer">⊕ Installer l’application</button></div>
+    </section>
+
+    <section class="dashboard-section setup-promo">
+      <div><div class="eyebrow">Avant le premier atelier</div><h2>Quel outil installer sur votre ordinateur ?</h2><p>Choisissez Windows, Linux ou macOS : nous expliquons le terminal, le runtime, le compilateur, la vérification et les pièges à éviter.</p></div>
+      <button class="primary-button" type="button" data-route="installation">Préparer mon poste →</button>
     </section>
 
     <section class="dashboard-section">
@@ -333,6 +350,7 @@ function afficherDomaine(idDomaine) {
         <span class="meta-pill">${lues} maîtrisée${lues > 1 ? 's' : ''}</span>
       </div>
     </header>
+    ${creerPreparationDomaine(idDomaine, false, true)}
     ${Object.entries(categories).map(([categorie, elementsCategorie]) => `
       <section class="category-section" id="${slugifier(categorie)}">
         <header class="category-section__head">
@@ -341,6 +359,81 @@ function afficherDomaine(idDomaine) {
         </header>
         ${elementsCategorie.map(creerLigneFiche).join('')}
       </section>`).join('')}`;
+}
+
+const libellesSysteme = { windows: 'Windows · PowerShell', linux: 'Linux · terminal', mac: 'macOS · Terminal' };
+
+function creerChoixSysteme() {
+  return `<div class="platform-choice" role="group" aria-label="Choisir votre système">
+    ${Object.entries(libellesSysteme).map(([id, libelle]) => `<button class="filter-chip ${etat.systeme === id ? 'is-active' : ''}" type="button" data-systeme="${id}" aria-pressed="${etat.systeme === id}">${echapperHTML(libelle)}</button>`).join('')}
+  </div>`;
+}
+
+function creerCarteOutil(id, index = 0) {
+  const outil = etat.documentation.environnements?.outils?.[id];
+  if (!outil) return '';
+  return `<details class="setup-tool" ${index === 0 ? 'open' : ''}>
+    <summary>${echapperHTML(outil.nom)} <span>installer · vérifier · comprendre</span></summary>
+    <p><strong>À quoi il sert :</strong> ${echapperHTML(outil.role)}</p>
+    <p><strong>Pourquoi ici :</strong> ${echapperHTML(outil.pourquoi)}</p>
+    ${Object.entries(libellesSysteme).map(([systeme, libelle]) => {
+      const instruction = outil.systemes[systeme];
+      return `<div class="platform-panel" data-platform-panel="${systeme}" ${etat.systeme === systeme ? '' : 'hidden'}>
+        <h4>${echapperHTML(libelle)}</h4>
+        <p>${echapperHTML(instruction.ouvrir)}</p>
+        <ol>${instruction.etapes.map((etape) => `<li>${echapperHTML(etape)}</li>`).join('')}</ol>
+        <p class="setup-check-label">Vérifier sans modifier le projet</p>
+        <pre class="tree-block"><code>${echapperHTML(outil.verifier[systeme])}</code></pre>
+        <p class="setup-diagnostic"><strong>Si cela échoue :</strong> ${echapperHTML(instruction.diagnostic)}</p>
+      </div>`;
+    }).join('')}
+    <p class="setup-warning"><strong>Attention :</strong> ${echapperHTML(outil.attention)}</p>
+    <div class="official-links">${outil.sources.map((source) => `<a class="official-link" href="${echapperAttribut(source.url)}" target="_blank" rel="noreferrer"><span>${echapperHTML(source.label)}</span><span aria-hidden="true">↗</span></a>`).join('')}</div>
+  </details>`;
+}
+
+function creerPreparation(identifiants, ouvert = false) {
+  const outils = [...new Set(identifiants)].filter((id) => etat.documentation.environnements?.outils?.[id]);
+  if (!outils.length) return '';
+  return `<details class="setup-panel" ${ouvert ? 'open' : ''}>
+    <summary><span>⌘ Préparer mon environnement</span><small>${outils.length} outil${outils.length > 1 ? 's' : ''} · Windows, Linux, macOS</small></summary>
+    <div class="setup-panel__body">
+      <p>Choisissez le système et le terminal que vous utilisez réellement. La préparation explique quoi installer, comment vérifier et pourquoi l’outil est nécessaire ; aucune commande n’est lancée automatiquement.</p>
+      ${creerChoixSysteme()}
+      <p class="setup-primer">Première fois dans un terminal ? <button class="text-link" type="button" data-fiche="shell-premier-terminal">Voir « Ouvrir le terminal et retrouver son dossier » →</button></p>
+      <div class="setup-tools">${outils.map(creerCarteOutil).join('')}</div>
+      <button class="text-link" type="button" data-route="installation">Voir tous les outils et leurs alternatives →</button>
+    </div>
+  </details>`;
+}
+
+function creerPreparationDomaine(domaine, atelier = false, ouvert = false) {
+  const outils = etat.documentation.environnements?.domaines?.[domaine] || [];
+  return creerPreparation(atelier ? ['terminal', ...outils] : outils, ouvert);
+}
+
+function creerPreparationReference(entree) {
+  const outilsConnus = etat.documentation.environnements?.outils || {};
+  const correspondants = Object.entries(outilsConnus).filter(([, outil]) =>
+    outil.references.some((nom) => normaliser(nom) === normaliser(entree.terme))).map(([id]) => id);
+  return creerPreparation(entree.environnement || correspondants);
+}
+
+function creerExecutionAtelier(atelier) {
+  return `<section class="workshop-section setup-run" id="atelier-lancer">
+    <h2>Lancer cet atelier sur votre système</h2>
+    <p>Placez-vous dans le dossier indiqué plus haut. Vérifiez la présence du fichier ou du projet avant de lancer la commande. Les fragments de leçon peuvent exiger les imports ou le projet complet décrits dans les prérequis.</p>
+    ${creerChoixSysteme()}
+    ${Object.entries(libellesSysteme).map(([systeme, libelle]) => `<div class="platform-panel" data-platform-panel="${systeme}" ${etat.systeme === systeme ? '' : 'hidden'}><h3>${echapperHTML(libelle)}</h3><pre class="tree-block"><code>${echapperHTML(atelier.execution[systeme])}</code></pre></div>`).join('')}
+  </section>`;
+}
+
+function afficherInstallation() {
+  definirFilAriane([{ label: 'Bibliothèque', route: 'accueil' }, { label: 'Préparer mon poste' }]);
+  const ids = Object.keys(etat.documentation.environnements?.outils || {});
+  elements.contenu.innerHTML = `<header class="listing-header"><div class="eyebrow">Windows · Linux · macOS</div><h1 class="page-title">Préparer mon poste</h1><p class="page-intro">Commencez par le terminal. Installez ensuite uniquement les outils nécessaires à votre parcours ; chaque carte explique son rôle, sa vérification et les risques à éviter.</p><div class="domain-header__meta"><span class="meta-pill">${ids.length} outils expliqués</span><span class="meta-pill">Sources officielles</span><span class="meta-pill">Aucune installation automatique</span></div></header>
+    ${creerPreparation(ids, true)}
+    <section class="dashboard-section"><div class="section-title-row"><h2>Premiers pas guidés</h2></div><div class="panel"><ul class="study-list">${['shell-premier-terminal', 'shell-installer-verifier-outil', 'shell-powershell-bash'].map(obtenirFiche).filter(Boolean).map(creerElementEtude).join('')}</ul></div></section>`;
 }
 
 function afficherBibliotheque() {
@@ -373,7 +466,7 @@ function actualiserCartesBibliotheque() {
     const bonneCategorie = etat.bibliothequeCategorie === 'Toutes' || entree.categorie === etat.bibliothequeCategorie;
     const texte = normaliser(JSON.stringify(entree));
     return bonneCategorie && (!recherche || motsCorrespondent(texte, recherche.split(/\s+/).filter(Boolean)));
-  });
+  }).sort((a, b) => pertinenceBibliotheque(a, recherche) - pertinenceBibliotheque(b, recherche));
   const visibles = entrees.slice(0, etat.bibliothequeLimite);
   if (!entrees.length) {
     conteneur.innerHTML = '<div class="empty-page library-empty"><span>⌕</span><h2>Aucune référence trouvée</h2><p>Essayez un nom d’outil, un format de donnée ou une famille différente.</p></div>';
@@ -388,8 +481,20 @@ function creerCarteBibliotheque(entree) {
     <span class="library-card__top"><span class="article-badge">${echapperHTML(entree.famille)}</span><span class="library-card__level">${echapperHTML(entree.niveau)}</span></span>
     <h2>${echapperHTML(entree.terme)}</h2>
     <p>${echapperHTML(entree.resume)}</p>
-    <span class="library-card__foot"><span>${entree.exemples.length} exemple · ${entree.exercice.duree}</span><strong>Lire la fiche →</strong></span>
+    <span class="library-card__foot"><span>${entree.exemples.length} exemple${entree.exemples.length > 1 ? 's' : ''} · ${entree.exercice.duree}</span><strong>Lire la fiche →</strong></span>
   </button>`;
+}
+
+function pertinenceBibliotheque(entree, recherche) {
+  if (!recherche) return 0;
+  const terme = normaliser(entree.terme).trim();
+  const aliases = (entree.aliases || []).map((alias) => normaliser(alias).trim());
+  if (terme === recherche) return 0;
+  if (aliases.includes(recherche)) return 1;
+  if (terme.startsWith(recherche)) return 2;
+  if (terme.includes(recherche)) return 3;
+  if (aliases.some((alias) => alias.startsWith(recherche))) return 4;
+  return 5;
 }
 
 function afficherTermeBibliotheque(id) {
@@ -407,6 +512,7 @@ function afficherTermeBibliotheque(id) {
     <div class="article-layout library-layout">
       <article class="article-body">
         <div class="callout callout--retenir"><span class="callout__label">Idée simple</span><p>${echapperHTML(entree.definition)}</p></div>
+        ${creerPreparationReference(entree)}
         ${entree.article?.length ? `<section class="library-section" id="library-article"><h2>Article de référence</h2>${entree.article.map((paragraphe) => `<p>${echapperHTML(paragraphe)}</p>`).join('')}</section>` : ''}
         ${creerSectionBibliotheque('Rôles et responsabilités', entree.roles, 'library-section--roles')}
         ${creerSectionBibliotheque('Pourquoi l’utiliser', entree.pourquoiUtiliser, 'library-section--why')}
@@ -485,6 +591,7 @@ function afficherFiche(id) {
     <div class="article-layout">
       <article class="article-body">
         <div class="callout callout--retenir article-reading-guide"><span class="callout__label">Comment apprendre ici</span><p>Lisez d’abord l’idée et prédisez le résultat du code. Testez l’exemple dans votre navigateur ou terminal, faites le défi sans regarder la réponse, puis ouvrez le corrigé pour vérifier votre raisonnement.</p></div>
+        ${creerPreparationDomaine(fiche.domaine, false, ['python', 'java', 'springboot', 'cpp', 'csharp', 'php'].includes(fiche.domaine))}
         ${positionDebutant >= 0 ? `<div class="learning-position"><span>Parcours débutant · étape ${positionDebutant + 1}/${idsParcoursDebutant.length}</span>${precedentDebutant ? `<button type="button" data-fiche="${precedentDebutant.id}">← Prérequis : ${echapperHTML(precedentDebutant.titre)}</button>` : ''}${suivantDebutant ? `<button type="button" data-fiche="${suivantDebutant.id}">Ensuite : ${echapperHTML(suivantDebutant.titre)} →</button>` : ''}</div>` : ''}
         ${creerPlanSessions(fiche)}
         ${fiche.sections.map((section, sectionIndex) => creerSection(section, sectionIndex)).join('')}
@@ -606,10 +713,21 @@ function afficherAteliers() {
       <div class="domain-header__meta"><span class="meta-pill">${ateliers.length} ateliers</span><span class="meta-pill">${etat.stockage.ateliers.length} terminés</span><span class="meta-pill">Progression locale</span></div>
     </header>
     <div class="atelier-filters" role="group" aria-label="Filtrer les ateliers">
-      <button class="filter-chip is-active" type="button" data-atelier-filter="tous">Tous</button>
-      ${domaines.map((domaine) => `<button class="filter-chip" type="button" data-atelier-filter="${domaine}">${echapperHTML(obtenirDomaine(domaine)?.nom || domaine)}</button>`).join('')}
+      <button class="filter-chip ${etat.ateliersFiltre === 'tous' ? 'is-active' : ''}" type="button" data-atelier-filter="tous">Tous</button>
+      ${domaines.map((domaine) => `<button class="filter-chip ${etat.ateliersFiltre === domaine ? 'is-active' : ''}" type="button" data-atelier-filter="${domaine}">${echapperHTML(obtenirDomaine(domaine)?.nom || domaine)}</button>`).join('')}
     </div>
-    <div class="atelier-grid" id="liste-ateliers">${ateliers.map(creerCarteAtelier).join('')}</div>`;
+    <div class="atelier-grid" id="liste-ateliers"></div>`;
+  actualiserCartesAteliers();
+}
+
+function actualiserCartesAteliers() {
+  const conteneur = document.querySelector('#liste-ateliers');
+  if (!conteneur) return;
+  const ateliers = etat.documentation.ateliers.filter((atelier) =>
+    etat.ateliersFiltre === 'tous' || atelier.domaine === etat.ateliersFiltre);
+  const visibles = ateliers.slice(0, etat.ateliersLimite);
+  conteneur.innerHTML = visibles.map(creerCarteAtelier).join('') +
+    (ateliers.length > visibles.length ? `<div class="workshop-more"><p>${visibles.length} ateliers affichés sur ${ateliers.length}.</p><button class="primary-button" type="button" data-ateliers-more>Afficher 48 ateliers supplémentaires</button></div>` : '');
 }
 
 function creerCarteAtelier(atelier) {
@@ -643,9 +761,11 @@ function afficherAtelier(id) {
     <div class="atelier-layout">
       <article class="article-body">
         <div class="callout callout--retenir"><span class="callout__label">Méthode</span><p>Lisez l’objectif, préparez les outils, exécutez une étape à la fois, puis utilisez la validation. Une erreur est une information : lisez le message avant de modifier le code.</p></div>
+        ${creerPreparationDomaine(atelier.domaine, true, Boolean(atelier.execution))}
         <section class="workshop-section" id="atelier-outils"><h2>Outils nécessaires</h2><div class="tool-list">${atelier.outils.map((outil) => `<span class="tool-chip">${echapperHTML(outil)}</span>`).join('')}</div></section>
         <section class="workshop-section"><h2>Avant de commencer</h2><ul class="checklist">${atelier.prerequis.map((item) => `<li>${echapperHTML(item)}</li>`).join('')}</ul></section>
         <section class="workshop-section"><h2>Structure à créer</h2><pre class="tree-block"><code>${echapperHTML(atelier.structure.join('\n'))}</code></pre></section>
+        ${atelier.execution ? creerExecutionAtelier(atelier) : ''}
         <section class="workshop-section" id="atelier-etapes"><h2>Étapes guidées</h2><ol class="step-list">${atelier.etapes.map((etape, etapeIndex) => creerEtapeAtelier(etape, etapeIndex)).join('')}</ol></section>
         <section class="workshop-section" id="atelier-validation"><h2>Validation finale</h2><ul class="checklist checklist--interactive">${atelier.validation.map((item) => `<li><label><input type="checkbox"> <span>${echapperHTML(item)}</span></label></li>`).join('')}</ul></section>
         <details class="hint-box"><summary>Afficher un indice</summary><p>${echapperHTML(atelier.indice)}</p></details>
@@ -1064,8 +1184,24 @@ document.addEventListener('click', (evenement) => {
   if (cible.dataset.toggleLue) basculerDansListe('lues', cible.dataset.toggleLue);
   if (cible.dataset.toggleAtelier) basculerAtelier(cible.dataset.toggleAtelier);
   if (cible.dataset.atelierFilter) {
+    etat.ateliersFiltre = cible.dataset.atelierFilter;
+    etat.ateliersLimite = 48;
     document.querySelectorAll('[data-atelier-filter]').forEach((filtre) => filtre.classList.toggle('is-active', filtre === cible));
-    document.querySelectorAll('[data-atelier-domain]').forEach((carte) => { carte.hidden = cible.dataset.atelierFilter !== 'tous' && carte.dataset.atelierDomain !== cible.dataset.atelierFilter; });
+    actualiserCartesAteliers();
+  }
+  if ('ateliersMore' in cible.dataset) {
+    etat.ateliersLimite += 48;
+    actualiserCartesAteliers();
+  }
+  if (cible.dataset.systeme) {
+    etat.systeme = cible.dataset.systeme;
+    try { localStorage.setItem('bibliolearn.systeme', JSON.stringify(etat.systeme)); } catch {}
+    document.querySelectorAll('[data-systeme]').forEach((bouton) => {
+      const actif = bouton.dataset.systeme === etat.systeme;
+      bouton.classList.toggle('is-active', actif);
+      bouton.setAttribute('aria-pressed', String(actif));
+    });
+    document.querySelectorAll('[data-platform-panel]').forEach((panneau) => { panneau.hidden = panneau.dataset.platformPanel !== etat.systeme; });
   }
   if (cible.dataset.libraryCategory) {
     etat.bibliothequeCategorie = cible.dataset.libraryCategory;

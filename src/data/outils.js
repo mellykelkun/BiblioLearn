@@ -12,8 +12,8 @@ function creerSessions(sections, indices, guide) {
   ];
 }
 
-function fiche({ id, domaine, categorie, titre, resume, tags = [], niveau = 'Fondamental', sections, sessions, associes = [] }) {
-  const guide = guides[id];
+function fiche({ id, domaine, categorie, titre, resume, tags = [], niveau = 'Fondamental', sections, sessions, associes = [], guide: guideSpecifique }) {
+  const guide = guideSpecifique || guides[id];
   if (!guide) throw new Error(`Guide pédagogique manquant : ${id}`);
   const contenu = sections.filter((section) => section.type !== 'liens');
   const liensOfficiels = sections.filter((section) => section.type === 'liens');

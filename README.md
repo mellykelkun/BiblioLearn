@@ -1,6 +1,6 @@
 # Bibliolearn
 
-Bibliolearn est un parcours progressif pour apprendre le développement web, complété par des ateliers et une référence technique. L’interface est construite en HTML, CSS et JavaScript vanilla ; Express sert les fichiers et le catalogue documentaire. La progression personnelle reste dans le navigateur.
+Bibliolearn est un parcours progressif pour apprendre le développement web et six autres environnements de programmation, complété par des ateliers et une référence technique. L’interface est construite en HTML, CSS et JavaScript vanilla ; Express sert les fichiers et le catalogue documentaire. La progression personnelle reste dans le navigateur.
 
 ## Démarrer
 
@@ -52,6 +52,11 @@ npm run build:catalogue # régénérer le JSON utilisé en mode statique/hors li
 │   ├── fiches-backend.js      # Node.js, npm, HTTP et Express
 │   └── fiches-frontend.js     # TypeScript et frameworks frontend
 │   ├── fiches-shell.js        # Terminal, Bash, npm avancé et Git
+│   ├── fiches-environnement.js # premiers pas dans le terminal et installations
+│   ├── environnements.js     # 13 guides Windows, Linux et macOS
+│   ├── nouveaux-parcours.js  # notions Python, Java, Spring Boot, C++, C# et PHP
+│   ├── construire-nouveaux-parcours.js # 60 leçons et 240 ateliers
+│   ├── bibliotheque-nouveaux.js # références associées aux nouveaux parcours
 │   ├── ateliers.js            # exercices guidés de construction
 │   ├── ateliers-plus.js       # banque générée de 120 ateliers supplémentaires
 │   └── fiches-ecosystemes.js  # parcours frontend approfondis
@@ -62,7 +67,9 @@ npm run build:catalogue # régénérer le JSON utilisé en mode statique/hors li
 
 Le navigateur charge le catalogue depuis `GET /api/documentation` et peut utiliser `public/documentation.json` en secours. La recherche s’exécute dans le navigateur. Les fiches récemment ouvertes, maîtrisées ou marquées « À revoir » sont enregistrées dans `localStorage` et ne quittent pas l’appareil.
 
-Le parcours débutant guide 35 leçons dans un ordre explicite : HTML, CSS, JavaScript/DOM, puis échanges réseau et serveur. Chacune des 113 leçons conserve sa documentation d’origine et ajoute un modèle mental, une situation, un défi et un corrigé propres à la notion. Les cinq étapes visibles pointent vers cinq parties différentes ; leurs durées sont indicatives. Le catalogue contient 129 ateliers, dont 120 défis avec leur propre code de départ, panne à reproduire et résultat à vérifier.
+Le parcours débutant guide 35 leçons dans un ordre explicite : HTML, CSS, JavaScript/DOM, puis échanges réseau et serveur. Les 113 leçons historiques conservent leur documentation et leur défi propres à la notion. Les nouveaux parcours ajoutent 60 leçons sur Python, Java, Spring Boot, C++, C#/.NET et PHP ainsi que trois leçons de préparation du poste. Chaque fiche comporte cinq sessions pointant vers des parties différentes ; leurs durées sont indicatives. Le catalogue contient 176 leçons, 369 ateliers et 1 978 références techniques.
+
+La page « Préparer mon poste » explique le rôle, la source officielle, la commande de vérification, le diagnostic et les avertissements de 13 outils. Chaque domaine, leçon et atelier renvoie vers les instructions Windows/PowerShell, Linux et macOS pertinentes. Les 240 nouveaux ateliers durent de 45 à 90 minutes et distinguent reproduction, réparation, application et test/transmission. Ils incluent une commande de lancement par système ; les exemples Spring Boot restent des fragments à intégrer dans un projet généré par Spring Initializr.
 
 ## Installer et partager
 

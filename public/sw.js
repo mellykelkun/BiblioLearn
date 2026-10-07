@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = 'bibliolearn-v5';
+const VERSION = 'bibliolearn-v6';
 const SHELL = ['/', '/index.html', '/styles.css', '/app.js', '/documentation.json', '/manifest.webmanifest', '/favicon.svg', '/icon-192.png', '/icon-512.png', '/icon-maskable.png'];
 
 self.addEventListener('install', (event) => {

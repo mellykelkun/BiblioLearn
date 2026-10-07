@@ -2,13 +2,13 @@
   "name": "bibliolearn",
   "version": "1.0.0",
   "private": true,
-  "description": "Bibliothèque locale et évolutive pour réviser les fondamentaux du développement web",
+  "description": "Bibliothèque locale et évolutive pour apprendre le développement et pratiquer sur plusieurs langages",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon --watch server.js --watch src server.js",
     "build:catalogue": "node scripts/construire-catalogue.js",
-    "check": "node --check server.js && node --check public/app.js && node --check public/sw.js && node scripts/verifier-catalogue.js && node scripts/test-pedagogie.js",
+    "check": "node --check server.js && node --check public/app.js && node --check public/sw.js && node --check src/data/environnements.js && node --check src/data/nouveaux-parcours.js && node --check src/data/construire-nouveaux-parcours.js && node --check src/data/fiches-environnement.js && node --check src/data/bibliotheque-nouveaux.js && node scripts/verifier-catalogue.js && node scripts/test-pedagogie.js",
     "generate:migration": "node scripts/generer-migration.js"
   },
   "engines": {

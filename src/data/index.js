@@ -12,6 +12,10 @@ const ateliers = require('./ateliers');
 const ateliersPlus = require('./ateliers-plus');
 const bibliothequeBase = require('./bibliotheque');
 const bibliothequePlus = require('./bibliotheque-plus');
+const nouveauxParcours = require('./construire-nouveaux-parcours');
+const fichesEnvironnement = require('./fiches-environnement');
+const bibliothequeNouveaux = require('./bibliotheque-nouveaux');
+const environnements = require('./environnements');
 
 const domaines = [
   { id: 'html', nom: 'HTML', groupe: 'Fondations', icone: '<>', description: 'Structure, sémantique et accessibilité' },
@@ -28,12 +32,18 @@ const domaines = [
   { id: 'nextjs', nom: 'Next.js', groupe: 'Écosystème frontend', icone: 'Nx', description: 'Framework React full-stack' },
   { id: 'vue', nom: 'Vue', groupe: 'Écosystème frontend', icone: 'Vu', description: 'Framework progressif à composants' },
   { id: 'angular', nom: 'Angular', groupe: 'Écosystème frontend', icone: 'Ng', description: 'Framework applicatif structuré' },
-  { id: 'css-outils', nom: 'Tailwind & Bootstrap', groupe: 'Écosystème frontend', icone: 'UI', description: 'Outils CSS et conséquences pratiques' }
+  { id: 'css-outils', nom: 'Tailwind & Bootstrap', groupe: 'Écosystème frontend', icone: 'UI', description: 'Outils CSS et conséquences pratiques' },
+  { id: 'python', nom: 'Python', groupe: 'Autres langages', icone: 'Py', description: 'Scripts, données, fichiers et tests' },
+  { id: 'java', nom: 'Java', groupe: 'Autres langages', icone: 'Jv', description: 'JDK, types, objets et collections' },
+  { id: 'springboot', nom: 'Spring Boot', groupe: 'Autres langages', icone: 'Sp', description: 'API Java, validation et services' },
+  { id: 'cpp', nom: 'C++', groupe: 'Autres langages', icone: 'C+', description: 'Compilation, types et mémoire' },
+  { id: 'csharp', nom: 'C# & .NET', groupe: 'Autres langages', icone: 'C#', description: 'SDK, objets, async et JSON' },
+  { id: 'php', nom: 'PHP', groupe: 'Autres langages', icone: 'PHP', description: 'Scripts serveur, formulaires et données' }
 ];
 
-const fiches = [...fondamentaux, ...javascriptDom, ...backend, ...frontend, ...shell, ...approfondissement, ...complementaires, ...ecosystemes];
-const tousLesAteliers = [...ateliers, ...ateliersPlus];
-const bibliotheque = [...bibliothequeBase, ...bibliothequePlus].map((entree) => {
+const fiches = [...fondamentaux, ...javascriptDom, ...backend, ...frontend, ...shell, ...approfondissement, ...complementaires, ...ecosystemes, ...fichesEnvironnement, ...nouveauxParcours.fiches];
+const tousLesAteliers = [...ateliers, ...ateliersPlus, ...nouveauxParcours.ateliers];
+const bibliotheque = [...bibliothequeBase, ...bibliothequePlus, ...bibliothequeNouveaux].map((entree) => {
   if (entree.article?.length) return entree;
   return {
     ...entree,
@@ -101,10 +111,11 @@ const statistiques = {
 };
 
 module.exports = {
-  meta: { version: 3, miseAJour: '2026-10-06' },
+  meta: { version: 4, miseAJour: '2026-10-07' },
   domaines,
   fiches,
   ateliers: tousLesAteliers,
   bibliotheque,
+  environnements,
   statistiques
 };
