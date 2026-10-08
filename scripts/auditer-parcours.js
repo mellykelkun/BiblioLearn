@@ -15,11 +15,14 @@ const domaines = catalogue.domaines.map(domaine => {
     ateliers: ateliers.length,
     references: references.length,
     referencesRedigees: references.filter(r => r.maturiteEditoriale === 'enriched').length,
-    referencesBrouillon: references.filter(r => r.maturiteEditoriale === 'draft').length
+    referencesBrouillon: references.filter(r => r.maturiteEditoriale === 'draft').length,
+    niveauxPedagogiques: Object.fromEntries([...new Set(lecons.map(f => f.niveauPedagogique))].sort((a, b) => a - b).map(niveau => [niveau, lecons.filter(f => f.niveauPedagogique === niveau).length])),
+    leconsDansUnParcours: lecons.filter(f => f.parcours.length).length
   };
 });
 
 const problemes = [];
+const lacunesEditoriales = [];
 let fichiersACopier = 0, fichiersGeneres = 0;
 for (const atelier of catalogue.ateliers) {
   if (atelier.fichiersDepart.length !== atelier.structure.length) problemes.push(`${atelier.id} : structure différente des amorces`);
@@ -38,6 +41,8 @@ for (const atelier of catalogue.ateliers) {
 }
 for (const domaine of domaines) {
   if (domaine.lecons === 0 || domaine.referencesRedigees === 0) problemes.push(`${domaine.domaine} : leçon ou référence rédigée absente`);
+  if (domaine.lecons < 20) lacunesEditoriales.push(`${domaine.domaine} : ${domaine.lecons} leçons, sous le palier de 20`);
+  if (domaine.referencesBrouillon) lacunesEditoriales.push(`${domaine.domaine} : ${domaine.referencesBrouillon} notices encore sans explication rédigée`);
 }
 const bilan = {
   date: new Date().toISOString().slice(0, 10),
@@ -45,8 +50,14 @@ const bilan = {
     references: catalogue.bibliotheque.length, exemplesCode: catalogue.statistiques.nombreExemples,
     fichiersACopier, fichiersGeneres,
     leconsAvecMoinsDeDeuxExemples: domaines.reduce((n, d) => n + d.leconsAvecUnSeulExemple.length, 0),
-    referencesBrouillon: catalogue.bibliotheque.filter(r => r.maturiteEditoriale === 'draft').length },
-  domaines, problemes
+    referencesBrouillon: catalogue.bibliotheque.filter(r => r.maturiteEditoriale === 'draft').length,
+    referencesRedigees: catalogue.bibliotheque.filter(r => r.maturiteEditoriale !== 'draft').length,
+    leconsHorsParcours: catalogue.fiches.filter(f => !f.parcours.length).length,
+    parcours: catalogue.parcours.length },
+  domaines,
+  parcours: catalogue.parcours.map(p => ({ id: p.id, etapes: p.etapes.length, lecons: new Set(p.etapes.flatMap(e => e.fiches)).size, preuves: p.etapes.filter(e => Boolean(e.preuve)).length, suite: p.suite || null })),
+  problemes,
+  lacunesEditoriales
 };
 const destination = path.join(__dirname, '..', 'docs', 'audit-parcours.json');
 fs.writeFileSync(destination, JSON.stringify(bilan, null, 2) + '\n');

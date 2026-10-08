@@ -23,6 +23,10 @@ const asynchronisme = require('../pedagogie/asynchronisme');
 const { creerAmorces } = require('../pedagogie/amorces-ateliers');
 const zeroPratique = require('../pedagogie/zero-pratique');
 const complementsModules = require('../pedagogie/complements-modules');
+const profondeurLangages = require('../pedagogie/profondeur-langages');
+const profondeurInterfaces = require('../pedagogie/profondeur-interfaces');
+const sqlPratique = require('../pedagogie/sql-pratique');
+const sqlAteliers = require('../pedagogie/sql-ateliers');
 const domaines = [
   { id: 'niveau-zero', nom: 'Niveau zéro', groupe: 'Premiers repères', icone: '0', description: 'Fichiers, programmes, Web et premiers diagnostics' },
   { id: 'html', nom: 'HTML', groupe: 'Fondations', icone: '<>', description: 'Structure, sémantique et accessibilité' },
@@ -45,15 +49,16 @@ const domaines = [
   { id: 'springboot', nom: 'Spring Boot', groupe: 'Autres langages', icone: 'Sp', description: 'API Java, validation et services' },
   { id: 'cpp', nom: 'C++', groupe: 'Autres langages', icone: 'C+', description: 'Compilation, types et mémoire' },
   { id: 'csharp', nom: 'C# & .NET', groupe: 'Autres langages', icone: 'C#', description: 'SDK, objets, async et JSON' },
-  { id: 'php', nom: 'PHP', groupe: 'Autres langages', icone: 'PHP', description: 'Scripts serveur, formulaires et données' }
+  { id: 'php', nom: 'PHP', groupe: 'Autres langages', icone: 'PHP', description: 'Scripts serveur, formulaires et données' },
+  { id: 'sql', nom: 'SQL & SQLite', groupe: 'Données', icone: 'DB', description: 'Schémas, requêtes, relations et transactions' }
 ];
 
-const fichesInitiales = [...fondamentaux, ...javascriptDom, ...backend, ...frontend, ...shell, ...approfondissement, ...complementaires, ...ecosystemes, ...fichesEnvironnement, ...nouveauxParcours.fiches, ...niveauZero.map(zeroPratique.enrichirZero), ...zeroPratique.nouvelles, ...complementsModules, ...asynchronisme.nouvelles].map(f => normaliserConnaissance(asynchronisme.remplacements[f.id] || f, 'fiche'));
-const tousLesAteliers = [...ateliers, ...ateliersPlus, ...nouveauxParcours.ateliers].map(a => creerAmorces(normaliserConnaissance(a, 'atelier')));
+const fichesInitiales = [...fondamentaux, ...javascriptDom, ...backend, ...frontend, ...shell, ...approfondissement, ...complementaires, ...ecosystemes, ...fichesEnvironnement, ...nouveauxParcours.fiches, ...niveauZero.map(zeroPratique.enrichirZero), ...zeroPratique.nouvelles, ...complementsModules, ...profondeurLangages.lecons, ...profondeurInterfaces.lecons, ...sqlPratique.lecons, ...asynchronisme.nouvelles].map(f => normaliserConnaissance(asynchronisme.remplacements[f.id] || f, 'fiche'));
+const tousLesAteliers = [...ateliers, ...ateliersPlus, ...nouveauxParcours.ateliers, ...sqlAteliers.ateliers].map(a => creerAmorces(normaliserConnaissance(a, 'atelier')));
 const fiches = require('../pedagogie/variantes-lecons').enrichir(fichesInitiales, tousLesAteliers);
 const referencesRedigees = require('../pedagogie/references-redigees');
 const referencesPratiques = require('../pedagogie/references-pratiques');
-const bibliotheque = [...bibliothequeBase.map(e => migrerReference({ ...e, ...referencesRedigees[e.id] }, false)), ...[...bibliothequePlus, ...bibliothequeNouveaux].map(e => migrerReference(e, true)), ...referencesPratiques.map(e => normaliserConnaissance(e, 'reference'))];
+const bibliotheque = [...bibliothequeBase.map(e => migrerReference({ ...e, ...referencesRedigees[e.id] }, false)), ...[...bibliothequePlus, ...bibliothequeNouveaux].map(e => migrerReference(e, true)), ...referencesPratiques.map(e => normaliserConnaissance(e, 'reference')), ...[...profondeurLangages.references, ...profondeurInterfaces.references, ...sqlPratique.references].map(e => normaliserConnaissance(e, 'reference'))];
 const erreurs = require('../pedagogie/erreurs').map(e => normaliserConnaissance(e, 'erreur'));
 const projets = require('../pedagogie/projets').map(e => normaliserConnaissance(e, 'projet'));
 construireGraphe([...fiches, ...tousLesAteliers, ...bibliotheque, ...erreurs, ...projets]);

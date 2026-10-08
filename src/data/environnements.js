@@ -178,7 +178,7 @@ const domaines = {
   html: ['vscode'], css: ['vscode'], javascript: ['vscode'], dom: ['vscode'],
   node: ['node', 'vscode'], npm: ['node', 'vscode'], http: ['terminal'], express: ['node', 'vscode'], shell: ['terminal', 'git'],
   typescript: ['node', 'vscode'], react: ['node', 'vscode'], nextjs: ['node', 'vscode'], vue: ['node', 'vscode'], angular: ['node', 'vscode'], 'css-outils': ['node', 'vscode'],
-  python: ['python', 'vscode'], java: ['jdk', 'vscode'], springboot: ['jdk', 'springboot', 'vscode'], cpp: ['cpp', 'vscode'], csharp: ['dotnet', 'vscode'], php: ['php', 'composer', 'vscode']
+  python: ['python', 'vscode'], java: ['jdk', 'vscode'], springboot: ['jdk', 'springboot', 'vscode'], cpp: ['cpp', 'vscode'], csharp: ['dotnet', 'vscode'], php: ['php', 'composer', 'vscode'], sql: ['python', 'vscode']
 };
 
 const approfondissements = require('./environnements-approfondis');

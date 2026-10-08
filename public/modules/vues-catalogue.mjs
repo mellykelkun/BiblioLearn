@@ -149,13 +149,14 @@ function afficherInstallation() {
 function afficherBibliotheque() {
   const entrees = etat.documentation.bibliotheque || [];
   const categories = [...new Set(entrees.map((entree) => entree.categorie))];
+  const redigees = entrees.filter(entree => entree.maturiteEditoriale !== 'draft').length;
   definirFilAriane([{ label: 'Bibliothèque', route: 'accueil' }, { label: 'Référence technique' }]);
   elements.contenu.innerHTML = `
     <header class="listing-header library-header">
       <div class="eyebrow">Référence interne · code · données · infrastructure</div>
       <h1 class="page-title">Bibliothèque technique</h1>
       <p class="page-intro">Retrouver un terme, son contexte et ses sources. Les notices à approfondir sont distinguées des explications rédigées.</p>
-      <div class="domain-header__meta"><span class="meta-pill">${entrees.length} références</span><span class="meta-pill">${categories.length} familles</span><span class="meta-pill">Maturité indiquée pour chaque notion</span></div>
+      <div class="domain-header__meta"><span class="meta-pill">${entrees.length} notions indexées</span><span class="meta-pill">${redigees} explications rédigées</span><span class="meta-pill">${categories.length} familles</span></div>
     </header>
     <section class="library-controls" aria-label="Filtrer la bibliothèque technique">
       <label class="library-search"><span aria-hidden="true">⌕</span><input id="filtre-bibliotheque" type="search" value="${echapperAttribut(etat.bibliothequeRecherche)}" placeholder="Rechercher div, map, Dockerfile, RLS…" aria-label="Rechercher dans la bibliothèque technique"></label>

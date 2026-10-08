@@ -69,6 +69,27 @@ test('routes historiques, installation et ateliers restent accessibles', async (
   expect(erreurs).toEqual([]);
 });
 
+test('les parcours par langage montrent leur progression et une référence rédigée', async ({ page }) => {
+  await page.goto('/#/parcours');
+  await expect(page.getByRole('link', { name: /Programmer et traiter des données avec Python/ })).toBeVisible();
+  await page.goto('/#/parcours/python');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Programmer et traiter des données avec Python');
+  await expect(page.getByText('Pour passer à la suite :').first()).toBeVisible();
+  await page.getByRole('link', { name: /Modéliser une donnée et défendre ses invariants/ }).click();
+  await expect(page.locator('h1')).toHaveText('Modéliser une donnée et défendre ses invariants');
+  await expect(page.getByRole('heading', { name: 'Fichier complet : livre.py' })).toBeVisible();
+  await page.goto('/#/terme/profondeur-python-dataclass-invariant');
+  await expect(page.locator('h1')).toHaveText('Modéliser une donnée et défendre ses invariants');
+  await expect(page.getByText('Explication enrichie · non relue')).toBeVisible();
+  await page.goto('/#/parcours/sql');
+  await expect(page.locator('h1')).toHaveText('Questionner et protéger des données avec SQL');
+  await page.goto('/#/fiche/sql-transaction');
+  await expect(page.getByRole('heading', { name: 'Fichier complet : sql.py' })).toBeVisible();
+  await page.goto('/#/atelier/atelier-sql-transaction');
+  await expect(page.locator('h1')).toHaveText('Annuler une opération de données incomplète');
+  await expect(page.getByRole('heading', { name: 'Fichiers de départ' })).toBeVisible();
+});
+
 test('préparer mon poste explique installation, commandes, essai et correction selon le système', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/#/installation');

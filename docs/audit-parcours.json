@@ -1,15 +1,18 @@
 {
   "date": "2026-10-08",
   "totaux": {
-    "domaines": 22,
-    "lecons": 209,
-    "ateliers": 369,
-    "references": 2022,
-    "exemplesCode": 426,
-    "fichiersACopier": 856,
+    "domaines": 23,
+    "lecons": 239,
+    "ateliers": 372,
+    "references": 2052,
+    "exemplesCode": 486,
+    "fichiersACopier": 862,
     "fichiersGeneres": 125,
     "leconsAvecMoinsDeDeuxExemples": 1,
-    "referencesBrouillon": 1861
+    "referencesBrouillon": 1861,
+    "referencesRedigees": 191,
+    "leconsHorsParcours": 0,
+    "parcours": 27
   },
   "domaines": [
     {
@@ -22,7 +25,11 @@
       "ateliers": 0,
       "references": 2,
       "referencesRedigees": 2,
-      "referencesBrouillon": 0
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "0": 10
+      },
+      "leconsDansUnParcours": 10
     },
     {
       "domaine": "html",
@@ -32,7 +39,11 @@
       "ateliers": 9,
       "references": 321,
       "referencesRedigees": 2,
-      "referencesBrouillon": 319
+      "referencesBrouillon": 319,
+      "niveauxPedagogiques": {
+        "1": 11
+      },
+      "leconsDansUnParcours": 11
     },
     {
       "domaine": "css",
@@ -42,7 +53,12 @@
       "ateliers": 8,
       "references": 399,
       "referencesRedigees": 2,
-      "referencesBrouillon": 397
+      "referencesBrouillon": 397,
+      "niveauxPedagogiques": {
+        "1": 9,
+        "2": 1
+      },
+      "leconsDansUnParcours": 10
     },
     {
       "domaine": "javascript",
@@ -52,7 +68,11 @@
       "ateliers": 10,
       "references": 348,
       "referencesRedigees": 2,
-      "referencesBrouillon": 346
+      "referencesBrouillon": 346,
+      "niveauxPedagogiques": {
+        "1": 22
+      },
+      "leconsDansUnParcours": 22
     },
     {
       "domaine": "dom",
@@ -62,7 +82,12 @@
       "ateliers": 9,
       "references": 2,
       "referencesRedigees": 2,
-      "referencesBrouillon": 0
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 6,
+        "2": 1
+      },
+      "leconsDansUnParcours": 7
     },
     {
       "domaine": "node",
@@ -72,7 +97,12 @@
       "ateliers": 9,
       "references": 92,
       "referencesRedigees": 2,
-      "referencesBrouillon": 90
+      "referencesBrouillon": 90,
+      "niveauxPedagogiques": {
+        "1": 8,
+        "2": 1
+      },
+      "leconsDansUnParcours": 9
     },
     {
       "domaine": "npm",
@@ -82,7 +112,12 @@
       "ateliers": 9,
       "references": 2,
       "referencesRedigees": 2,
-      "referencesBrouillon": 0
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 9,
+        "2": 1
+      },
+      "leconsDansUnParcours": 10
     },
     {
       "domaine": "http",
@@ -92,7 +127,12 @@
       "ateliers": 8,
       "references": 117,
       "referencesRedigees": 2,
-      "referencesBrouillon": 115
+      "referencesBrouillon": 115,
+      "niveauxPedagogiques": {
+        "1": 7,
+        "2": 1
+      },
+      "leconsDansUnParcours": 8
     },
     {
       "domaine": "express",
@@ -102,7 +142,12 @@
       "ateliers": 9,
       "references": 2,
       "referencesRedigees": 2,
-      "referencesBrouillon": 0
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 7,
+        "3": 1
+      },
+      "leconsDansUnParcours": 8
     },
     {
       "domaine": "shell",
@@ -112,57 +157,91 @@
       "ateliers": 10,
       "references": 2,
       "referencesRedigees": 2,
-      "referencesBrouillon": 0
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 14,
+        "2": 1
+      },
+      "leconsDansUnParcours": 15
     },
     {
       "domaine": "typescript",
-      "lecons": 7,
-      "exemplesCode": 14,
+      "lecons": 8,
+      "exemplesCode": 16,
       "leconsAvecUnSeulExemple": [],
       "ateliers": 8,
-      "references": 2,
-      "referencesRedigees": 2,
-      "referencesBrouillon": 0
+      "references": 3,
+      "referencesRedigees": 3,
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 6,
+        "4": 1,
+        "5": 1
+      },
+      "leconsDansUnParcours": 8
     },
     {
       "domaine": "react",
+      "lecons": 9,
+      "exemplesCode": 18,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 8,
+      "references": 4,
+      "referencesRedigees": 4,
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 6,
+        "4": 2,
+        "5": 1
+      },
+      "leconsDansUnParcours": 9
+    },
+    {
+      "domaine": "nextjs",
+      "lecons": 6,
+      "exemplesCode": 12,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 8,
+      "references": 3,
+      "referencesRedigees": 3,
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 4,
+        "4": 1,
+        "5": 1
+      },
+      "leconsDansUnParcours": 6
+    },
+    {
+      "domaine": "vue",
+      "lecons": 6,
+      "exemplesCode": 12,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 8,
+      "references": 4,
+      "referencesRedigees": 4,
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 3,
+        "4": 3
+      },
+      "leconsDansUnParcours": 6
+    },
+    {
+      "domaine": "angular",
       "lecons": 7,
       "exemplesCode": 14,
       "leconsAvecUnSeulExemple": [],
       "ateliers": 8,
-      "references": 2,
-      "referencesRedigees": 2,
-      "referencesBrouillon": 0
-    },
-    {
-      "domaine": "nextjs",
-      "lecons": 5,
-      "exemplesCode": 10,
-      "leconsAvecUnSeulExemple": [],
-      "ateliers": 8,
-      "references": 2,
-      "referencesRedigees": 2,
-      "referencesBrouillon": 0
-    },
-    {
-      "domaine": "vue",
-      "lecons": 4,
-      "exemplesCode": 8,
-      "leconsAvecUnSeulExemple": [],
-      "ateliers": 8,
-      "references": 2,
-      "referencesRedigees": 2,
-      "referencesBrouillon": 0
-    },
-    {
-      "domaine": "angular",
-      "lecons": 5,
-      "exemplesCode": 10,
-      "leconsAvecUnSeulExemple": [],
-      "ateliers": 8,
-      "references": 2,
-      "referencesRedigees": 2,
-      "referencesBrouillon": 0
+      "references": 4,
+      "referencesRedigees": 4,
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 4,
+        "4": 2,
+        "5": 1
+      },
+      "leconsDansUnParcours": 7
     },
     {
       "domaine": "css-outils",
@@ -172,68 +251,351 @@
       "ateliers": 8,
       "references": 2,
       "referencesRedigees": 2,
-      "referencesBrouillon": 0
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 4,
+        "4": 1
+      },
+      "leconsDansUnParcours": 5
     },
     {
       "domaine": "python",
-      "lecons": 11,
-      "exemplesCode": 22,
+      "lecons": 13,
+      "exemplesCode": 26,
       "leconsAvecUnSeulExemple": [],
       "ateliers": 40,
-      "references": 2,
-      "referencesRedigees": 2,
-      "referencesBrouillon": 0
+      "references": 4,
+      "referencesRedigees": 4,
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 10,
+        "2": 1,
+        "4": 1,
+        "5": 1
+      },
+      "leconsDansUnParcours": 13
     },
     {
       "domaine": "java",
-      "lecons": 11,
-      "exemplesCode": 22,
+      "lecons": 13,
+      "exemplesCode": 26,
       "leconsAvecUnSeulExemple": [],
       "ateliers": 40,
-      "references": 2,
-      "referencesRedigees": 2,
-      "referencesBrouillon": 0
+      "references": 4,
+      "referencesRedigees": 4,
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 10,
+        "2": 1,
+        "4": 2
+      },
+      "leconsDansUnParcours": 13
     },
     {
       "domaine": "springboot",
-      "lecons": 11,
-      "exemplesCode": 28,
+      "lecons": 13,
+      "exemplesCode": 32,
       "leconsAvecUnSeulExemple": [],
       "ateliers": 40,
-      "references": 2,
-      "referencesRedigees": 2,
-      "referencesBrouillon": 0
+      "references": 4,
+      "referencesRedigees": 4,
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 10,
+        "5": 3
+      },
+      "leconsDansUnParcours": 13
     },
     {
       "domaine": "cpp",
-      "lecons": 11,
-      "exemplesCode": 22,
+      "lecons": 13,
+      "exemplesCode": 26,
       "leconsAvecUnSeulExemple": [],
       "ateliers": 40,
-      "references": 2,
-      "referencesRedigees": 2,
-      "referencesBrouillon": 0
+      "references": 4,
+      "referencesRedigees": 4,
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 10,
+        "3": 1,
+        "4": 1,
+        "6": 1
+      },
+      "leconsDansUnParcours": 13
     },
     {
       "domaine": "csharp",
-      "lecons": 11,
-      "exemplesCode": 22,
+      "lecons": 13,
+      "exemplesCode": 26,
       "leconsAvecUnSeulExemple": [],
       "ateliers": 40,
-      "references": 2,
-      "referencesRedigees": 2,
-      "referencesBrouillon": 0
+      "references": 4,
+      "referencesRedigees": 4,
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 10,
+        "2": 1,
+        "4": 1,
+        "6": 1
+      },
+      "leconsDansUnParcours": 13
     },
     {
       "domaine": "php",
-      "lecons": 11,
-      "exemplesCode": 22,
+      "lecons": 13,
+      "exemplesCode": 26,
       "leconsAvecUnSeulExemple": [],
       "ateliers": 40,
-      "references": 2,
-      "referencesRedigees": 2,
-      "referencesBrouillon": 0
+      "references": 4,
+      "referencesRedigees": 4,
+      "referencesBrouillon": 0,
+      "niveauxPedagogiques": {
+        "1": 10,
+        "3": 1,
+        "5": 1,
+        "6": 1
+      },
+      "leconsDansUnParcours": 13
+    },
+    {
+      "domaine": "sql",
+      "lecons": 10,
+      "exemplesCode": 20,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 3,
+      "references": 120,
+      "referencesRedigees": 10,
+      "referencesBrouillon": 110,
+      "niveauxPedagogiques": {
+        "2": 2,
+        "3": 2,
+        "4": 2,
+        "5": 2,
+        "6": 2
+      },
+      "leconsDansUnParcours": 10
     }
   ],
-  "problemes": []
+  "parcours": [
+    {
+      "id": "zero",
+      "etapes": 5,
+      "lecons": 47,
+      "preuves": 0,
+      "suite": null
+    },
+    {
+      "id": "fondations",
+      "etapes": 4,
+      "lecons": 37,
+      "preuves": 0,
+      "suite": null
+    },
+    {
+      "id": "frontend",
+      "etapes": 4,
+      "lecons": 28,
+      "preuves": 0,
+      "suite": null
+    },
+    {
+      "id": "backend",
+      "etapes": 2,
+      "lecons": 14,
+      "preuves": 0,
+      "suite": null
+    },
+    {
+      "id": "fullstack",
+      "etapes": 5,
+      "lecons": 41,
+      "preuves": 0,
+      "suite": null
+    },
+    {
+      "id": "systemes",
+      "etapes": 2,
+      "lecons": 11,
+      "preuves": 0,
+      "suite": null
+    },
+    {
+      "id": "python",
+      "etapes": 4,
+      "lecons": 15,
+      "preuves": 4,
+      "suite": "springboot"
+    },
+    {
+      "id": "java",
+      "etapes": 3,
+      "lecons": 13,
+      "preuves": 3,
+      "suite": "springboot"
+    },
+    {
+      "id": "springboot",
+      "etapes": 3,
+      "lecons": 14,
+      "preuves": 3,
+      "suite": "fullstack-java"
+    },
+    {
+      "id": "cpp",
+      "etapes": 3,
+      "lecons": 13,
+      "preuves": 3,
+      "suite": "systemes"
+    },
+    {
+      "id": "csharp",
+      "etapes": 3,
+      "lecons": 13,
+      "preuves": 3,
+      "suite": "systemes"
+    },
+    {
+      "id": "php",
+      "etapes": 3,
+      "lecons": 14,
+      "preuves": 3,
+      "suite": "fullstack-php"
+    },
+    {
+      "id": "vue",
+      "etapes": 2,
+      "lecons": 8,
+      "preuves": 2,
+      "suite": "fullstack"
+    },
+    {
+      "id": "angular",
+      "etapes": 2,
+      "lecons": 8,
+      "preuves": 2,
+      "suite": "fullstack"
+    },
+    {
+      "id": "react-next",
+      "etapes": 2,
+      "lecons": 15,
+      "preuves": 2,
+      "suite": "fullstack"
+    },
+    {
+      "id": "typescript",
+      "etapes": 2,
+      "lecons": 8,
+      "preuves": 2,
+      "suite": "react-next"
+    },
+    {
+      "id": "sql",
+      "etapes": 3,
+      "lecons": 10,
+      "preuves": 3,
+      "suite": "fullstack-php"
+    },
+    {
+      "id": "fullstack-java",
+      "etapes": 2,
+      "lecons": 10,
+      "preuves": 2,
+      "suite": null
+    },
+    {
+      "id": "fullstack-php",
+      "etapes": 2,
+      "lecons": 9,
+      "preuves": 2,
+      "suite": null
+    },
+    {
+      "id": "html",
+      "etapes": 3,
+      "lecons": 12,
+      "preuves": 3,
+      "suite": "css"
+    },
+    {
+      "id": "css",
+      "etapes": 3,
+      "lecons": 10,
+      "preuves": 3,
+      "suite": "javascript"
+    },
+    {
+      "id": "javascript",
+      "etapes": 4,
+      "lecons": 22,
+      "preuves": 4,
+      "suite": "dom"
+    },
+    {
+      "id": "dom",
+      "etapes": 3,
+      "lecons": 7,
+      "preuves": 3,
+      "suite": "frontend"
+    },
+    {
+      "id": "node-npm",
+      "etapes": 4,
+      "lecons": 19,
+      "preuves": 4,
+      "suite": "http-express"
+    },
+    {
+      "id": "http-express",
+      "etapes": 4,
+      "lecons": 16,
+      "preuves": 4,
+      "suite": "fullstack"
+    },
+    {
+      "id": "terminal-git",
+      "etapes": 4,
+      "lecons": 17,
+      "preuves": 4,
+      "suite": "systemes"
+    },
+    {
+      "id": "css-outils",
+      "etapes": 2,
+      "lecons": 5,
+      "preuves": 2,
+      "suite": "frontend"
+    }
+  ],
+  "problemes": [],
+  "lacunesEditoriales": [
+    "niveau-zero : 10 leçons, sous le palier de 20",
+    "html : 11 leçons, sous le palier de 20",
+    "html : 319 notices encore sans explication rédigée",
+    "css : 10 leçons, sous le palier de 20",
+    "css : 397 notices encore sans explication rédigée",
+    "javascript : 346 notices encore sans explication rédigée",
+    "dom : 7 leçons, sous le palier de 20",
+    "node : 9 leçons, sous le palier de 20",
+    "node : 90 notices encore sans explication rédigée",
+    "npm : 10 leçons, sous le palier de 20",
+    "http : 8 leçons, sous le palier de 20",
+    "http : 115 notices encore sans explication rédigée",
+    "express : 8 leçons, sous le palier de 20",
+    "shell : 15 leçons, sous le palier de 20",
+    "typescript : 8 leçons, sous le palier de 20",
+    "react : 9 leçons, sous le palier de 20",
+    "nextjs : 6 leçons, sous le palier de 20",
+    "vue : 6 leçons, sous le palier de 20",
+    "angular : 7 leçons, sous le palier de 20",
+    "css-outils : 5 leçons, sous le palier de 20",
+    "python : 13 leçons, sous le palier de 20",
+    "java : 13 leçons, sous le palier de 20",
+    "springboot : 13 leçons, sous le palier de 20",
+    "cpp : 13 leçons, sous le palier de 20",
+    "csharp : 13 leçons, sous le palier de 20",
+    "php : 13 leçons, sous le palier de 20",
+    "sql : 10 leçons, sous le palier de 20",
+    "sql : 110 notices encore sans explication rédigée"
+  ]
 }

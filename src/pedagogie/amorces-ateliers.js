@@ -1,5 +1,6 @@
 'use strict';
 const springFichiers = require('./spring-fichiers');
+const amorcesSQL = require('./sql-ateliers').amorces;
 
 // Chaque chemin annoncé par un atelier a un contenu initial ou une commande
 // qui le produit. L'amorce doit être utilisable avant la partie à résoudre.
@@ -83,6 +84,10 @@ function creerAmorces(atelier) {
     const nom = prefixe && chemin.startsWith(prefixe) ? chemin.slice(prefixe.length) : chemin;
     if (amorcesHistoriques[atelier.id]?.[nom]) {
       fragments.push(aEcrire(chemin, amorcesHistoriques[atelier.id][nom]));
+      continue;
+    }
+    if (amorcesSQL[atelier.id] && nom === 'sql.py') {
+      fragments.push(aEcrire(chemin, amorcesSQL[atelier.id], 'Programme SQLite exécutable à faire évoluer pendant l’atelier'));
       continue;
     }
     if (chemin.endsWith('/')) { fragments.push(produit(chemin, 'Dossier créé par la commande mkdir de la première étape.')); continue; }

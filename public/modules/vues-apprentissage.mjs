@@ -11,6 +11,12 @@ const profils = [
   ['Je vise le frontend', 'Construire la partie visible et interactive d’un site.', 'parcours/frontend'],
   ['Je vise le backend', 'Traiter les demandes et les données côté serveur.', 'parcours/backend'],
   ['Je vise le full-stack', 'Relier interface et serveur dans un même projet.', 'parcours/fullstack'],
+  ['Je veux apprendre Python', 'De la première variable aux données et aux tests.', 'parcours/python'],
+  ['Je veux apprendre Java et Spring', 'Compiler, modéliser, puis construire une API.', 'parcours/java'],
+  ['Je veux apprendre PHP', 'Traiter un formulaire puis stocker les données avec PDO.', 'parcours/php'],
+  ['Je veux comprendre SQL', 'Lire, relier et protéger les données d’une application.', 'parcours/sql'],
+  ['Je veux apprendre C# ou C++', 'Comprendre les types, les ressources et les erreurs.', 'parcours/csharp'],
+  ['Je veux apprendre Vue ou Angular', 'Choisir une approche de composants et la pratiquer.', 'parcours/vue'],
   ['Je veux comprendre les systèmes / DevOps', 'Exécuter, diagnostiquer et rendre les installations reproductibles.', 'parcours/systemes'],
   ['Je suis déjà développeur', 'Aller directement à la référence technique.', 'bibliotheque']
 ];
@@ -48,15 +54,17 @@ export function creerVues({ etat, elements, progression, obtenirFiche, filAriane
     filAriane([{ label: 'Accueil', route: 'accueil' }, { label: 'Apprendre', route: 'parcours' }]);
     const p = etat.documentation.parcours.find(p => p.id === id);
     if (!p) {
+      const familles = [...new Set(etat.documentation.parcours.map(p => p.famille || 'Autres parcours'))];
       afficher(`<header class="listing-header"><span class="eyebrow">Apprendre</span><h1 class="page-title">Choisir ce que vous voulez savoir faire</h1><p class="page-intro">Commencez avec votre expérience actuelle. Chaque parcours indique une capacité observable, sans promettre un niveau professionnel après quelques lectures.</p></header>
-        <div class="profile-list">${etat.documentation.parcours.map(p => `<a href="#/parcours/${p.id}"><span class="eyebrow">${e(p.niveau)}</span><strong>${e(p.titre)}</strong><span>${e(p.competence)}</span></a>`).join('')}</div>
+        ${familles.map(famille => `<section class="path-group"><h2>${e(famille)}</h2><div class="profile-list">${etat.documentation.parcours.filter(p => (p.famille || 'Autres parcours') === famille).map(p => `<a href="#/parcours/${e(p.id)}"><span class="eyebrow">${e(p.niveau)}</span><strong>${e(p.titre)}</strong><span>${e(p.competence)}</span></a>`).join('')}</div></section>`).join('')}
         <section class="doc-section"><h2>Reconnaître une compétence acquise</h2><dl class="competence-levels">${etat.documentation.niveaux.map(n => `<dt>${e(n.titre)}</dt><dd>${e(n.competence)}</dd>`).join('')}</dl><p>Ces repères servent à choisir des exercices. Ils ne constituent ni diplôme ni certification.</p></section>`); return;
     }
     const ids = p.etapes.flatMap(et => et.fiches);
     const compris = ids.filter(id => progression.auMoins(id, 'compris')).length;
     const verifies = ids.filter(id => progression.auMoins(id, 'verifie')).length;
     afficher(`<header class="listing-header"><span class="eyebrow">Apprendre · ${e(p.niveau)}</span><h1 class="page-title">${e(p.titre)}</h1><p class="page-intro">${e(p.competence)}</p><label class="progress-label" for="progression-parcours">${compris} notions abordées sur ${ids.length} · ${verifies} vérifiées par questionnaire</label><progress id="progression-parcours" value="${compris}" max="${ids.length}">${compris}/${ids.length}</progress><p class="aide">« Compris » est votre déclaration. Pratique, vérification et rappels sont conservés séparément.</p></header>
-      ${p.etapes.map((et, i) => `<section class="path-stage"><span class="eyebrow">Étape ${i + 1}</span><h2>${e(et.titre)}</h2><p>${e(et.description)}</p>${et.fiches.map(obtenirFiche).filter(Boolean).map(boutonFiche).join('')}</section>`).join('')}`);
+      ${p.etapes.map((et, i) => `<section class="path-stage"><span class="eyebrow">Étape ${i + 1}</span><h2>${e(et.titre)}</h2><p>${e(et.description)}</p>${et.preuve ? `<p class="path-stage__proof"><strong>Pour passer à la suite :</strong> ${e(et.preuve)}</p>` : ''}${et.fiches.map(obtenirFiche).filter(Boolean).map(boutonFiche).join('')}</section>`).join('')}
+      ${p.suite && etat.documentation.parcours.some(s => s.id === p.suite) ? `<section class="doc-section"><h2>Après ce parcours</h2><p>Continuez quand vous pouvez montrer les résultats des étapes précédentes.</p><a class="learning-row" href="#/parcours/${e(p.suite)}"><span><strong>${e(etat.documentation.parcours.find(s => s.id === p.suite).titre)}</strong><small>${e(etat.documentation.parcours.find(s => s.id === p.suite).competence)}</small></span><span aria-hidden="true">→</span></a></section>` : ''}`);
   }
   function reference(entree) {
     filAriane([{ label: 'Accueil', route: 'accueil' }, { label: 'Référence', route: 'bibliotheque' }, { label: entree.terme }]);

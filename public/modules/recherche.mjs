@@ -13,7 +13,7 @@ export function creerRecherche(entrees) {
       .map(e => ({ ...e, score: mots.every(m => e.texteNormalise.includes(m)) ?
         (e.titreNormalise === q ? 160 : 0) + (e.aliasNormalises.includes(q) ? 130 : 0) +
         (q && e.titreNormalise.startsWith(q) ? 70 : 0) + (q && e.titreNormalise.includes(q) ? 40 : 0) +
-        (e.maturiteEditoriale === 'draft' ? 0 : 5) + 1 : 0 }))
+        (e.maturiteEditoriale === 'draft' ? 0 : 130) + 1 : 0 }))
       .filter(e => e.score > 0).sort((a, b) => b.score - a.score || a.titreNormalise.localeCompare(b.titreNormalise, 'fr')).slice(0, limite);
   };
 }

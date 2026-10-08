@@ -38,7 +38,7 @@ const fiches = catalogue.fiches.map(e => {
   ecrire(fichier, e);
   const r = resume(e, 'fiche', fichier);
   index.push({ ...r, contexte: (e.tags || []).join(' '), code: extraireCode(e) });
-  return { ...r, prerequis: e.prerequis, parcours: e.parcours };
+  return { ...r, prerequis: e.prerequis };
 });
 for (const [collection, type] of [['ateliers', 'atelier'], ['erreurs', 'erreur'], ['projets', 'projet']]) {
   for (const e of catalogue[collection] || []) {

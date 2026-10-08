@@ -1,5 +1,5 @@
 'use strict';
-const VERSION = 'bibliolearn-shell-v11';
+const VERSION = 'bibliolearn-shell-v12';
 const CONTENUS = 'bibliolearn-contenus-v1';
 const SHELL = ['/', '/index.html', '/styles.css', '/app.js', '/manifest.webmanifest', '/favicon.svg', '/icon-192.png',
   '/modules/catalogue.mjs', '/modules/recherche.mjs', '/modules/progression.mjs', '/modules/texte.mjs',
