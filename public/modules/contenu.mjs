@@ -39,4 +39,3 @@ function libelleAlerte(variante) {
     retenir: 'À retenir'
   }[variante] || 'À noter';
 }
-

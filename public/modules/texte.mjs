@@ -10,4 +10,3 @@ export function echapperHTML(valeur) {
 export function echapperAttribut(valeur) {
   return echapperHTML(valeur);
 }
-
