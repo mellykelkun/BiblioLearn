@@ -1,0 +1,17 @@
+{
+  "contexte": "Mesure locale Node, 10 recherches ; octets bruts et gzip calculés, pas mesure réseau en production.",
+  "accueil": {
+    "avant": 13592659,
+    "apres": 104651,
+    "reductionPourcent": 99.23,
+    "gzipApres": 20526
+  },
+  "indexRecherche": {
+    "octets": 1141046,
+    "gzip": 112125
+  },
+  "preparationIndexMs": 15.93,
+  "dixRecherchesAncienneSerialisationMs": 1287.29,
+  "dixRecherchesIndexeesMs": 15.2,
+  "catalogueCompletOptionnel": 4849050
+}

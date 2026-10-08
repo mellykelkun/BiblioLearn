@@ -1,133 +1,113 @@
 # Bibliolearn
 
-Bibliolearn est un parcours progressif pour apprendre le développement web et six autres environnements de programmation, complété par des ateliers et une référence technique. L’interface est construite en HTML, CSS et JavaScript vanilla ; Express sert les fichiers et le catalogue documentaire. La progression personnelle reste dans le navigateur.
+Apprendre le développement depuis les premiers repères, pratiquer et retrouver une référence. JavaScript vanilla en modules ES, contenus écrits dans `src/data` et `src/pedagogie`, Express pour la lecture locale et l’API optionnelle. La progression personnelle reste dans le navigateur.
 
-## Démarrer
+## Démarrer et vérifier
 
-Prérequis : Node.js 18 ou plus récent.
-
-```bash
-npm install
-npm run dev
-```
-
-Ouvrir ensuite <http://localhost:3000>. Pour utiliser un autre port :
+Node.js 18 ou plus récent pour le serveur ; Node.js récent recommandé pour les outils de test.
 
 ```bash
-PORT=3001 npm run dev
+npm ci
+npm run build:catalogue
+npm start
+# http://localhost:3000
+npm run check
+npm run audit:editorial
+npx playwright install chromium
+npm run test:browser
 ```
 
-## Commandes
+Les tests navigateur démarrent un serveur sur 3100. Sur une machine disposant déjà de Chromium :
 
 ```bash
-npm run dev     # serveur avec redémarrage Nodemon
-npm start       # serveur sans Nodemon
-npm run check   # syntaxe JavaScript + intégrité du catalogue
-npm run build:catalogue # régénérer le JSON utilisé en mode statique/hors ligne
+PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:browser
 ```
+
+`npm run dev` utilise Nodemon. `npm run measure` compare les octets de l’ancien catalogue et dix recherches locales avec l’index actuel ; ce n’est pas un benchmark réseau de production.
+
+## Les trois usages
+
+- **Apprendre** : niveau zéro, fondations, frontend, backend, full-stack et systèmes. Les profils proposent un départ sans questionnaire obligatoire. Les prérequis conseillent sans bloquer.
+- **S’entraîner** : exercices des leçons, questionnaires de rappel, ateliers guidés, projets et mission de diagnostic. Les anciens ateliers terminés restent des déclarations, pas des évaluations.
+- **Référence** : index préparé à la construction, contexte des résultats, définitions et syntaxe lorsqu’elles existent, sources et statut éditorial. Les erreurs ont une famille dédiée avec observation, diagnostic et correction.
+
+La première phase de refonte ajoute huit leçons de niveau zéro, deux prérequis à l’asynchronisme, une leçon Promise réécrite, deux références retravaillées, quatorze diagnostics et quatre projets/missions. Les 176 leçons, 369 ateliers et 1 978 identifiants de références historiques sont conservés. La présence d’une entrée n’atteste pas de sa qualité.
 
 ## Architecture
 
-```text
-.
-├── public/
-│   ├── index.html             # structure de l’interface
-│   ├── styles.css             # design clair, lisible et responsive
-│   ├── app.js                 # navigation, recherche et progression
-│   ├── manifest.webmanifest   # installation PWA
-│   └── sw.js                  # lecture hors ligne après la première visite
-├── scripts/
-│   ├── verifier-catalogue.js  # contrôle les fiches et leurs liens internes
-│   ├── test-pedagogie.js      # unicité des exercices et synchronisation du JSON
-│   └── construire-catalogue.js # publication statique du catalogue
-├── src/data/
-│   ├── index.js               # domaines, agrégation et validation
-│   ├── outils.js              # constructeurs et sessions guidées
-│   ├── pedagogie*.js          # modèles mentaux, défis et corrigés propres aux 113 leçons
-│   ├── ateliers-defis.js      # points de départ et validations propres aux 120 défis
-│   ├── fiches-approfondissement.js # sessions et notions avancées
-│   ├── fiches-complementaires.js # accessibilité, sécurité et pratique avancée
-│   ├── fiches-fondamentaux.js # HTML et CSS
-│   ├── fiches-javascript-dom.js
-│   ├── fiches-backend.js      # Node.js, npm, HTTP et Express
-│   └── fiches-frontend.js     # TypeScript et frameworks frontend
-│   ├── fiches-shell.js        # Terminal, Bash, npm avancé et Git
-│   ├── fiches-environnement.js # premiers pas dans le terminal et installations
-│   ├── environnements.js     # 13 guides Windows, Linux et macOS
-│   ├── nouveaux-parcours.js  # notions Python, Java, Spring Boot, C++, C# et PHP
-│   ├── construire-nouveaux-parcours.js # 60 leçons et 240 ateliers
-│   ├── bibliotheque-nouveaux.js # références associées aux nouveaux parcours
-│   ├── ateliers.js            # exercices guidés de construction
-│   ├── ateliers-plus.js       # banque générée de 120 ateliers supplémentaires
-│   └── fiches-ecosystemes.js  # parcours frontend approfondis
-├── scripts/generer-migration.js # export SQL du catalogue
-└── supabase/migrations/       # schéma et données Bibliolearn isolés
-└── server.js                  # serveur Express et API locale
+| Chemin | Responsabilité |
+| --- | --- |
+| `src/data/` | Contenus historiques et agrégation |
+| `src/pedagogie/` | Schéma, graphe, parcours, niveau zéro et contenus spécifiques |
+| `scripts/construire-catalogue.js` | Génération déterministe des fragments et de l’index |
+| `public/catalogue/meta.json` | Repères et résumés nécessaires à l’accueil |
+| `public/catalogue/<empreinte>/` | Leçons/ateliers individuels, références par famille, index et manifeste hors ligne |
+| `public/modules/catalogue.mjs` | Chargement à la demande, déduplication et reprise après échec |
+| `public/modules/recherche.mjs` | Index normalisé et classement titre/alias/contexte/code |
+| `public/modules/progression.mjs` | Migration locale, preuves et calendrier de rappel |
+| `public/modules/entrainement.mjs` | Essais, questionnaires et explications des réponses |
+| `public/modules/routeur.mjs` | Navigation asynchrone et protection contre les réponses tardives |
+| `public/modules/vues-*.mjs`, `contenu.mjs` | Rendus par usage et contenus historiques conservés |
+| `public/modules/accessibilite.mjs` | Focus de navigation, menu mobile et clavier |
+| `public/modules/hors-ligne.mjs`, `public/sw.js` | Téléchargement explicite et cache des lectures |
+| `public/app.js` | Assemblage, événements et fonctions d’installation/partage |
+| `src/catalogue-distant.js` | Validation du miroir Supabase optionnel |
+
+`public/documentation.json` et `/api/documentation` restent des exports de compatibilité. Le navigateur ne les charge plus. Une leçon ne demande que son fichier ; l’index est chargé quand on recherche ou explore la référence. Le catalogue complet hors ligne est un choix explicite.
+
+## Modèle et rédaction
+
+Conserver les identifiants. Chaque connaissance décrit `type`, `niveauPedagogique`, `prerequis`, `debloque`, `termesNouveaux`, `parcours`, `competences`, `difficulte`, `tempsEstime`, `sources`, `provenance` et `maturiteEditoriale`. Les clés complètes du graphe sont `type/id` : certains identifiants historiques se recoupent entre leçons et références. Les prérequis désignent des leçons ; `debloque` est calculé.
+
+Une leçon part d’une situation et définit les mots nouveaux. Ses sections ne sont ajoutées que si leur contenu est utile. `profondeur > 0` replie un approfondissement. Une `evaluation` possède une version, des questions identifiées, des choix, un indice de réponse correcte et une explication. Ne pas confondre questionnaire et certification professionnelle.
+
+Maturité : `draft` (notice à approfondir), `structured` (organisé, non relu), `enriched` (explication/pratique spécifique, non relue), `reviewed`, `verified`. Les deux derniers exigent une revue datée et attribuée ; aucun générateur ne les accorde. Les 1 861 notices produites par modèles conservent leurs termes, sources et associations, mais leurs faux articles et exemples de substitution ne sont plus publiés.
+
+L’audit éditorial écrit `docs/qualite-editoriale.json`. Il signale les sources absentes, explications courtes, répétitions, exercices/corrections identiques, définitions circulaires, jargon à relire et niveaux avancés sans prérequis. Les alertes sont des pistes de revue, pas un score de qualité. Le corpus historique nécessite encore cette revue.
+
+Après modification d’un contenu :
+
+```bash
+npm run build:catalogue
+npm run audit:editorial
+npm run check
 ```
 
-Le navigateur charge le catalogue depuis `GET /api/documentation` et peut utiliser `public/documentation.json` en secours. La recherche s’exécute dans le navigateur. Les fiches récemment ouvertes, maîtrisées ou marquées « À revoir » sont enregistrées dans `localStorage` et ne quittent pas l’appareil.
+Ne pas modifier directement les JSON générés.
 
-Le parcours débutant guide 35 leçons dans un ordre explicite : HTML, CSS, JavaScript/DOM, puis échanges réseau et serveur. Les 113 leçons historiques conservent leur documentation et leur défi propres à la notion. Les nouveaux parcours ajoutent 60 leçons sur Python, Java, Spring Boot, C++, C#/.NET et PHP ainsi que trois leçons de préparation du poste. Chaque fiche comporte cinq sessions pointant vers des parties différentes ; leurs durées sont indicatives. Le catalogue contient 176 leçons, 369 ateliers et 1 978 références techniques.
+## Progression et migration
 
-La page « Préparer mon poste » explique le rôle, la source officielle, la commande de vérification, le diagnostic et les avertissements de 13 outils. Chaque domaine, leçon et atelier renvoie vers les instructions Windows/PowerShell, Linux et macOS pertinentes. Les 240 nouveaux ateliers durent de 45 à 90 minutes et distinguent reproduction, réparation, application et test/transmission. Ils incluent une commande de lancement par système ; les exemples Spring Boot restent des fragments à intégrer dans un projet généré par Spring Initializr.
+`bibliolearn.progression.v2` conserve les preuves séparément des anciennes clés. Les visites deviennent « vu » ; les anciens éléments `bibliolearn.lues` deviennent « compris déclaré ». Les anciens ateliers, listes de révision et identifiants hors catalogue sont conservés. Une sauvegarde v2 illisible est copiée dans `bibliolearn.progression.v2.recuperation` avant reprise. Si le stockage est indisponible, un message indique le repli en mémoire.
 
-## Installer et partager
+- Compris : déclaration personnelle.
+- Pratiqué : essai écrit enregistré, sans correction automatique de texte libre.
+- Vérifié : questionnaire réussi après pratique, à une échéance admissible.
+- Maîtrisé : au moins trois réussites espacées et quatre jours écoulés ; recommencer le même jour n’ajoute pas de preuve.
 
-Le manifeste et le service worker rendent le site installable depuis les navigateurs compatibles. Le bouton « Installer » utilise l’invite du navigateur lorsqu’elle est disponible et donne des instructions de repli ailleurs. Une proposition discrète apparaît après un court délai et peut être remise à plus tard. Les fichiers de l’interface et le catalogue public sont mis en cache pour permettre la consultation hors ligne après une première visite complète. Une connexion est nécessaire pour obtenir les mises à jour.
+Rappels après 1, 3, 7, 14 puis 30 jours selon les réussites ; une erreur ramène à un rappel le lendemain et retire l’état de maîtrise. Les questionnaires sont locaux et ne constituent pas une évaluation surveillée. Les leçons sans questionnaire restent au plus « pratiqué ».
 
-Le bouton « Partager » propose le partage natif sur les appareils compatibles, ou copie le lien de la page ou de la leçon en cours. Les marqueurs personnels ne sont pas inclus dans ce lien.
+## Hors ligne et accessibilité
 
-## Migration Supabase optionnelle
+Le service worker conserve le shell et les repères, puis les contenus visités. Le bouton d’accueil télécharge les fragments avec progression et reprise possible. Les sources externes nécessitent toujours une connexion. Le navigateur peut évincer son cache ; aucune garantie de conservation permanente n’est annoncée. Lors d’une mise à jour, le cache des lectures est préservé et une ancienne leçon peut servir de secours.
 
-Le contenu peut être stocké dans Supabase sans modifier les autres tables : la migration utilise uniquement les tables préfixées `bibliolearn_` et active une lecture publique en RLS. Le serveur continue d’utiliser le catalogue local si `SUPABASE_URL` ou `SUPABASE_ANON_KEY` manque, ou si Supabase est indisponible.
+Les tests couvrent 320, 360, 390, 430, 768 et 1440 px, le focus après navigation, le menu mobile, la lecture hors ligne et les règles Axe WCAG 2.2 AA disponibles. Ce contrôle automatisé ne constitue pas un audit WCAG exhaustif. Le code conserve une taille lisible et peut défiler horizontalement.
+
+## Supabase optionnel
+
+Le frontend statique reste la source publiée. L’API Express peut lire un miroir exact du même catalogue, ou revenir aux données locales si la configuration manque, si le réseau échoue ou si l’empreinte diffère.
 
 ```bash
 npm run generate:migration
-SUPABASE_URL=https://... SUPABASE_ANON_KEY=... npm start
 ```
 
-La migration est générée depuis les données JavaScript afin d’éviter une divergence entre le mode local et le mode distant. Elle crée les domaines, les leçons, les sessions intégrées dans les leçons et les ateliers guidés.
+Cette commande écrit maintenant **un export de données** dans `supabase/exports/catalogue-v5.sql`. Elle ne réécrit plus la migration historique et ne supprime aucune table. L’export utilise la table `bibliolearn_catalogue_meta` existante avec une clé versionnée et un `ON CONFLICT` limité à cette clé. Relire puis appliquer explicitement cet export sur votre base si vous utilisez ce miroir. Aucune base distante n’est modifiée par la construction ou la publication du site.
 
-L’entrée « Ateliers pratiques » propose des exercices orientés production : carte HTML/CSS, interaction DOM, recherche locale, serveur Node, API Express, package npm, commandes shell, `fetch` et premier cycle Git. Chaque atelier indique les outils nécessaires, les prérequis, l’arborescence à créer, des étapes commentées, des commandes exécutables et une checklist de validation. La progression des ateliers est également conservée localement.
+Les politiques de lecture et permissions de la table doivent déjà autoriser le catalogue public. Ne pas mettre de progression personnelle dans cette table publique. Le serveur utilise uniquement `SUPABASE_URL` et une clé publique `SUPABASE_ANON_KEY`, jamais une clé de service côté navigateur.
 
-## Ajouter un atelier
+## Déploiement
 
-1. Ajouter un objet `atelier({ ... })` dans `src/data/ateliers.js`.
-2. Décrire un objectif concret, les outils, les prérequis et une structure de fichiers.
-3. Découper le travail en étapes courtes avec `titre`, `explication`, `langage` et `code`.
-4. Terminer par des critères de validation et un indice de dépannage.
-5. Vérifier les fiches liées dans `associes`, puis lancer `npm run build:catalogue` et `npm run check`.
+Le projet de production conservé est **biblio-learn**, adresse **https://biblio-learn.vercel.app**. Ne pas créer de nouveau projet. Le dépôt GitHub relié est `mellykelkun/BiblioLearn`, branche `main`. Une publication correspond à une nouvelle version du projet existant, pas à un second environnement.
 
-## Ajouter une fiche
+L’ancien manifeste Sites correspondait à une inscription jamais publiée ; il est retiré pour éviter une publication au mauvais endroit. Le doublon Vercel `bibliolearn` a une commande d’ignorance des builds `exit 0`, en attente de la confirmation de suppression exigée dans l’interface Vercel.
 
-1. Choisir le fichier correspondant au domaine dans `src/data/`.
-2. Ajouter un objet créé avec `fiche({ ... })`.
-3. Composer uniquement les sections utiles : `texte`, `code`, `liste`, `decomposition`, `comparaison`, `alerte` et `liens`.
-4. Rédiger une entrée de guide pédagogique unique dans `pedagogie*.js` : modèle mental, situation, défi et corrigé.
-5. Ajouter les identifiants des fiches liées dans `associes`.
-6. Lancer `npm run build:catalogue` puis `npm run check`.
-
-Exemple minimal :
-
-```js
-fiche({
-  id: 'js-exemple',
-  domaine: 'javascript',
-  categorie: 'Fondamentaux',
-  titre: 'Une notion JavaScript',
-  resume: 'Résumé affiché dans les listes et la recherche.',
-  tags: ['javascript', 'exemple'],
-  sections: [
-    texte('Définition', 'Explication concise.'),
-    code('Syntaxe', 'JavaScript', 'const exemple = true;'),
-    liens({ label: 'Documentation officielle', url: 'https://developer.mozilla.org/' })
-  ],
-  associes: ['js-variables']
-})
-```
-
-Les tests du catalogue vérifient l’unicité des guides, des codes d’atelier, les cibles des sessions, la synchronisation du JSON statique et les fichiers PWA. La vérification manuelle doit compléter ces tests sur ordinateur et mobile : navigation, recherche, lecture des corrigés, installation, partage et réouverture hors ligne.
-
-## Ressource PDF
-
-Le PDF HTML historique mentionné dans le cahier des charges n’était pas présent dans le dossier lors de la reconstruction. La fiche « Reconnaître le HTML obsolète » couvre déjà `FONT`, `CENTER`, `BLINK`, `FRAMESET`, `bgcolor`, `background` et `align` en les présentant uniquement comme syntaxes historiques. Le PDF pourra être analysé et servir à compléter les fiches dès qu’il sera ajouté au projet.
+L’audit initial, les risques et les critères de validation sont dans [docs/REFONTE.md](docs/REFONTE.md). Les mesures reproductibles sont dans [docs/mesures-performance.json](docs/mesures-performance.json).
