@@ -1,5 +1,5 @@
 'use strict';
-const VERSION = 'bibliolearn-shell-v7';
+const VERSION = 'bibliolearn-shell-v9';
 const CONTENUS = 'bibliolearn-contenus-v1';
 const SHELL = ['/', '/index.html', '/styles.css', '/app.js', '/manifest.webmanifest', '/favicon.svg', '/icon-192.png',
   '/modules/catalogue.mjs', '/modules/recherche.mjs', '/modules/progression.mjs', '/modules/texte.mjs',
@@ -17,6 +17,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const requete = event.request, url = new URL(requete.url);
   if (requete.method !== 'GET' || url.origin !== self.location.origin) return;
+  if (url.searchParams.has('telecharger')) return;
   const donnee = url.pathname.startsWith('/catalogue/');
   const navigation = requete.mode === 'navigate';
   if (!donnee && !navigation && !SHELL.includes(url.pathname)) return;

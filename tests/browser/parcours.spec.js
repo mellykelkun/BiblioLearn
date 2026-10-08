@@ -69,6 +69,23 @@ test('routes historiques, installation et ateliers restent accessibles', async (
   expect(erreurs).toEqual([]);
 });
 
+test('une leçon zéro et un atelier avancé donnent commandes et fichiers complets', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/#/fiche/zero-naviguer-dossiers');
+  await expect(page.locator('h1')).toHaveText('Naviguer dans un dossier avec des commandes sûres');
+  await expect(page.getByText('Get-Location', { exact: false }).first()).toBeVisible();
+  await expect(page.getByText('mkdir atelier', { exact: false }).first()).toBeVisible();
+  await page.goto('/#/atelier/atelier-springboot-controller-get-essayer');
+  await expect(page.locator('h1')).toContainText('Contrôleur et route GET');
+  const controleur = page.locator('details').filter({ has: page.locator('summary', { hasText: 'AtelierController.java' }) });
+  await controleur.locator('summary').click();
+  await expect(controleur.locator('code')).toContainText('@GetMapping("/bonjour")');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  await page.goto('/#/terme/pratique-springboot-restcontroller');
+  await expect(page.locator('h1')).toHaveText('@RestController');
+  await expect(page.getByText('Documentation de référence')).toBeVisible();
+});
+
 test('progression historique et navigation rapide restent cohérentes', async ({ page }) => {
   await page.addInitScript(() => {
     if (!localStorage.getItem('test-migre')) {

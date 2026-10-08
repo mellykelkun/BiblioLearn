@@ -1921,6 +1921,10 @@ code, pre, .code-shell pre, .tree-block { font-size: .9375rem; }
 pre { overflow-x: auto; white-space: pre; max-width: 100%; }
 .article-body, .reference-readable, .workspace, .content, .step-item__body, .code-shell { min-width: 0; }
 h1, h2, h3, p, a, button { overflow-wrap: anywhere; }
+summary, .code-shell__language { overflow-wrap: anywhere; }
+.code-shell__head { gap: 10px; min-width: 0; }
+.code-shell__language { min-width: 0; word-break: break-word; }
+.code-shell__language::before, .copy-button { flex-shrink: 0; }
 .content { max-width: 1320px; }
 .home-intro { margin: 8px 0 30px; max-width: 780px; }
 .home-intro .page-title { font-size: clamp(2rem, 4vw, 3.1rem); margin: 12px 0; }

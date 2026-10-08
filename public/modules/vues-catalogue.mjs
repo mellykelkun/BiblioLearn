@@ -352,7 +352,8 @@ function afficherAtelier(id) {
         ${creerPreparationDomaine(atelier.domaine, true, Boolean(atelier.execution))}
         <section class="workshop-section" id="atelier-outils"><h2>Outils nécessaires</h2><div class="tool-list">${atelier.outils.map((outil) => `<span class="tool-chip">${echapperHTML(outil)}</span>`).join('')}</div></section>
         <section class="workshop-section"><h2>Avant de commencer</h2><ul class="checklist">${(atelier.prerequisLibelles || []).map((item) => `<li>${echapperHTML(item)}</li>`).join('')}</ul></section>
-        <section class="workshop-section"><h2>Structure à créer</h2><pre class="tree-block"><code>${echapperHTML(atelier.structure.join('\n'))}</code></pre></section>
+        <section class="workshop-section"><h2>Structure du projet</h2><pre class="tree-block"><code>${echapperHTML(atelier.structure.join('\n'))}</code></pre><p>Les fichiers produits par un outil sont indiqués ci-dessous. Copiez les autres sous leur nom exact avant de commencer la variante de l’atelier.</p></section>
+        ${creerFichiersDepart(atelier)}
         ${atelier.execution ? creerExecutionAtelier(atelier) : ''}
         <section class="workshop-section" id="atelier-etapes"><h2>Étapes guidées</h2><ol class="step-list">${atelier.etapes.map((etape, etapeIndex) => creerEtapeAtelier(etape, etapeIndex)).join('')}</ol></section>
         <section class="workshop-section" id="atelier-validation"><h2>Validation finale</h2><ul class="checklist checklist--interactive">${atelier.validation.map((item) => `<li><label><input type="checkbox"> <span>${echapperHTML(item)}</span></label></li>`).join('')}</ul></section>
@@ -365,6 +366,12 @@ function afficherAtelier(id) {
 
 function creerEtapeAtelier(etape, index) {
   return `<li class="step-item"><div class="step-item__number">${index + 1}</div><div class="step-item__body"><h3>${echapperHTML(etape.titre)}</h3><p>${echapperHTML(etape.explication)}</p><div class="code-shell"><div class="code-shell__head"><span class="code-shell__language">${echapperHTML(etape.langage)}</span><button class="copy-button" type="button" data-copy aria-label="Copier l’étape ${index + 1}">Copier</button></div><pre><code>${echapperHTML(etape.code)}</code></pre></div></div></li>`;
+}
+
+function creerFichiersDepart(atelier) {
+  if (!atelier.fichiersDepart?.length) return '';
+  return `<section class="workshop-section" id="atelier-fichiers"><h2>Fichiers de départ</h2><p>Ces fichiers donnent une base vérifiable. La consigne de l’étape « Construire » reste à réaliser : un atelier de transfert ne livre pas sa solution finale.</p>
+    ${atelier.fichiersDepart.map((fichier) => `<details class="depth-details"><summary>${echapperHTML(fichier.chemin)}${fichier.mode === 'genere' ? ' · produit par l’outil' : ' · à copier'}</summary><p>${echapperHTML(fichier.role)}</p>${fichier.mode === 'genere' ? '' : `<div class="code-shell"><div class="code-shell__head"><span class="code-shell__language">${echapperHTML(fichier.chemin)}</span><button class="copy-button" type="button" data-copy aria-label="Copier le contenu de ${echapperAttribut(fichier.chemin)}">Copier</button></div><pre><code>${echapperHTML(fichier.contenu)}</code></pre></div>`}</details>`).join('')}</section>`;
 }
 
 function creerSectionListe(titre, fiches, messageVide) {

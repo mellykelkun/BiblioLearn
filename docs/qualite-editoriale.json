@@ -2,66 +2,56 @@
   "version": 5,
   "avertissement": "Signaux de revue, pas mesure automatique de qualité ni validation humaine.",
   "comptages": {
-    "explication-courte": 536,
-    "jargon-a-relire": 9,
-    "texte-repete": 60,
+    "texte-repete": 68,
+    "jargon-a-relire": 11,
+    "explication-courte": 548,
+    "avance-sans-prerequis": 7,
     "exercice-repete": 117,
     "notice-a-rediger": 1861,
     "source-absente": 369
   },
   "details": [
     {
-      "id": "html-texte-listes",
+      "id": "html-semantique",
       "type": "fiche",
       "maturite": "structured",
       "alertes": [
         {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+          "code": "texte-repete",
+          "detail": "Texte partagé par 4 contenus : revue nécessaire."
         }
       ]
     },
     {
-      "id": "css-grid",
+      "id": "html-liens-images",
       "type": "fiche",
       "maturite": "structured",
       "alertes": [
         {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+          "code": "texte-repete",
+          "detail": "Texte partagé par 4 contenus : revue nécessaire."
         }
       ]
     },
     {
-      "id": "css-typographie",
+      "id": "css-flexbox",
       "type": "fiche",
       "maturite": "structured",
       "alertes": [
         {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+          "code": "texte-repete",
+          "detail": "Texte partagé par 4 contenus : revue nécessaire."
         }
       ]
     },
     {
-      "id": "js-tableaux",
+      "id": "css-responsive",
       "type": "fiche",
       "maturite": "structured",
       "alertes": [
         {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "js-fetch",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+          "code": "texte-repete",
+          "detail": "Texte partagé par 4 contenus : revue nécessaire."
         }
       ]
     },
@@ -77,46 +67,13 @@
       ]
     },
     {
-      "id": "dom-evenements",
+      "id": "node-runtime",
       "type": "fiche",
       "maturite": "structured",
       "alertes": [
         {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "node-process",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "node-fs",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "node-path",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+          "code": "texte-repete",
+          "detail": "Texte partagé par 4 contenus : revue nécessaire."
         }
       ]
     },
@@ -132,46 +89,13 @@
       ]
     },
     {
-      "id": "npm-semver",
+      "id": "http-requete-reponse",
       "type": "fiche",
       "maturite": "structured",
       "alertes": [
         {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "http-status",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "http-rest",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "express-demarrage",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+          "code": "texte-repete",
+          "detail": "Texte partagé par 4 contenus : revue nécessaire."
         }
       ]
     },
@@ -181,8 +105,8 @@
       "maturite": "structured",
       "alertes": [
         {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+          "code": "texte-repete",
+          "detail": "Texte partagé par 4 contenus : revue nécessaire."
         }
       ]
     },
@@ -192,78 +116,19 @@
       "maturite": "structured",
       "alertes": [
         {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        },
-        {
           "code": "jargon-a-relire",
           "detail": "middleware : vérifier la définition en contexte ou dans les prérequis."
         }
       ]
     },
     {
-      "id": "express-erreurs",
+      "id": "express-donnees",
       "type": "fiche",
       "maturite": "structured",
       "alertes": [
         {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "react-composants",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "react-etat",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "vue-composants",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "vue-reactivite",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "angular-composants",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+          "code": "jargon-a-relire",
+          "detail": "middleware : vérifier la définition en contexte ou dans les prérequis."
         }
       ]
     },
@@ -279,73 +144,7 @@
       ]
     },
     {
-      "id": "typescript-generiques",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
       "id": "css-outils-comparaison",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "tailwind-utilitaires",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "shell-mkdir-touch",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "shell-cp-mv-rm",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "shell-grep-rg-find",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "shell-permissions",
       "type": "fiche",
       "maturite": "structured",
       "alertes": [
@@ -361,57 +160,13 @@
       "maturite": "structured",
       "alertes": [
         {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "node-cli-check-watch",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "npm-init-install",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+          "code": "texte-repete",
+          "detail": "Texte partagé par 4 contenus : revue nécessaire."
         }
       ]
     },
     {
       "id": "npm-cli-scripts",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "npm-ci-lockfile",
-      "type": "fiche",
-      "maturite": "structured",
-      "alertes": [
-        {
-          "code": "explication-courte",
-          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
-        }
-      ]
-    },
-    {
-      "id": "npm-update-outdated-audit",
       "type": "fiche",
       "maturite": "structured",
       "alertes": [
@@ -1126,6 +881,83 @@
         {
           "code": "texte-repete",
           "detail": "Texte partagé par 10 contenus : revue nécessaire."
+        }
+      ]
+    },
+    {
+      "id": "typescript-frontiere-unknown",
+      "type": "fiche",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "avance-sans-prerequis",
+          "detail": "Confirmer les prérequis avant de proposer ce contenu avancé."
+        }
+      ]
+    },
+    {
+      "id": "react-etat-derive",
+      "type": "fiche",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "avance-sans-prerequis",
+          "detail": "Confirmer les prérequis avant de proposer ce contenu avancé."
+        }
+      ]
+    },
+    {
+      "id": "next-frontiere-composants",
+      "type": "fiche",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "avance-sans-prerequis",
+          "detail": "Confirmer les prérequis avant de proposer ce contenu avancé."
+        }
+      ]
+    },
+    {
+      "id": "vue-valeur-derivee",
+      "type": "fiche",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "avance-sans-prerequis",
+          "detail": "Confirmer les prérequis avant de proposer ce contenu avancé."
+        }
+      ]
+    },
+    {
+      "id": "angular-imports-autonomes",
+      "type": "fiche",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "avance-sans-prerequis",
+          "detail": "Confirmer les prérequis avant de proposer ce contenu avancé."
+        }
+      ]
+    },
+    {
+      "id": "css-outils-couche-style",
+      "type": "fiche",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "avance-sans-prerequis",
+          "detail": "Confirmer les prérequis avant de proposer ce contenu avancé."
+        }
+      ]
+    },
+    {
+      "id": "springboot-dto-frontiere",
+      "type": "fiche",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "avance-sans-prerequis",
+          "detail": "Confirmer les prérequis avant de proposer ce contenu avancé."
         }
       ]
     },
@@ -23356,6 +23188,494 @@
         {
           "code": "notice-a-rediger",
           "detail": "Couverture conservée, explication non publiée."
+        }
+      ]
+    },
+    {
+      "id": "pratique-niveau-zero-chemin-relatif",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-niveau-zero-dossier-courant",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-html-attribut-name",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-html-label-for",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-css-box-sizing",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-css-focus-visible",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-javascript-return",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-javascript-portee-const",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-dom-evenement-target",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-dom-textcontent",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-node-process-cwd",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-node-dirname-commonjs",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-npm-scripts-package",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-npm-npm-ci",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-http-statut-http",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-http-content-type",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-express-express-json",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        },
+        {
+          "code": "jargon-a-relire",
+          "detail": "middleware : vérifier la définition en contexte ou dans les prérequis."
+        }
+      ]
+    },
+    {
+      "id": "pratique-express-res-status",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-shell-pwd-commande",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-shell-guillemets-bash",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-typescript-unknown-type",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-typescript-garde-type",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-react-usestate",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-react-key-react",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-nextjs-use-client",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-nextjs-page-tsx",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-vue-ref-vue",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-vue-computed-vue",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-angular-imports-standalone",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-angular-signal-angular",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-css-outils-classe-sans-css",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-css-outils-media-query",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-python-path-parent",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-python-filenotfound",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-java-main-java",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-java-package-java",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-springboot-restcontroller",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-springboot-requestbody",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-cpp-include-cpp",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-cpp-edition-liens",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-csharp-tryparse",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-csharp-csproj",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-php-post-php",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
+        }
+      ]
+    },
+    {
+      "id": "pratique-php-htmlspecialchars",
+      "type": "reference",
+      "maturite": "enriched",
+      "alertes": [
+        {
+          "code": "explication-courte",
+          "detail": "Relire la couverture du besoin ; la longueur seule ne suffit pas."
         }
       ]
     },

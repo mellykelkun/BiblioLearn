@@ -31,7 +31,7 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:browser
 - **S’entraîner** : exercices des leçons, questionnaires de rappel, ateliers guidés, projets et mission de diagnostic. Les anciens ateliers terminés restent des déclarations, pas des évaluations.
 - **Référence** : index préparé à la construction, contexte des résultats, définitions et syntaxe lorsqu’elles existent, sources et statut éditorial. Les erreurs ont une famille dédiée avec observation, diagnostic et correction.
 
-La première phase de refonte ajoute huit leçons de niveau zéro, deux prérequis à l’asynchronisme, une leçon Promise réécrite, deux références retravaillées, quatorze diagnostics et quatre projets/missions. Les 176 leçons, 369 ateliers et 1 978 identifiants de références historiques sont conservés. La présence d’une entrée n’atteste pas de sa qualité.
+La refonte conserve les 176 leçons, 369 ateliers et 1 978 références historiques. Le complément du 8 octobre 2026 ajoute deux leçons guidées de niveau zéro, une leçon propre à chacun des 21 autres domaines et deux références rédigées par domaine. Le catalogue compte maintenant 209 leçons, 369 ateliers et 2 022 références. La présence d’une entrée n’atteste pas de sa qualité.
 
 ## Architecture
 
@@ -65,11 +65,14 @@ Maturité : `draft` (notice à approfondir), `structured` (organisé, non relu),
 
 L’audit éditorial écrit `docs/qualite-editoriale.json`. Il signale les sources absentes, explications courtes, répétitions, exercices/corrections identiques, définitions circulaires, jargon à relire et niveaux avancés sans prérequis. Les alertes sont des pistes de revue, pas un score de qualité. Le corpus historique nécessite encore cette revue.
 
+`npm run audit:parcours` écrit `docs/audit-parcours.json` : nombre d’exemples par module, références encore en brouillon et correspondance entre les chemins des ateliers et leurs fichiers de départ. Les 369 ateliers fournissent maintenant un contenu initial pour chaque fichier à copier ; les fichiers réellement produits par Spring Initializr, le SDK .NET ou Composer sont signalés avec leur préparation. Le kit lance un premier cas. La variante de transfert reste un exercice à résoudre, indiqué comme tel dans l’interface. Les exemples complémentaires des leçons historiques qui viennent d’un atelier sont identifiés comme fragments à intégrer à ce kit.
+
 Après modification d’un contenu :
 
 ```bash
 npm run build:catalogue
 npm run audit:editorial
+npm run audit:parcours
 npm run check
 ```
 
@@ -110,4 +113,4 @@ Le projet de production conservé est **biblio-learn**, adresse **https://biblio
 
 L’ancien manifeste Sites correspondait à une inscription jamais publiée ; il est retiré pour éviter une publication au mauvais endroit. Le doublon Vercel `bibliolearn` a une commande d’ignorance des builds `exit 0`, en attente de la confirmation de suppression exigée dans l’interface Vercel.
 
-L’audit initial, les risques et les critères de validation sont dans [docs/REFONTE.md](docs/REFONTE.md). Les mesures reproductibles sont dans [docs/mesures-performance.json](docs/mesures-performance.json).
+L’audit initial, les risques et les critères de validation sont dans [docs/REFONTE.md](docs/REFONTE.md). L’audit détaillé du parcours est dans [docs/audit-parcours.json](docs/audit-parcours.json) ; les mesures reproductibles dans [docs/mesures-performance.json](docs/mesures-performance.json).

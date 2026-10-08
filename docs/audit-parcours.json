@@ -1,0 +1,239 @@
+{
+  "date": "2026-10-08",
+  "totaux": {
+    "domaines": 22,
+    "lecons": 209,
+    "ateliers": 369,
+    "references": 2022,
+    "exemplesCode": 426,
+    "fichiersACopier": 856,
+    "fichiersGeneres": 125,
+    "leconsAvecMoinsDeDeuxExemples": 1,
+    "referencesBrouillon": 1861
+  },
+  "domaines": [
+    {
+      "domaine": "niveau-zero",
+      "lecons": 10,
+      "exemplesCode": 19,
+      "leconsAvecUnSeulExemple": [
+        "zero-ordinateur"
+      ],
+      "ateliers": 0,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "html",
+      "lecons": 11,
+      "exemplesCode": 23,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 9,
+      "references": 321,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 319
+    },
+    {
+      "domaine": "css",
+      "lecons": 10,
+      "exemplesCode": 20,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 8,
+      "references": 399,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 397
+    },
+    {
+      "domaine": "javascript",
+      "lecons": 22,
+      "exemplesCode": 44,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 10,
+      "references": 348,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 346
+    },
+    {
+      "domaine": "dom",
+      "lecons": 7,
+      "exemplesCode": 14,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 9,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "node",
+      "lecons": 9,
+      "exemplesCode": 18,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 9,
+      "references": 92,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 90
+    },
+    {
+      "domaine": "npm",
+      "lecons": 10,
+      "exemplesCode": 20,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 9,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "http",
+      "lecons": 8,
+      "exemplesCode": 16,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 8,
+      "references": 117,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 115
+    },
+    {
+      "domaine": "express",
+      "lecons": 8,
+      "exemplesCode": 16,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 9,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "shell",
+      "lecons": 15,
+      "exemplesCode": 30,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 10,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "typescript",
+      "lecons": 7,
+      "exemplesCode": 14,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 8,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "react",
+      "lecons": 7,
+      "exemplesCode": 14,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 8,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "nextjs",
+      "lecons": 5,
+      "exemplesCode": 10,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 8,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "vue",
+      "lecons": 4,
+      "exemplesCode": 8,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 8,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "angular",
+      "lecons": 5,
+      "exemplesCode": 10,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 8,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "css-outils",
+      "lecons": 5,
+      "exemplesCode": 12,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 8,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "python",
+      "lecons": 11,
+      "exemplesCode": 22,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 40,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "java",
+      "lecons": 11,
+      "exemplesCode": 22,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 40,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "springboot",
+      "lecons": 11,
+      "exemplesCode": 28,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 40,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "cpp",
+      "lecons": 11,
+      "exemplesCode": 22,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 40,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "csharp",
+      "lecons": 11,
+      "exemplesCode": 22,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 40,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    },
+    {
+      "domaine": "php",
+      "lecons": 11,
+      "exemplesCode": 22,
+      "leconsAvecUnSeulExemple": [],
+      "ateliers": 40,
+      "references": 2,
+      "referencesRedigees": 2,
+      "referencesBrouillon": 0
+    }
+  ],
+  "problemes": []
+}
