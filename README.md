@@ -33,11 +33,14 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:browser
 
 La refonte conserve les 176 leçons, 369 ateliers et 1 978 références historiques. Le complément du 8 octobre 2026 ajoute deux leçons guidées de niveau zéro, une leçon propre à chacun des 21 autres domaines et deux références rédigées par domaine. Le catalogue compte maintenant 209 leçons, 369 ateliers et 2 022 références. La présence d’une entrée n’atteste pas de sa qualité.
 
+« Préparer mon poste » couvre 13 outils sur Windows PowerShell, Linux et macOS. Chaque guide distingue installation, vérification, notions de base, commandes expliquées, essai reproductible et diagnostic d’erreurs. Les procédures d’installation renvoient aux fournisseurs ou documentations officielles ; le site ne lance aucune commande sur le poste de l’apprenant.
+
 ## Architecture
 
 | Chemin | Responsabilité |
 | --- | --- |
 | `src/data/` | Contenus historiques et agrégation |
+| `src/data/environnements-approfondis.js` | Guides détaillés des 13 outils sur trois systèmes |
 | `src/pedagogie/` | Schéma, graphe, parcours, niveau zéro et contenus spécifiques |
 | `scripts/construire-catalogue.js` | Génération déterministe des fragments et de l’index |
 | `public/catalogue/meta.json` | Repères et résumés nécessaires à l’accueil |
@@ -111,6 +114,6 @@ Les politiques de lecture et permissions de la table doivent déjà autoriser le
 
 Le projet de production conservé est **biblio-learn**, adresse **https://biblio-learn.vercel.app**. Ne pas créer de nouveau projet. Le dépôt GitHub relié est `mellykelkun/BiblioLearn`, branche `main`. Une publication correspond à une nouvelle version du projet existant, pas à un second environnement.
 
-L’ancien manifeste Sites correspondait à une inscription jamais publiée ; il est retiré pour éviter une publication au mauvais endroit. Le doublon Vercel `bibliolearn` a une commande d’ignorance des builds `exit 0`, en attente de la confirmation de suppression exigée dans l’interface Vercel.
+L’ancien manifeste Sites correspondait à une inscription jamais publiée ; il est retiré pour éviter une publication au mauvais endroit. Le doublon Vercel `bibliolearn` a été supprimé manuellement ; la liste des projets de l’équipe ne conserve que `biblio-learn` pour ce dépôt.
 
 L’audit initial, les risques et les critères de validation sont dans [docs/REFONTE.md](docs/REFONTE.md). L’audit détaillé du parcours est dans [docs/audit-parcours.json](docs/audit-parcours.json) ; les mesures reproductibles dans [docs/mesures-performance.json](docs/mesures-performance.json).

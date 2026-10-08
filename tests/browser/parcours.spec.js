@@ -69,6 +69,36 @@ test('routes historiques, installation et ateliers restent accessibles', async (
   expect(erreurs).toEqual([]);
 });
 
+test('préparer mon poste explique installation, commandes, essai et correction selon le système', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/#/installation');
+  await page.getByRole('button', { name: 'Windows · PowerShell' }).first().click();
+  const python = page.locator('.setup-tool').filter({ has: page.locator('summary', { hasText: 'Python, pip et environnement virtuel' }) });
+  await python.locator('summary').first().click();
+  await expect(python.getByText('Les fondamentaux')).toBeVisible();
+  const windows = python.locator('[data-platform-panel="windows"]');
+  await expect(windows).toBeVisible();
+  await windows.getByText('Commandes à connaître et ce qu’elles font').click();
+  await expect(windows.getByText('.\\.venv\\Scripts\\python.exe -m pip --version')).toBeVisible();
+  await windows.getByText('Essai guidé : Lancer Python sans dépendance externe').click();
+  await expect(windows.getByText('bonjour.py', { exact: true }).first()).toBeVisible();
+  await windows.getByText('Erreurs possibles : comprendre puis corriger').click();
+  await expect(windows.getByText('No module named venv / ensurepip indisponible')).toBeVisible();
+  await page.getByRole('button', { name: 'Linux · terminal' }).first().click();
+  const linux = python.locator('[data-platform-panel="linux"]');
+  await expect(linux).toBeVisible();
+  await expect(windows).toBeHidden();
+  await linux.locator('.setup-depth').first().locator('summary').click();
+  await expect(linux.getByText('.venv/bin/python -m pip --version').last()).toBeVisible();
+  await page.getByRole('button', { name: 'macOS · Terminal' }).first().click();
+  const mac = python.locator('[data-platform-panel="mac"]');
+  await expect(mac).toBeVisible();
+  await expect(mac.getByText('n’écrasez pas le Python interne de macOS', { exact: false })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  const accessibilite = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
+  expect(accessibilite.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([]);
+});
+
 test('une leçon zéro et un atelier avancé donnent commandes et fichiers complets', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/#/fiche/zero-naviguer-dossiers');

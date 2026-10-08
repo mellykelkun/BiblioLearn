@@ -69,6 +69,11 @@ function creerChoixSysteme() {
   </div>`;
 }
 
+function creerCodePreparation(titre, contenu) {
+  if (!contenu) return '';
+  return `<div class="code-shell setup-code"><div class="code-shell__head"><span class="code-shell__language">${echapperHTML(titre)}</span><button class="copy-button" type="button" data-copy aria-label="Copier ${echapperAttribut(titre)}">Copier</button></div><pre><code>${echapperHTML(contenu)}</code></pre></div>`;
+}
+
 function creerCarteOutil(id, index = 0) {
   const outil = etat.documentation.environnements?.outils?.[id];
   if (!outil) return '';
@@ -76,15 +81,18 @@ function creerCarteOutil(id, index = 0) {
     <summary>${echapperHTML(outil.nom)} <span>installer · vérifier · comprendre</span></summary>
     <p><strong>À quoi il sert :</strong> ${echapperHTML(outil.role)}</p>
     <p><strong>Pourquoi ici :</strong> ${echapperHTML(outil.pourquoi)}</p>
+    <section class="setup-foundations" aria-label="Fondamentaux de ${echapperAttribut(outil.nom)}"><h4>Les fondamentaux</h4><dl>${outil.fondamentaux.map(([terme, definition]) => `<div><dt>${echapperHTML(terme)}</dt><dd>${echapperHTML(definition)}</dd></div>`).join('')}</dl></section>
     ${Object.entries(libellesSysteme).map(([systeme, libelle]) => {
       const instruction = outil.systemes[systeme];
       return `<div class="platform-panel" data-platform-panel="${systeme}" ${etat.systeme === systeme ? '' : 'hidden'}>
         <h4>${echapperHTML(libelle)}</h4>
-        <p>${echapperHTML(instruction.ouvrir)}</p>
-        <ol>${instruction.etapes.map((etape) => `<li>${echapperHTML(etape)}</li>`).join('')}</ol>
+        <h5>Installer et se placer au bon endroit</h5>
+        <ol>${outil.installation[systeme].map((etape) => `<li>${echapperHTML(etape)}</li>`).join('')}</ol>
         <p class="setup-check-label">Vérifier sans modifier le projet</p>
-        <pre class="tree-block"><code>${echapperHTML(outil.verifier[systeme])}</code></pre>
-        <p class="setup-diagnostic"><strong>Si cela échoue :</strong> ${echapperHTML(instruction.diagnostic)}</p>
+        ${creerCodePreparation(`Vérification · ${libelle}`, outil.verifier[systeme])}
+        <details class="setup-depth"><summary>Commandes à connaître et ce qu’elles font</summary><ol>${outil.commandes.map((entree) => `<li><p>${echapperHTML(entree.but)}</p>${creerCodePreparation(`Commande · ${libelle}`, entree.texte[systeme])}</li>`).join('')}</ol></details>
+        <details class="setup-depth"><summary>Essai guidé : ${echapperHTML(outil.essai.titre)}</summary>${outil.essai.contenu ? `<p>Créez <strong>${echapperHTML(outil.essai.fichier)}</strong> dans un dossier d’essai avec ce contenu :</p>${creerCodePreparation(outil.essai.fichier, outil.essai.contenu)}` : '<p>Aucun fichier à créer pour cet essai.</p>'}<p>Exécutez ces lignes dans le terminal indiqué :</p>${creerCodePreparation(`Exécution · ${libelle}`, outil.essai.execution[systeme])}<p><strong>Résultat attendu :</strong> ${echapperHTML(outil.essai.resultat)}</p></details>
+        <details class="setup-depth"><summary>Erreurs possibles : comprendre puis corriger</summary><ul class="setup-errors">${outil.pannes.map((incident) => `<li><strong>${echapperHTML(incident.symptome)}</strong><p>${echapperHTML(incident.comprendre)}</p><p><strong>À faire sur ${echapperHTML(libelle)} :</strong> ${echapperHTML(incident.corriger[systeme])}</p></li>`).join('')}</ul><p><strong>Premier diagnostic :</strong> ${echapperHTML(instruction.diagnostic)}</p></details>
       </div>`;
     }).join('')}
     <p class="setup-warning"><strong>Attention :</strong> ${echapperHTML(outil.attention)}</p>
@@ -131,7 +139,7 @@ function creerExecutionAtelier(atelier) {
 function afficherInstallation() {
   definirFilAriane([{ label: 'Bibliothèque', route: 'accueil' }, { label: 'Préparer mon poste' }]);
   const ids = Object.keys(etat.documentation.environnements?.outils || {});
-  elements.contenu.innerHTML = `<header class="listing-header"><div class="eyebrow">Windows · Linux · macOS</div><h1 class="page-title">Préparer mon poste</h1><p class="page-intro">Commencez par le terminal. Installez ensuite uniquement les outils nécessaires à votre parcours ; chaque carte explique son rôle, sa vérification et les risques à éviter.</p><div class="domain-header__meta"><span class="meta-pill">${ids.length} outils expliqués</span><span class="meta-pill">Sources officielles</span><span class="meta-pill">Aucune installation automatique</span></div></header>
+  elements.contenu.innerHTML = `<header class="listing-header"><div class="eyebrow">Windows · Linux · macOS</div><h1 class="page-title">Préparer mon poste</h1><p class="page-intro">Commencez par le terminal. Pour chaque outil utile à votre parcours : comprenez son rôle, suivez l’installation adaptée à votre système, exécutez un essai complet et diagnostiquez ses erreurs sans tout réinstaller.</p><div class="domain-header__meta"><span class="meta-pill">${ids.length} outils expliqués</span><span class="meta-pill">Sources officielles</span><span class="meta-pill">Aucune installation automatique</span></div></header>
     ${creerPreparation(ids, true)}
     <section class="dashboard-section"><div class="section-title-row"><h2>Premiers pas guidés</h2></div><div class="panel"><ul class="study-list">${['shell-premier-terminal', 'shell-installer-verifier-outil', 'shell-powershell-bash'].map(obtenirFiche).filter(Boolean).map(creerElementEtude).join('')}</ul></div></section>`;
 }

@@ -4,8 +4,8 @@ La publication conserve le projet Vercel `biblio-learn` et son adresse historiqu
 
 ## Vérifications effectuées
 
-- `npm run check` : syntaxe, génération reproductible du catalogue, audit structurel des 22 domaines, contrôles pédagogiques et 21 tests Node réussis.
-- `npm run test:browser` avec Chromium installé localement : 13 scénarios réussis, dont migration de progression, recherche, navigation rapide, amorces de fichiers des ateliers, reprise réseau et lecture hors ligne d'une fiche jamais ouverte après téléchargement intégral. Cinq répétitions complètes de la suite ont également réussi.
+- `npm run check` : syntaxe, génération reproductible du catalogue, audit structurel des 22 domaines, contrôles pédagogiques et 23 tests Node réussis.
+- `npm run test:browser` avec Chromium installé localement : 14 scénarios réussis, dont migration de progression, recherche, navigation rapide, affichage des guides de poste Windows/Linux/macOS, amorces de fichiers des ateliers, reprise réseau et lecture hors ligne d'une fiche jamais ouverte après téléchargement intégral.
 - Interfaces vérifiées à 320, 360, 390, 430, 768 et 1440 px ; audit Axe des vues principales sans violation détectée dans ces scénarios.
 - `npm audit --omit=dev` : aucune vulnérabilité de dépendance de production signalée.
 - Mesures locales : métadonnées initiales de 13 592 659 à 116 569 octets ; index de recherche chargé à la demande. Voir `mesures-performance.json` pour les données et limites de mesure.
@@ -13,6 +13,8 @@ La publication conserve le projet Vercel `biblio-learn` et son adresse historiqu
 ## Couverture pédagogique
 
 L'audit `audit-parcours.json` recense 209 leçons, 369 ateliers, 2 022 références et 426 exemples de code dans 22 domaines. Les ateliers montrent 856 fichiers de départ à recopier et identifient 125 chemins produits par un générateur ou une commande documentée. Chaque chemin annoncé par une arborescence dispose d'une amorce ou d'une instruction de génération. Une seule leçon, consacrée à la prise en main de l'ordinateur, n'a qu'un exemple de code : ses manipulations sont surtout visuelles. L'amorce laisse volontairement la variante à résoudre pendant l'exercice.
+
+La session « Préparer mon poste » couvre 13 outils, chacun sur Windows PowerShell, Linux et macOS. Les guides contiennent trois notions de base ou davantage, au moins trois commandes expliquées, un essai complet et trois diagnostics contextualisés. Les scripts d'essai Node.js et Python ont été exécutés ; le code C++ a été compilé et lancé sous Linux. Les installations Windows et macOS sont documentées à partir des sources officielles, sans exécution locale de ces systèmes.
 
 ## Limites éditoriales explicites
 
