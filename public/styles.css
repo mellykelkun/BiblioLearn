@@ -1547,17 +1547,19 @@ kbd,
 }
 
 .search-result {
-  display: grid;
+  display: block;
   width: 100%;
-  grid-template-columns: 35px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 11px;
   border: 1px solid transparent;
   border-radius: 8px;
   background: transparent;
   padding: 10px;
   text-align: left;
   cursor: pointer;
+}
+
+.search-result > span {
+  display: block;
+  min-width: 0;
 }
 
 .search-result:hover,

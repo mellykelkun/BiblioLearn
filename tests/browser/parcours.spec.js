@@ -28,6 +28,10 @@ test('du niveau zéro à la vérification, avec lecture hors ligne', async ({ pa
 test('recherche et notices : chargement différé, statut explicite', async ({ page }) => {
   await page.goto('/'); await expect(page.locator('h1')).toBeVisible();
   await page.keyboard.press('Control+k');
+  await expect(page.locator('.search-result').first()).toBeVisible();
+  const suggestion = page.locator('.search-result').first();
+  const tailles = await suggestion.evaluate(element => ({ carte: element.getBoundingClientRect().width, texte: element.firstElementChild.getBoundingClientRect().width }));
+  expect(tailles.texte).toBeGreaterThan(tailles.carte * 0.75);
   await page.locator('#champ-recherche').fill('map');
   await expect(page.locator('.search-result').first()).toBeVisible();
   await page.locator('.search-result').first().click();

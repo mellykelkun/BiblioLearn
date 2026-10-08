@@ -2,6 +2,8 @@
 
 const programmes = require('./nouveaux-parcours');
 const environnements = require('./environnements');
+const { fiches } = require('./construire-nouveaux-parcours');
+const fichesParId = new Map(fiches.map(fiche => [fiche.id, fiche]));
 
 const types = {
   python: ['str', 'int', 'float', 'bool', 'list', 'dict', 'None', 'fichier', 'réponse HTTP'],
@@ -13,6 +15,9 @@ const types = {
 };
 
 function referenceNotion(domaine, programme, notion) {
+  const lecon = fichesParId.get(`${domaine}-${notion.id}`);
+  const fichier = lecon.sections.find(section => section.type === 'code' && section.titre.startsWith('Fichier complet'));
+  const lancement = lecon.sections.find(section => section.titre === 'Lancer et vérifier sans deviner');
   return {
     id: 'ref-' + domaine + '-' + notion.id,
     terme: programme.nom + ' — ' + notion.titre,
@@ -21,11 +26,12 @@ function referenceNotion(domaine, programme, notion) {
     niveau: 'Débutant → junior',
     aliases: [notion.titre, domaine + ' ' + notion.id.replaceAll('-', ' ')],
     resume: notion.idee,
-    definition: notion.idee + ' Le geste central est visible dans l’exemple ; il faut aussi prévoir le résultat nominal et le cas qui échoue.',
+    definition: notion.idee,
     article: [
       programme.contexte,
-      'Dans un projet : ' + notion.application,
-      'Le résultat attendu est : ' + notion.attendu + ' Un résultat doit être converti seulement à la frontière où la couche suivante en a besoin.'
+      'Dans un projet : ' + notion.application + ' Résultat à vérifier : ' + notion.attendu,
+      lancement.contenu || lancement.texte,
+      'Pour comprendre l’échec, provoquez le cas suivant, lisez le diagnostic, puis revenez au cas nominal : ' + notion.panne
     ],
     roles: [
       'Comprendre cette notion permet de : ' + notion.application,
@@ -42,17 +48,22 @@ function referenceNotion(domaine, programme, notion) {
     structure: [programme.contexte, 'Placez ce comportement dans un module nommé après l’avoir vérifié isolément ; gardez le code d’entrée/sortie séparé de la règle.', 'Dans un projet partagé, ajoutez un test du résultat et du cas limite.'],
     typesDonnees: types[domaine],
     cycleDonnees: 'Entrée de ' + notion.titre + ' → validation du type et de la forme → traitement → ' + notion.attendu + ' → affichage, transport ou stockage selon le scénario. ' + notion.panne,
-    exemples: [{ titre: 'Point de départ : ' + notion.titre, langage: programme.langage, contenu: notion.code, explication: notion.attendu + ' Cas à reproduire : ' + notion.panne }],
+    exemples: [
+      { titre: 'Isoler la syntaxe : ' + notion.titre, langage: programme.langage, contenu: notion.code, explication: notion.attendu + ' Le fragment peut nécessiter le fichier complet ci-dessous.' },
+      { titre: fichier.titre, langage: fichier.langage || programme.langage, contenu: fichier.contenu || fichier.code, explication: `Copiez dans ${fichier.titre.replace('Fichier complet : ', '')}. ${notion.attendu}` }
+    ],
     exercice: {
       duree: '30 min',
       objectif: 'Tester ' + notion.titre + ' avant de le placer dans un projet.',
       contexte: notion.application,
-      etapes: ['Préparez le runtime indiqué et notez la commande qui vérifie sa présence.', 'Reproduisez le code et prédisez : ' + notion.attendu, 'Reproduisez le cas limite : ' + notion.panne, 'Écrivez où la valeur doit être validée et quel résultat peut être transmis.'],
+      etapes: ['Créez ' + fichier.titre.replace('Fichier complet : ', '') + ' dans un dossier d’essai et copiez le fichier complet ci-dessus.', lancement.contenu || lancement.texte, 'Avant de lancer, prédisez : ' + notion.attendu, 'Provoquez le cas limite : ' + notion.panne + ' ; corrigez puis rejouez le cas nominal.', 'Notez le type de la valeur, le lieu de validation et le résultat qui peut être transmis.'],
       validation: [notion.attendu, 'Le cas limite est expliqué sans masquer le diagnostic.', 'La donnée transmise ne contient que les champs nécessaires.']
     },
     environnement: environnements.domaines[domaine],
     associes: [],
-    liens: [{ label: 'Documentation officielle — ' + programme.nom, url: programme.source }]
+    liens: [{ label: 'Documentation officielle — ' + programme.nom, url: programme.source }],
+    source: { id: lecon.id, fiche: lecon.titre },
+    maturiteEditoriale: 'enriched', provenance: 'adaptation-lecon'
   };
 }
 
@@ -77,7 +88,8 @@ function referenceLangage(domaine, programme) {
     exemples: [{ titre: 'Premier exemple', langage: programme.langage, contenu: programme.sujets[0].code, explication: programme.sujets[0].attendu }],
     exercice: { duree: '30 min', objectif: 'Démarrer ' + programme.nom + ' sur votre système.', contexte: 'Préparer un poste d’apprentissage sans modifier un projet existant.', etapes: ['Lisez la préparation propre à votre système.', 'Vérifiez la version de l’outil.', 'Exécutez le premier exemple dans un dossier isolé.', 'Notez le résultat et un échec rencontré.'], validation: ['L’outil répond à sa commande de vérification.', 'Le premier résultat est expliqué.', 'Le dossier d’essai est isolé.'] },
     environnement: environnements.domaines[domaine], associes: [],
-    liens: [{ label: 'Documentation officielle — ' + programme.nom, url: programme.source }]
+    liens: [{ label: 'Documentation officielle — ' + programme.nom, url: programme.source }],
+    maturiteEditoriale: 'structured', provenance: 'guide-langage'
   };
 }
 
@@ -104,7 +116,8 @@ function referenceOutil(id, outil) {
     exemples: [{ titre: 'Vérifier sur Windows PowerShell', langage: 'PowerShell', contenu: exempleWindows, explication: 'Cette vérification ne déploie ni ne supprime de fichier.' }, { titre: 'Vérifier sur Linux/macOS', langage: 'Bash / zsh', contenu: exempleUnix, explication: 'Si la commande est introuvable, lisez le diagnostic du système avant de réinstaller.' }],
     exercice: { duree: '25 min', objectif: 'Préparer et contrôler ' + outil.nom + '.', contexte: 'Un atelier demande un outil que votre terminal ne voit pas encore.', etapes: ['Lisez la procédure correspondant à votre système.', 'Installez depuis la source officielle si nécessaire.', 'Rouvrez le terminal et lancez la commande de vérification.', 'Notez le chemin, le résultat et une erreur possible.'], validation: ['La commande de vérification répond.', 'Le terminal et le dossier utilisés sont identifiés.', 'Aucun script inconnu ni secret n’a été exposé.'] },
     environnement: [id], associes: [],
-    liens: outil.sources
+    liens: outil.sources,
+    maturiteEditoriale: 'enriched', provenance: 'guide-installation'
   };
 }
 

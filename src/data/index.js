@@ -58,7 +58,12 @@ const tousLesAteliers = [...ateliers, ...ateliersPlus, ...nouveauxParcours.ateli
 const fiches = require('../pedagogie/variantes-lecons').enrichir(fichesInitiales, tousLesAteliers);
 const referencesRedigees = require('../pedagogie/references-redigees');
 const referencesPratiques = require('../pedagogie/references-pratiques');
-const bibliotheque = [...bibliothequeBase.map(e => migrerReference({ ...e, ...referencesRedigees[e.id] }, false)), ...[...bibliothequePlus, ...bibliothequeNouveaux].map(e => migrerReference(e, true)), ...referencesPratiques.map(e => normaliserConnaissance(e, 'reference')), ...[...profondeurLangages.references, ...profondeurInterfaces.references, ...sqlPratique.references].map(e => normaliserConnaissance(e, 'reference'))];
+const referencesHtml = require('../pedagogie/references-html-redigees');
+const referencesCss = require('../pedagogie/references-css-redigees');
+const bibliotheque = [...bibliothequeBase.map(e => migrerReference({ ...e, ...referencesRedigees[e.id] }, false)), ...bibliothequePlus.map(e => {
+  const redaction = referencesHtml.rediger(e) || referencesCss.rediger(e);
+  return migrerReference(redaction || e, !redaction);
+}), ...bibliothequeNouveaux.map(e => migrerReference(e, false)), ...referencesPratiques.map(e => normaliserConnaissance(e, 'reference')), ...[...profondeurLangages.references, ...profondeurInterfaces.references, ...sqlPratique.references].map(e => normaliserConnaissance(e, 'reference'))];
 const erreurs = require('../pedagogie/erreurs').map(e => normaliserConnaissance(e, 'erreur'));
 const projets = require('../pedagogie/projets').map(e => normaliserConnaissance(e, 'projet'));
 construireGraphe([...fiches, ...tousLesAteliers, ...bibliotheque, ...erreurs, ...projets]);

@@ -43,9 +43,9 @@ function migrerReference(entree, generee) {
   if (!generee) return normaliserConnaissance({ ...entree, article: entree.article || [] }, 'reference');
   // La couverture est conservée. Les phrases et syntaxes de substitution restent
   // dans l'historique Git, mais ne sont plus distribuées comme enseignement.
-  const { id, terme, categorie, famille, niveau, aliases, associes, liens, source } = entree;
+  const { id, terme, categorie, famille, niveau, aliases, associes, liens } = entree;
   return normaliserConnaissance({
-    id, terme, categorie, famille, niveau, aliases, associes, liens, source,
+    id, terme, categorie, famille, niveau, aliases, associes, liens,
     resume: `Retrouver ${terme} dans la documentation ${categorie}.`,
     definition: '', article: [], exemples: [], roles: [], pourquoiUtiliser: [], nePasUtiliser: [],
     avertissements: [], scenarios: [], structure: [], typesDonnees: [], cycleDonnees: '',

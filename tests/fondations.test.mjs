@@ -32,6 +32,47 @@ test('les notices générées ne publient ni faux article ni syntaxe fictive', (
   }
 });
 
+test('les références des nouveaux langages et outils montrent un usage concret', () => {
+  const nouvelles = require('../src/data/bibliotheque-nouveaux');
+  assert.equal(nouvelles.length, 79);
+  for (const source of nouvelles) {
+    const reference = c.bibliotheque.find(e => e.id === source.id);
+    assert.notEqual(reference?.maturiteEditoriale, 'draft', source.id);
+    assert.ok(reference.definition.length > 40, source.id);
+    assert.ok(reference.exemples.some(e => e.contenu.trim()), source.id);
+    assert.ok(reference.exercice.etapes.length >= 4, source.id);
+    assert.ok(reference.sources.some(s => s.url?.startsWith('https://')), source.id);
+    if (reference.provenance === 'adaptation-lecon') {
+      assert.ok(reference.exemples.some(e => e.titre.startsWith('Fichier complet : ')), source.id);
+      assert.ok(reference.article.some(t => t.includes('Fichiers attendus :')), source.id);
+      assert.ok(c.fiches.some(f => f.id === reference.source.id), source.id);
+    }
+  }
+});
+
+test('les éléments HTML rédigés ont un exemple et une source dédiés', () => {
+  const { elements } = require('../src/pedagogie/references-html-redigees');
+  for (const terme of Object.keys(elements)) {
+    const reference = c.bibliotheque.find(e => e.id.startsWith('ref-htmlBalise-') && e.terme === terme);
+    assert.equal(reference?.maturiteEditoriale, 'enriched', terme);
+    assert.match(reference.exemples[0].contenu, /</, terme);
+    assert.equal(reference.sources[0].url, `https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/${terme === 'h1' ? 'Heading_Elements' : terme}`);
+    assert.equal(reference.source, null, terme);
+  }
+  assert.equal(c.bibliotheque.find(e => e.id === 'ref-htmlBalise-base-8').source, undefined);
+});
+
+test('les propriétés CSS rédigées montrent un effet et sa limite', () => {
+  const { proprietes } = require('../src/pedagogie/references-css-redigees');
+  for (const terme of Object.keys(proprietes)) {
+    const reference = c.bibliotheque.find(e => e.id.startsWith('ref-cssPropriete-') && e.terme === terme);
+    assert.equal(reference?.maturiteEditoriale, 'enriched', terme);
+    assert.ok(reference.exemples[0].contenu.includes(`${terme}:`), terme);
+    assert.ok(reference.article[1].length > 35, terme);
+    assert.equal(reference.sources[0].url, `https://developer.mozilla.org/en-US/docs/Web/CSS/${terme}`);
+  }
+});
+
 test('chaque résultat rejoint son fragment ; accueil sous 160 Ko', () => {
   assert.ok(fs.statSync('public/catalogue/meta.json').size < 160000);
   for (const r of index) {

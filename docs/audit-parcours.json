@@ -7,10 +7,10 @@
     "references": 2052,
     "exemplesCode": 486,
     "fichiersACopier": 862,
-    "fichiersGeneres": 125,
+    "fichiersGeneres": 129,
     "leconsAvecMoinsDeDeuxExemples": 1,
-    "referencesBrouillon": 1861,
-    "referencesRedigees": 191,
+    "referencesBrouillon": 1725,
+    "referencesRedigees": 327,
     "leconsHorsParcours": 0,
     "parcours": 27
   },
@@ -38,8 +38,8 @@
       "leconsAvecUnSeulExemple": [],
       "ateliers": 9,
       "references": 321,
-      "referencesRedigees": 2,
-      "referencesBrouillon": 319,
+      "referencesRedigees": 30,
+      "referencesBrouillon": 291,
       "niveauxPedagogiques": {
         "1": 11
       },
@@ -52,8 +52,8 @@
       "leconsAvecUnSeulExemple": [],
       "ateliers": 8,
       "references": 399,
-      "referencesRedigees": 2,
-      "referencesBrouillon": 397,
+      "referencesRedigees": 31,
+      "referencesBrouillon": 368,
       "niveauxPedagogiques": {
         "1": 9,
         "2": 1
@@ -571,9 +571,9 @@
   "lacunesEditoriales": [
     "niveau-zero : 10 leçons, sous le palier de 20",
     "html : 11 leçons, sous le palier de 20",
-    "html : 319 notices encore sans explication rédigée",
+    "html : 291 notices encore sans explication rédigée",
     "css : 10 leçons, sous le palier de 20",
-    "css : 397 notices encore sans explication rédigée",
+    "css : 368 notices encore sans explication rédigée",
     "javascript : 346 notices encore sans explication rédigée",
     "dom : 7 leçons, sous le palier de 20",
     "node : 9 leçons, sous le palier de 20",
