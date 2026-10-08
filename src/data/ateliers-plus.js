@@ -33,9 +33,9 @@ function slugifier(texte) {
 
 const fichiers = {
   html: ['index.html'], css: ['index.html', 'styles.css'], javascript: ['index.html', 'app.js'], dom: ['index.html', 'app.js'],
-  node: ['main.js'], npm: ['package.json', 'index.js'], http: ['requêtes.http'], express: ['server.js', 'package.json'],
-  shell: ['exercice.sh'], typescript: ['index.ts', 'tsconfig.json'], react: ['App.jsx'], nextjs: ['app/page.tsx'],
-  vue: ['App.vue'], angular: ['app.component.ts'], 'css-outils': ['index.html', 'styles.css']
+  node: ['main.js'], npm: ['package.json', 'index.js'], http: ['requêtes.http', 'server.js', 'package.json'], express: ['server.js', 'package.json'],
+  shell: ['exercice.sh'], typescript: ['index.ts', 'tsconfig.json'], react: ['src/App.jsx'], nextjs: ['app/page.tsx'],
+  vue: ['src/App.vue'], angular: ['src/app/app.ts'], 'css-outils': ['index.html', 'styles.css']
 };
 const langages = { html: 'HTML', css: 'CSS', javascript: 'JavaScript', dom: 'JavaScript', node: 'JavaScript', npm: 'JSON / Bash', http: 'HTTP', express: 'JavaScript', shell: 'Bash', typescript: 'TypeScript', react: 'JSX', nextjs: 'TSX', vue: 'Vue', angular: 'TypeScript', 'css-outils': 'HTML / CSS' };
 const fichesParDefi = {

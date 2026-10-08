@@ -20,6 +20,9 @@ const { normaliserConnaissance, migrerReference, construireGraphe, parcours, niv
 
 const niveauZero = require('../pedagogie/niveau-zero');
 const asynchronisme = require('../pedagogie/asynchronisme');
+const { creerAmorces } = require('../pedagogie/amorces-ateliers');
+const zeroPratique = require('../pedagogie/zero-pratique');
+const complementsModules = require('../pedagogie/complements-modules');
 const domaines = [
   { id: 'niveau-zero', nom: 'Niveau zéro', groupe: 'Premiers repères', icone: '0', description: 'Fichiers, programmes, Web et premiers diagnostics' },
   { id: 'html', nom: 'HTML', groupe: 'Fondations', icone: '<>', description: 'Structure, sémantique et accessibilité' },
@@ -45,10 +48,12 @@ const domaines = [
   { id: 'php', nom: 'PHP', groupe: 'Autres langages', icone: 'PHP', description: 'Scripts serveur, formulaires et données' }
 ];
 
-const fiches = [...fondamentaux, ...javascriptDom, ...backend, ...frontend, ...shell, ...approfondissement, ...complementaires, ...ecosystemes, ...fichesEnvironnement, ...nouveauxParcours.fiches, ...niveauZero, ...asynchronisme.nouvelles].map(f => normaliserConnaissance(asynchronisme.remplacements[f.id] || f, 'fiche'));
-const tousLesAteliers = [...ateliers, ...ateliersPlus, ...nouveauxParcours.ateliers].map(a => normaliserConnaissance(a, 'atelier'));
+const fichesInitiales = [...fondamentaux, ...javascriptDom, ...backend, ...frontend, ...shell, ...approfondissement, ...complementaires, ...ecosystemes, ...fichesEnvironnement, ...nouveauxParcours.fiches, ...niveauZero.map(zeroPratique.enrichirZero), ...zeroPratique.nouvelles, ...complementsModules, ...asynchronisme.nouvelles].map(f => normaliserConnaissance(asynchronisme.remplacements[f.id] || f, 'fiche'));
+const tousLesAteliers = [...ateliers, ...ateliersPlus, ...nouveauxParcours.ateliers].map(a => creerAmorces(normaliserConnaissance(a, 'atelier')));
+const fiches = require('../pedagogie/variantes-lecons').enrichir(fichesInitiales, tousLesAteliers);
 const referencesRedigees = require('../pedagogie/references-redigees');
-const bibliotheque = [...bibliothequeBase.map(e => migrerReference({ ...e, ...referencesRedigees[e.id] }, false)), ...[...bibliothequePlus, ...bibliothequeNouveaux].map(e => migrerReference(e, true))];
+const referencesPratiques = require('../pedagogie/references-pratiques');
+const bibliotheque = [...bibliothequeBase.map(e => migrerReference({ ...e, ...referencesRedigees[e.id] }, false)), ...[...bibliothequePlus, ...bibliothequeNouveaux].map(e => migrerReference(e, true)), ...referencesPratiques.map(e => normaliserConnaissance(e, 'reference'))];
 const erreurs = require('../pedagogie/erreurs').map(e => normaliserConnaissance(e, 'erreur'));
 const projets = require('../pedagogie/projets').map(e => normaliserConnaissance(e, 'projet'));
 construireGraphe([...fiches, ...tousLesAteliers, ...bibliotheque, ...erreurs, ...projets]);
@@ -109,7 +114,7 @@ const statistiques = {
 };
 
 module.exports = {
-  meta: { version: 5, miseAJour: '2026-10-07' },
+  meta: { version: 5, miseAJour: '2026-10-08' },
   domaines,
   parcours,
   niveaux,

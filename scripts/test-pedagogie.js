@@ -13,7 +13,7 @@ const bibliothequeNouveaux = require('../src/data/bibliotheque-nouveaux');
 assert.ok(catalogue.fiches.length >= 176);
 assert.equal(catalogue.ateliers.length, 369);
 assert.ok(catalogue.domaines.length >= 21);
-assert.equal(catalogue.bibliotheque.length, 1978);
+assert.equal(catalogue.bibliotheque.length, 1978 + require('../src/pedagogie/references-pratiques').length);
 assert.equal(Object.keys(catalogue.environnements.outils).length, 13);
 assert.equal(nouveauxParcours.fiches.length, 60);
 assert.equal(nouveauxParcours.ateliers.length, 240);

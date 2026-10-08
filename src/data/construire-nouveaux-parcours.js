@@ -2,6 +2,7 @@
 
 const programmes = require('./nouveaux-parcours');
 const { fiche, texte, code, decomposition, alerte, comparaison, liens } = require('./outils');
+const springFichiers = require('../pedagogie/spring-fichiers');
 
 const idFiche = (domaine, sujet) => domaine + '-' + sujet.id;
 const autres = (programme, domaine, index) => [
@@ -52,7 +53,7 @@ function fichiersAtelier(domaine, notion) {
   const fichiers = [...configurations[domaine].fichiers];
   if (domaine === 'java' && ['exceptions', 'fichiers'].includes(notion.id)) fichiers.push('note.txt');
   if ((domaine === 'cpp' || domaine === 'php') && notion.id === 'fichiers') fichiers.push('note.txt');
-  if (domaine === 'springboot' && notion.id === 'tests') fichiers.push('src/test/java/com/example/demo/BonjourWebTest.java');
+  if (domaine === 'springboot') fichiers.push(...springFichiers.fichiers(notion.id).map(f => f.chemin));
   if (domaine === 'php' && notion.id === 'composer') fichiers.push('composer.json', 'composer.lock');
   return fichiers;
 }
@@ -86,7 +87,11 @@ function creerLecon(programme, domaine, notion, index) {
     sections: [
       texte('Où le code s’exécute', programme.contexte),
       ...(prerequisSpecifiques[domaine + '-' + notion.id] ? [texte('Prérequis pour cet exemple', prerequisSpecifiques[domaine + '-' + notion.id])] : []),
-      code('Exemple à essayer', programme.langage, notion.code, 'Créez un dossier d’exercice, ouvrez-le dans l’éditeur et utilisez la préparation adaptée à votre système ci-dessus. Pour Java hors du premier programme, l’atelier fournit une classe complète. Pour Spring Boot, intégrez le fragment au projet généré.'),
+      code('Exemple à essayer', programme.langage, notion.code, 'Ce premier exemple montre la notion. Les fichiers complets et les commandes figurent juste après.'),
+      ...(domaine === 'springboot'
+        ? springFichiers.fichiers(notion.id).map(f => code(`Fichier complet : ${f.chemin}`, 'Java', f.contenu, 'Créez ce fichier dans le projet Maven généré par Spring Initializr.'))
+        : [code(`Fichier complet : ${configurations[domaine].fichiers.find(f => /\.(py|java|cpp|cs|php)$/.test(f))}`, programme.langage, codeDemarrage(domaine, notion), 'Copiez ce bloc dans le fichier indiqué ; il comporte les déclarations nécessaires à ce premier essai.')]),
+      texte('Lancer et vérifier sans deviner', `Fichiers attendus : ${fichiersAtelier(domaine, notion).join(', ')}. ${Object.entries(commandesAtelier(domaine, notion)).map(([systeme, commande]) => `${systeme} : ${commande.replace(/\n/g, ' puis ')}`).join(' ; ')}. Résultat à observer : ${notion.attendu} Le dossier courant doit contenir le projet ou le fichier que vous lancez.`),
       decomposition('Suivre la donnée', [
         { terme: 'Entrée', explication: 'Identifiez la valeur concrète ou la ressource fournie au fragment ; notez son type avant toute conversion.' },
         { terme: 'Traitement et sortie', explication: notion.attendu },
@@ -145,7 +150,7 @@ function creerAtelier(programme, domaine, notion, variante, index) {
       notion.id === 'composer' && domaine === 'php'
         ? { titre: 'Créer le manifeste Composer', explication: 'Créez composer.json avec ce contenu dans le dossier de l’atelier. Le fichier composer.lock et vendor/autoload.php seront générés par composer install ; ne les inventez pas.', langage: 'JSON', code: '{\n  "name": "bibliolearn/atelier",\n  "description": "Atelier local de découverte de Composer",\n  "require": {}\n}' }
         : { titre: 'Préparer le dossier et le contrat', explication: 'Ouvrez le terminal adapté à votre système ; confirmez le dossier courant. Notez entrée, type et résultat attendus avant d’écrire le code.', langage: 'Markdown', code: '# ' + titre + '\nEntrée et type :\nRésultat : ' + notion.attendu + '\nPanne à observer : ' + notion.panne },
-      { titre: 'Construire la solution', explication: 'Le fragment de la leçon est un point de départ. Certains fragments nécessitent le projet ou les imports expliqués dans la leçon ; complétez-les avant exécution.', langage: programme.langage, code: source },
+      { titre: 'Construire la solution', explication: 'Les contenus complets de chaque fichier annoncé figurent dans « Fichiers de départ ». Copiez ces fichiers, exécutez le premier cas, puis réalisez la variante demandée ici.', langage: programme.langage, code: source },
       { titre: 'Vérifier et provoquer une limite', explication: consigne + ' Ne corrigez pas avant d’avoir noté le comportement exact.', langage: 'Protocole', code: '1. Exécuter le cas nominal et comparer avec : ' + notion.attendu + '\n2. Provoquer : ' + notion.panne + '\n3. Lire le statut, la sortie ou l’erreur.\n4. Corriger puis rejouer les deux cas.' },
       { titre: 'Transmettre le résultat', explication: 'Documentez qui produit la valeur, son type après conversion, qui la valide, qui peut la recevoir et ce qui se passe en cas de panne.', langage: 'Markdown', code: '# Bilan : ' + notion.titre + '\n- Entrée et type :\n- Validation et erreur :\n- Résultat public attendu : ' + notion.attendu + '\n- Où stocker ou transmettre ce résultat :\n- Information à ne pas exposer :' }
     ],
