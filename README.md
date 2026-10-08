@@ -33,7 +33,7 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:browser
 
 La refonte conserve les 176 leçons, 369 ateliers et 1 978 références historiques. Le complément du 8 octobre 2026 ajoute deux leçons guidées de niveau zéro, une leçon propre à chacun des 21 autres domaines et deux références rédigées par domaine. Le catalogue compte maintenant 209 leçons, 369 ateliers et 2 022 références. La présence d’une entrée n’atteste pas de sa qualité.
 
-« Préparer mon poste » couvre 13 outils sur Windows PowerShell, Linux et macOS. Chaque guide distingue installation, vérification, notions de base, commandes expliquées, essai reproductible et diagnostic d’erreurs. Les procédures d’installation renvoient aux fournisseurs ou documentations officielles ; le site ne lance aucune commande sur le poste de l’apprenant.
+« Préparer mon poste » couvre 13 outils sur Windows PowerShell, Linux et macOS. Chaque guide distingue installation, vérification, notions de base, commandes expliquées, essai reproductible et diagnostic d’erreurs. Un accès visible avant les étapes ouvre la page officielle de téléchargement ou le guide de la distribution choisie ; Composer propose aussi son installateur Windows direct. Le terminal déjà fourni par le système est signalé comme tel. Le site ne lance aucune commande sur le poste de l’apprenant.
 
 ## Architecture
 
@@ -41,6 +41,7 @@ La refonte conserve les 176 leçons, 369 ateliers et 1 978 références historiq
 | --- | --- |
 | `src/data/` | Contenus historiques et agrégation |
 | `src/data/environnements-approfondis.js` | Guides détaillés des 13 outils sur trois systèmes |
+| `src/data/liens-installation.js` | Destinations officielles de téléchargement et d’installation par système |
 | `src/pedagogie/` | Schéma, graphe, parcours, niveau zéro et contenus spécifiques |
 | `scripts/construire-catalogue.js` | Génération déterministe des fragments et de l’index |
 | `public/catalogue/meta.json` | Repères et résumés nécessaires à l’accueil |

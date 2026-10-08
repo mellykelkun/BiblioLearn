@@ -470,6 +470,13 @@ kbd,
 .platform-panel h4, .platform-panel h3 { margin: 0 0 10px; font-size: 16px; }
 .platform-panel h5 { margin: 15px 0 8px; font-size: 14px; }
 .platform-panel p { margin: 0 0 10px; }
+.setup-download { margin: 12px 0 18px; padding: 14px; border: 1px solid #9cc9cf; border-radius: var(--rayon-petit); background: #f1fafb; }
+.setup-download > p:last-of-type { margin-bottom: 12px; }
+.setup-download-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: 9px; }
+.setup-download-link { display: grid; gap: 4px; min-width: 0; padding: 12px; border: 1px solid #7baeb5; border-radius: var(--rayon-petit); color: var(--accent-fort); background: white; text-decoration: none; overflow-wrap: anywhere; }
+.setup-download-link:hover, .setup-download-link:focus-visible { border-color: var(--accent-fort); background: #e6f5f7; }
+.setup-download-link__type { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.setup-download-link small { color: var(--texte-doux); line-height: 1.4; }
 .platform-panel ol { margin: 10px 0 14px; padding-left: 21px; }
 .platform-panel li { margin: 5px 0; }
 .platform-panel .tree-block { margin: 5px 0 13px; }

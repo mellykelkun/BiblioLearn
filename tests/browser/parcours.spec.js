@@ -73,6 +73,9 @@ test('préparer mon poste explique installation, commandes, essai et correction 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/#/installation');
   await page.getByRole('button', { name: 'Windows · PowerShell' }).first().click();
+  const composer = page.locator('.setup-tool').filter({ has: page.locator('summary', { hasText: 'Composer pour PHP' }) });
+  await composer.locator('summary').first().click();
+  await expect(composer.locator('[data-platform-panel="windows"] .setup-download-link').first()).toHaveAttribute('href', 'https://getcomposer.org/Composer-Setup.exe');
   const python = page.locator('.setup-tool').filter({ has: page.locator('summary', { hasText: 'Python, pip et environnement virtuel' }) });
   await python.locator('summary').first().click();
   await expect(python.getByText('Les fondamentaux')).toBeVisible();
@@ -85,6 +88,9 @@ test('préparer mon poste explique installation, commandes, essai et correction 
   await windows.getByText('Erreurs possibles : comprendre puis corriger').click();
   await expect(windows.getByText('No module named venv / ensurepip indisponible')).toBeVisible();
   await page.getByRole('button', { name: 'Linux · terminal' }).first().click();
+  const node = page.locator('.setup-tool').filter({ has: page.locator('summary', { hasText: 'Node.js et npm' }) });
+  await node.locator('summary').first().click();
+  await expect(node.locator('[data-platform-panel="linux"] .setup-download-link').first()).toHaveAttribute('href', 'https://nodejs.org/en/download');
   const linux = python.locator('[data-platform-panel="linux"]');
   await expect(linux).toBeVisible();
   await expect(windows).toBeHidden();

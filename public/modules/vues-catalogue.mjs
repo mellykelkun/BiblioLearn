@@ -84,8 +84,10 @@ function creerCarteOutil(id, index = 0) {
     <section class="setup-foundations" aria-label="Fondamentaux de ${echapperAttribut(outil.nom)}"><h4>Les fondamentaux</h4><dl>${outil.fondamentaux.map(([terme, definition]) => `<div><dt>${echapperHTML(terme)}</dt><dd>${echapperHTML(definition)}</dd></div>`).join('')}</dl></section>
     ${Object.entries(libellesSysteme).map(([systeme, libelle]) => {
       const instruction = outil.systemes[systeme];
+      const obtenir = outil.obtenir[systeme];
       return `<div class="platform-panel" data-platform-panel="${systeme}" ${etat.systeme === systeme ? '' : 'hidden'}>
         <h4>${echapperHTML(libelle)}</h4>
+        <div class="setup-download"><p class="setup-check-label">Obtenir l’outil sur ${echapperHTML(libelle)}</p><p>${echapperHTML(obtenir.note)}</p><div class="setup-download-links">${obtenir.liens.map((lien) => `<a class="setup-download-link" href="${echapperAttribut(lien.url)}" target="_blank" rel="noopener noreferrer"><span class="setup-download-link__type">${lien.type === 'fichier' ? 'Installateur direct' : lien.type === 'guide' ? 'Guide officiel' : 'Page officielle'}</span><strong>${echapperHTML(lien.label)} <span aria-hidden="true">↗</span></strong><small>${echapperHTML(lien.precision)}</small></a>`).join('')}</div></div>
         <h5>Installer et se placer au bon endroit</h5>
         <ol>${outil.installation[systeme].map((etape) => `<li>${echapperHTML(etape)}</li>`).join('')}</ol>
         <p class="setup-check-label">Vérifier sans modifier le projet</p>
