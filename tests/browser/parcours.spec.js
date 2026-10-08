@@ -38,10 +38,24 @@ test('recherche et notices : chargement différé, statut explicite', async ({ p
   await expect(page.locator('#dialogue-recherche')).not.toBeVisible();
   await expect(page.locator('h1')).toBeVisible();
   await page.goto('/#/bibliotheque');
-  await page.locator('#filtre-bibliotheque').fill('colgroup');
+  await page.locator('#filtre-bibliotheque').fill('accesskey');
   await page.locator('.library-card').first().click();
   await expect(page.getByText('Notice à approfondir', { exact: true })).toBeVisible();
   await expect(page.locator('pre')).toHaveCount(0);
+});
+
+test('les références HTTP, SQL et HTML rédigées affichent code, limite et source', async ({ page }) => {
+  for (const [id, titre] of [
+    ['ref-http-204-no-content-1377', '204 No Content'],
+    ['ref-sql-create-policy-1517', 'CREATE POLICY'],
+    ['ref-htmlBalise-colgroup-20', 'colgroup']
+  ]) {
+    await page.goto(`/#/terme/${id}`);
+    await expect(page.locator('h1')).toContainText(titre);
+    await expect(page.getByText('Notice à approfondir', { exact: true })).toHaveCount(0);
+    await expect(page.locator('pre').first()).toBeVisible();
+    await expect(page.locator('main a[href^="https://"]').first()).toBeVisible();
+  }
 });
 
 for (const largeur of [320, 360, 390, 430, 768, 1440]) {

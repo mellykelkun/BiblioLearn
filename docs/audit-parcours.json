@@ -9,8 +9,8 @@
     "fichiersACopier": 862,
     "fichiersGeneres": 129,
     "leconsAvecMoinsDeDeuxExemples": 1,
-    "referencesBrouillon": 1725,
-    "referencesRedigees": 327,
+    "referencesBrouillon": 1415,
+    "referencesRedigees": 637,
     "leconsHorsParcours": 0,
     "parcours": 27
   },
@@ -38,8 +38,8 @@
       "leconsAvecUnSeulExemple": [],
       "ateliers": 9,
       "references": 321,
-      "referencesRedigees": 30,
-      "referencesBrouillon": 291,
+      "referencesRedigees": 115,
+      "referencesBrouillon": 206,
       "niveauxPedagogiques": {
         "1": 11
       },
@@ -126,8 +126,8 @@
       "leconsAvecUnSeulExemple": [],
       "ateliers": 8,
       "references": 117,
-      "referencesRedigees": 2,
-      "referencesBrouillon": 115,
+      "referencesRedigees": 117,
+      "referencesBrouillon": 0,
       "niveauxPedagogiques": {
         "1": 7,
         "2": 1
@@ -364,8 +364,8 @@
       "leconsAvecUnSeulExemple": [],
       "ateliers": 3,
       "references": 120,
-      "referencesRedigees": 10,
-      "referencesBrouillon": 110,
+      "referencesRedigees": 120,
+      "referencesBrouillon": 0,
       "niveauxPedagogiques": {
         "2": 2,
         "3": 2,
@@ -571,7 +571,7 @@
   "lacunesEditoriales": [
     "niveau-zero : 10 leçons, sous le palier de 20",
     "html : 11 leçons, sous le palier de 20",
-    "html : 291 notices encore sans explication rédigée",
+    "html : 206 notices encore sans explication rédigée",
     "css : 10 leçons, sous le palier de 20",
     "css : 368 notices encore sans explication rédigée",
     "javascript : 346 notices encore sans explication rédigée",
@@ -580,7 +580,6 @@
     "node : 90 notices encore sans explication rédigée",
     "npm : 10 leçons, sous le palier de 20",
     "http : 8 leçons, sous le palier de 20",
-    "http : 115 notices encore sans explication rédigée",
     "express : 8 leçons, sous le palier de 20",
     "shell : 15 leçons, sous le palier de 20",
     "typescript : 8 leçons, sous le palier de 20",
@@ -595,7 +594,6 @@
     "cpp : 13 leçons, sous le palier de 20",
     "csharp : 13 leçons, sous le palier de 20",
     "php : 13 leçons, sous le palier de 20",
-    "sql : 10 leçons, sous le palier de 20",
-    "sql : 110 notices encore sans explication rédigée"
+    "sql : 10 leçons, sous le palier de 20"
   ]
 }

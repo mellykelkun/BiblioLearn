@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { Catalogue } from '../public/modules/catalogue.mjs';
 import { creerRecherche } from '../public/modules/recherche.mjs';
@@ -52,14 +53,22 @@ test('les références des nouveaux langages et outils montrent un usage concret
 
 test('les éléments HTML rédigés ont un exemple et une source dédiés', () => {
   const { elements } = require('../src/pedagogie/references-html-redigees');
+  const balises = c.bibliotheque.filter(e => e.id.startsWith('ref-htmlBalise-'));
+  assert.equal(balises.length, Object.keys(elements).length);
+  assert.equal(balises.filter(e => e.maturiteEditoriale === 'draft').length, 0);
   for (const terme of Object.keys(elements)) {
     const reference = c.bibliotheque.find(e => e.id.startsWith('ref-htmlBalise-') && e.terme === terme);
     assert.equal(reference?.maturiteEditoriale, 'enriched', terme);
     assert.match(reference.exemples[0].contenu, /</, terme);
-    assert.equal(reference.sources[0].url, `https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/${terme === 'h1' ? 'Heading_Elements' : terme}`);
+    assert.match(reference.sources[0].url, /^https:\/\//, terme);
     assert.equal(reference.source, null, terme);
   }
-  assert.equal(c.bibliotheque.find(e => e.id === 'ref-htmlBalise-base-8').source, undefined);
+  for (const terme of ['portal', 'fencedframe', 'h7', 'plaintext', 'xmp']) {
+    const reference = balises.find(e => e.terme === terme);
+    assert.match(reference.exemples[0].titre, /Solution actuelle/);
+    assert.match(reference.article[1], /pas|obsolète|Préférez|remplacement|Échappez|document/);
+  }
+  assert.equal(c.bibliotheque.find(e => e.id === 'ref-htmlBalise-base-8').source, null);
 });
 
 test('les propriétés CSS rédigées montrent un effet et sa limite', () => {
@@ -71,6 +80,52 @@ test('les propriétés CSS rédigées montrent un effet et sa limite', () => {
     assert.ok(reference.article[1].length > 35, terme);
     assert.equal(reference.sources[0].url, `https://developer.mozilla.org/en-US/docs/Web/CSS/${terme}`);
   }
+});
+
+test('les références HTTP couvrent chaque méthode, statut, en-tête et notion', () => {
+  const { methodes, statuts, entetes, concepts } = require('../src/pedagogie/references-http-redigees');
+  const toutes = c.bibliotheque.filter(e => e.id.startsWith('ref-http-'));
+  assert.equal(toutes.length, Object.keys(methodes).length + Object.keys(statuts).length + Object.keys(entetes).length + Object.keys(concepts).length);
+  for (const reference of toutes) {
+    assert.equal(reference.maturiteEditoriale, 'enriched', reference.id);
+    assert.equal(reference.provenance, 'redaction-http', reference.id);
+    assert.ok(reference.exemples[0].contenu.trim(), reference.id);
+    assert.ok(reference.article[1].length > 40, reference.id);
+    assert.ok(reference.exercice.etapes.length >= 3, reference.id);
+    assert.match(reference.sources[0].url, /^https:\/\//, reference.id);
+  }
+  assert.match(toutes.find(e => e.terme === '204 No Content').article[1], /response\.json\(\)/);
+  assert.match(toutes.find(e => e.terme === '401 Unauthorized').exemples[0].contenu, /WWW-Authenticate/);
+  assert.ok(toutes.find(e => e.terme === '413 Content Too Large').aliases.includes('413 Payload Too Large'));
+  assert.match(toutes.find(e => e.terme === 'X-Request-ID').article[1], /preuve d’identité/);
+});
+
+test('toute la famille SQL est rédigée et ses requêtes de lecture s’exécutent', () => {
+  const { notions } = require('../src/pedagogie/references-sql-redigees');
+  const redigees = c.bibliotheque.filter(e => e.provenance === 'redaction-sql');
+  assert.equal(redigees.length, Object.keys(notions).length);
+  assert.equal(c.bibliotheque.filter(e => e.id.startsWith('ref-sql-') && e.maturiteEditoriale === 'draft').length, 0);
+  for (const reference of redigees) {
+    assert.equal(reference.maturiteEditoriale, 'enriched', reference.id);
+    assert.ok(reference.exemples[0].contenu.trim(), reference.id);
+    assert.ok(reference.exercice.etapes.length >= 3, reference.id);
+    assert.match(reference.sources[0].url, /^https:\/\//, reference.id);
+  }
+  const rls = redigees.find(e => e.terme === 'CREATE POLICY');
+  assert.match(rls.article[0], /GRANT/);
+  assert.match(rls.article[0], /RLS/);
+  assert.match(rls.exemples[0].contenu, /auth\.uid\(\)/);
+  const lectures = ['SELECT', 'FROM', 'WHERE', 'JOIN', 'INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'FULL JOIN', 'CROSS JOIN', 'GROUP BY', 'HAVING', 'ORDER BY', 'LIMIT', 'OFFSET', 'UNION', 'UNION ALL', 'WITH', 'CTE', 'AS', 'DISTINCT', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END'];
+  const scripts = Object.fromEntries(lectures.map(terme => [terme, notions[terme][1]]));
+  const verification = spawnSync('python3', ['-c', `import json, sqlite3, sys
+db = sqlite3.connect(':memory:')
+db.executescript('''CREATE TABLE auteurs(id integer primary key, nom text); CREATE TABLE categories(id integer primary key, nom text); CREATE TABLE livres(id integer primary key, titre text, auteur_id integer, prix numeric, publie boolean); CREATE TABLE livres_a(titre text); CREATE TABLE livres_b(titre text); INSERT INTO auteurs VALUES (1, 'Awa'), (2, 'Léa'); INSERT INTO categories VALUES (1, 'Web'), (2, 'Data'); INSERT INTO livres VALUES (1, 'Web', 1, 12, 1), (2, 'SQL', 1, 25, 1), (3, 'CSS', 2, 0, 0); INSERT INTO livres_a VALUES ('Web'); INSERT INTO livres_b VALUES ('Web'), ('SQL');''')
+for terme, sql in json.loads(sys.argv[1]).items():
+    try: db.execute(sql).fetchall()
+    except Exception as erreur: raise RuntimeError(f'{terme}: {erreur}')
+print('ok')`, JSON.stringify(scripts)], { encoding: 'utf8' });
+  assert.equal(verification.status, 0, verification.stderr);
+  assert.equal(verification.stdout.trim(), 'ok');
 });
 
 test('chaque résultat rejoint son fragment ; accueil sous 160 Ko', () => {
