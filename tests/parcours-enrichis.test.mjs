@@ -74,3 +74,35 @@ test('le niveau zéro fournit la page entière et les deux variantes de commande
   assert.ok(navigation.sections.some(s => s.type === 'code' && s.contenu.includes('Get-Location')));
   assert.ok(navigation.sections.some(s => s.type === 'code' && s.contenu.includes('pwd')));
 });
+
+test('chaque guide de poste couvre les trois systèmes, un essai et des diagnostics actionnables', () => {
+  const guides = catalogue.environnements.outils;
+  assert.equal(Object.keys(guides).length, 13);
+  for (const [id, outil] of Object.entries(guides)) {
+    assert.ok(outil.fondamentaux.length >= 3, `${id}: fondamentaux`);
+    assert.ok(outil.commandes.length >= 3, `${id}: commandes`);
+    assert.ok(outil.pannes.length >= 3, `${id}: erreurs`);
+    assert.ok(outil.essai.titre && outil.essai.resultat, `${id}: essai`);
+    for (const systeme of ['windows', 'linux', 'mac']) {
+      assert.ok(outil.installation[systeme].length >= 3, `${id}/${systeme}: installation`);
+      assert.ok(outil.essai.execution[systeme], `${id}/${systeme}: exécution`);
+      for (const etape of outil.commandes) assert.ok(etape.texte[systeme], `${id}/${systeme}: commande`);
+      for (const erreur of outil.pannes) assert.ok(erreur.corriger[systeme], `${id}/${systeme}: correction`);
+    }
+  }
+  assert.match(guides.python.essai.contenu, /print\(/);
+  assert.match(guides.springboot.essai.contenu, /@GetMapping/);
+  assert.match(guides.cpp.commandes[1].texte.windows, /cl \/EHsc/);
+});
+
+test('les scripts de démonstration Node et Python des guides affichent le résultat annoncé', { skip: !possede('python3') }, () => {
+  const dossier = fs.mkdtempSync(path.join(os.tmpdir(), 'bibliolearn-poste-'));
+  try {
+    for (const [id, binaire, attendu] of [['node', process.execPath, 'Bonjour Awa !'], ['python', 'python3', 'Bonjour Awa !']]) {
+      const exemple = catalogue.environnements.outils[id].essai;
+      fs.writeFileSync(path.join(dossier, exemple.fichier), exemple.contenu);
+      const argumentsScript = id === 'node' ? [exemple.fichier, 'Awa'] : [exemple.fichier];
+      assert.equal(execFileSync(binaire, argumentsScript, { cwd: dossier, encoding: 'utf8' }).trim(), attendu);
+    }
+  } finally { fs.rmSync(dossier, { recursive: true, force: true }); }
+});

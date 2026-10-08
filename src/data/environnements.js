@@ -1,8 +1,7 @@
 'use strict';
 
-// La préparation ne lance jamais une installation à la place de l'apprenant.
-// Les commandes ci-dessous vérifient l'environnement ou travaillent dans le
-// dossier d'exercice. Une distribution Linux doit suivre sa propre notice.
+// La page ne lance jamais une commande à la place de l'apprenant.
+// Les installations Linux dépendent de la distribution réellement utilisée.
 const outils = {
   terminal: {
     nom: 'Terminal et commandes de base', role: 'Donner des instructions au système dans un dossier courant. Le terminal ne compile pas le code à lui seul.',
@@ -27,7 +26,7 @@ const outils = {
       linux: { ouvrir: 'Choisissez le paquet officiel adapté à votre distribution (.deb, .rpm ou autre méthode documentée) sur la page VS Code.', etapes: ['Ouvrez le dossier de votre exercice.', 'Ouvrez le terminal intégré et contrôlez pwd.'], diagnostic: 'N’utilisez pas une commande apt sur une distribution qui utilise dnf, pacman ou un autre gestionnaire.' },
       mac: { ouvrir: 'Téléchargez le .dmg officiel, glissez Visual Studio Code dans Applications, puis démarrez-le depuis Applications.', etapes: ['Ouvrez le dossier de votre exercice.', 'Pour activer la commande code : Palette de commandes → Shell Command: Install code command in PATH.'], diagnostic: 'Si code est introuvable après cette étape, rouvrez le Terminal ; l’application reste accessible depuis Applications.' }
     },
-    sources: [{ label: 'VS Code — installation', url: 'https://code.visualstudio.com/docs/getstarted/overview' }],
+    sources: [{ label: 'VS Code — installation', url: 'https://code.visualstudio.com/docs/getstarted/overview' }, { label: 'VS Code — commandes terminal', url: 'https://code.visualstudio.com/docs/configure/command-line' }, { label: 'VS Code — Linux', url: 'https://code.visualstudio.com/docs/setup/linux' }],
     references: ['Visual Studio Code', 'VS Code', 'code .']
   },
   git: {
@@ -40,7 +39,7 @@ const outils = {
       linux: { ouvrir: 'Installez le paquet Git avec le gestionnaire officiel de votre distribution ; Ubuntu/Debian utilisent par exemple sudo apt install git.', etapes: ['Lancez git --version.', 'Dans un dossier d’essai, lancez git init puis git status.'], diagnostic: 'Si apt n’existe pas, votre distribution utilise un autre gestionnaire : consultez git-scm.com/download/linux.' },
       mac: { ouvrir: 'Lancez git --version dans Terminal ; macOS peut proposer les outils de ligne de commande Apple. Sinon, utilisez l’installateur officiel Git.', etapes: ['Acceptez l’installation des outils Apple seulement si vous reconnaissez la boîte de dialogue.', 'Dans un dossier d’essai, lancez git init puis git status.'], diagnostic: 'Rouvrez Terminal si l’installation vient de se terminer.' }
     },
-    sources: [{ label: 'Git — installer', url: 'https://git-scm.com/book/en/v2/Getting-Started-Installing-Git' }],
+    sources: [{ label: 'Git — installer', url: 'https://git-scm.com/book/en/v2/Getting-Started-Installing-Git' }, { label: 'Git — première configuration', url: 'https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup' }],
     references: ['Git', 'git init', 'git status', 'git commit']
   },
   node: {
@@ -118,7 +117,7 @@ const outils = {
       linux: { ouvrir: 'Choisissez votre distribution dans le guide Microsoft .NET Linux et installez son paquet SDK ; n’utilisez pas une commande Ubuntu sur Fedora.', etapes: ['Vérifiez dotnet --info.', 'Dans un dossier vide : dotnet new console ; puis dotnet run.'], diagnostic: 'Si la commande existe sans SDK, consultez la source de paquets configurée pour votre distribution.' },
       mac: { ouvrir: 'Téléchargez le SDK macOS depuis Microsoft, en choisissant Apple silicon ou Intel selon votre Mac.', etapes: ['Rouvrez Terminal et vérifiez dotnet --info.', 'Dans un dossier vide : dotnet new console ; puis dotnet run.'], diagnostic: 'Une architecture incorrecte peut expliquer un lancement impossible : vérifiez le paquet téléchargé.' }
     },
-    sources: [{ label: 'Microsoft — installer .NET', url: 'https://learn.microsoft.com/en-us/dotnet/core/install/' }],
+    sources: [{ label: 'Microsoft — installer .NET', url: 'https://learn.microsoft.com/en-us/dotnet/core/install/' }, { label: 'Microsoft — voir les SDK installés', url: 'https://learn.microsoft.com/en-us/dotnet/core/install/how-to-detect-installed-versions' }],
     references: ['C#', '.NET', 'dotnet', 'ASP.NET Core', 'NuGet']
   },
   php: {
@@ -157,7 +156,7 @@ const outils = {
       linux: { ouvrir: 'Choisissez Docker Desktop ou Docker Engine selon la documentation officielle de votre distribution.', etapes: ['Vérifiez docker version : client ET serveur doivent répondre.', 'Testez dans un projet non sensible.'], diagnostic: 'Ne résolvez pas une erreur de permission avec chmod 777 sur le socket Docker.' },
       mac: { ouvrir: 'Installez Docker Desktop depuis la documentation officielle pour la bonne puce, puis démarrez l’application.', etapes: ['Vérifiez docker version : client ET serveur doivent répondre.', 'Testez dans un dossier d’exercice.'], diagnostic: 'Si seul le client répond, attendez le démarrage du moteur dans Docker Desktop.' }
     },
-    sources: [{ label: 'Docker — installation par système', url: 'https://docs.docker.com/get-started/get-docker/' }],
+    sources: [{ label: 'Docker — installation par système', url: 'https://docs.docker.com/get-started/get-docker/' }, { label: 'Docker — permissions Linux', url: 'https://docs.docker.com/engine/install/linux-postinstall/' }],
     references: ['Docker', 'Dockerfile', 'docker compose', 'conteneur']
   },
   vercel: {
@@ -181,5 +180,11 @@ const domaines = {
   typescript: ['node', 'vscode'], react: ['node', 'vscode'], nextjs: ['node', 'vscode'], vue: ['node', 'vscode'], angular: ['node', 'vscode'], 'css-outils': ['node', 'vscode'],
   python: ['python', 'vscode'], java: ['jdk', 'vscode'], springboot: ['jdk', 'springboot', 'vscode'], cpp: ['cpp', 'vscode'], csharp: ['dotnet', 'vscode'], php: ['php', 'composer', 'vscode']
 };
+
+const approfondissements = require('./environnements-approfondis');
+for (const [id, guide] of Object.entries(approfondissements)) {
+  if (!outils[id]) throw new Error(`Guide de préparation sans outil : ${id}`);
+  Object.assign(outils[id], guide);
+}
 
 module.exports = { outils, domaines };
