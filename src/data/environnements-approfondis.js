@@ -87,7 +87,7 @@ module.exports = {
     ],
     installation: parSysteme(
       ['Sur nodejs.org/en/download, choisissez la version LTS et l’installateur Windows adapté à votre architecture.', 'Suivez l’installateur, puis fermez et rouvrez PowerShell ou VS Code pour actualiser le PATH.', 'Vérifiez séparément node --version, npm --version et Get-Command node.'],
-      ['Sur nodejs.org/en/download, choisissez une méthode maintenue pour votre distribution ou un gestionnaire de versions documenté.', 'Si le projet indique une version Node attendue, installez cette version avant ses dépendances. Évitez de mélanger des installations système et utilisateur sans comprendre le PATH.', 'Ouvrez un nouveau terminal ; vérifiez node --version, npm --version et command -v node.'],
+      ['Ouvrez la page officielle de téléchargement Node.js ci-dessus. Choisissez Linux, la version LTS et une méthode maintenue pour votre distribution.', 'Si le projet indique une version Node attendue, installez cette version avant ses dépendances. Évitez de mélanger des installations système et utilisateur sans comprendre le PATH.', 'Ouvrez un nouveau terminal ; vérifiez node --version, npm --version et command -v node.'],
       ['Sur nodejs.org/en/download, choisissez la version LTS pour Intel ou Apple silicon.', 'Terminez l’installation puis rouvrez Terminal ou VS Code.', 'Vérifiez node --version, npm --version et command -v node.']
     ),
     commandes: [

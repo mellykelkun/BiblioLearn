@@ -182,9 +182,11 @@ const domaines = {
 };
 
 const approfondissements = require('./environnements-approfondis');
+const liensInstallation = require('./liens-installation');
 for (const [id, guide] of Object.entries(approfondissements)) {
   if (!outils[id]) throw new Error(`Guide de préparation sans outil : ${id}`);
-  Object.assign(outils[id], guide);
+  if (!liensInstallation[id]) throw new Error(`Liens d'installation absents : ${id}`);
+  Object.assign(outils[id], guide, { obtenir: liensInstallation[id] });
 }
 
 module.exports = { outils, domaines };

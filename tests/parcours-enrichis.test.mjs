@@ -85,6 +85,12 @@ test('chaque guide de poste couvre les trois systèmes, un essai et des diagnost
     assert.ok(outil.essai.titre && outil.essai.resultat, `${id}: essai`);
     for (const systeme of ['windows', 'linux', 'mac']) {
       assert.ok(outil.installation[systeme].length >= 3, `${id}/${systeme}: installation`);
+      assert.ok(outil.obtenir[systeme].note && outil.obtenir[systeme].liens.length, `${id}/${systeme}: accès officiel`);
+      for (const lien of outil.obtenir[systeme].liens) {
+        const destination = new URL(lien.url);
+        assert.equal(destination.protocol, 'https:', `${id}/${systeme}: lien non sécurisé`);
+        assert.ok(lien.label && lien.precision && ['page', 'guide', 'fichier'].includes(lien.type), `${id}/${systeme}: lien incomplet`);
+      }
       assert.ok(outil.essai.execution[systeme], `${id}/${systeme}: exécution`);
       for (const etape of outil.commandes) assert.ok(etape.texte[systeme], `${id}/${systeme}: commande`);
       for (const erreur of outil.pannes) assert.ok(erreur.corriger[systeme], `${id}/${systeme}: correction`);
@@ -93,6 +99,8 @@ test('chaque guide de poste couvre les trois systèmes, un essai et des diagnost
   assert.match(guides.python.essai.contenu, /print\(/);
   assert.match(guides.springboot.essai.contenu, /@GetMapping/);
   assert.match(guides.cpp.commandes[1].texte.windows, /cl \/EHsc/);
+  assert.equal(guides.node.obtenir.linux.liens[0].url, 'https://nodejs.org/en/download');
+  assert.equal(guides.composer.obtenir.windows.liens[0].type, 'fichier');
 });
 
 test('les scripts de démonstration Node et Python des guides affichent le résultat annoncé', { skip: !possede('python3') }, () => {
