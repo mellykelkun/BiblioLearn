@@ -1,7 +1,7 @@
 import { creerRecherche } from './recherche.mjs';
 
 export class Catalogue {
-  constructor(lire = fetch) { this.lire = lire; this.promesses = new Map(); this.details = new Map(); }
+  constructor(lire = (...args) => fetch(...args)) { this.lire = lire; this.promesses = new Map(); this.details = new Map(); }
   async json(url) {
     if (!this.promesses.has(url)) {
       this.promesses.set(url, this.lire(url).then(async r => {
@@ -13,7 +13,7 @@ export class Catalogue {
   }
   async initialiser() {
     this.meta = await this.json('/catalogue/meta.json');
-    this.documentation = { ...this.meta, ateliers: [], bibliotheque: [], erreurs: [], projets: [] };
+    this.documentation = { ...this.meta, fiches: this.meta.fiches.map(f => ({ ...f })), ateliers: [], bibliotheque: [], erreurs: [], projets: [] };
     return this.documentation;
   }
   async indexer() {

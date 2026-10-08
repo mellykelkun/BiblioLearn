@@ -7,12 +7,12 @@
     <meta name="theme-color" content="#087f75">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Bibliolearn">
-    <meta property="og:title" content="Bibliolearn — Apprendre le développement web ensemble">
-    <meta property="og:description" content="Du premier HTML aux applications complètes : un parcours accessible, des défis corrigés et une immense référence à partager avec vos amis devs.">
+    <meta property="og:title" content="Bibliolearn — Comprendre et pratiquer le développement">
+    <meta property="og:description" content="Comprendre les fichiers et les programmes, pratiquer, puis retrouver une syntaxe ou un diagnostic.">
     <meta property="og:url" content="https://biblio-learn.vercel.app/">
     <meta property="og:image" content="https://biblio-learn.vercel.app/icon-512.png">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Bibliolearn — Apprendre le développement web ensemble">
+    <meta name="twitter:title" content="Bibliolearn — Comprendre et pratiquer le développement">
     <meta name="twitter:description" content="Cours progressifs, exercices corrigés et ateliers pratiques pour apprendre ensemble.">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="apple-touch-icon" href="/icon-192.png">
@@ -28,7 +28,7 @@
         <div class="sidebar__header">
           <button class="brand" type="button" data-route="accueil" aria-label="Retour à l’accueil">
             <span class="brand__mark" aria-hidden="true">B/</span>
-            <span><strong>Bibliolearn</strong><small>référence développeur</small></span>
+            <span><strong>Bibliolearn</strong><small>comprendre et pratiquer</small></span>
           </button>
           <button class="icon-button sidebar__close" id="fermer-menu" type="button" aria-label="Fermer le menu">×</button>
         </div>
@@ -41,22 +41,21 @@
 
         <nav class="sidebar__nav">
           <button class="nav-primary is-active" type="button" data-route="accueil">
-            <span class="nav-primary__icon">⌂</span>Vue d’ensemble
+            <span class="nav-primary__icon">⌂</span>Accueil
           </button>
           <button class="nav-primary" type="button" data-route="parcours">
-            <span class="nav-primary__icon">✓</span>Mon parcours
+            <span class="nav-primary__icon">✓</span>Apprendre
           </button>
           <button class="nav-primary" type="button" data-route="ateliers">
-            <span class="nav-primary__icon">⚒</span>Ateliers pratiques
+            <span class="nav-primary__icon">⚒</span>S’entraîner
           </button>
           <button class="nav-primary" type="button" data-route="bibliotheque">
-            <span class="nav-primary__icon">▦</span>Référence technique
+            <span class="nav-primary__icon">▦</span>Référence
           </button>
           <button class="nav-primary" type="button" data-route="installation">
             <span class="nav-primary__icon">⌘</span>Préparer mon poste
           </button>
-          <p class="nav-label">Bibliothèque</p>
-          <div id="navigation-domaines"></div>
+          <details class="nav-explore"><summary>Explorer les domaines</summary><div id="navigation-domaines"></div></details>
         </nav>
 
         <footer class="sidebar__footer">
@@ -69,7 +68,7 @@
 
       <div class="workspace">
         <header class="topbar">
-          <button class="icon-button menu-button" id="ouvrir-menu" type="button" aria-label="Ouvrir le menu">☰</button>
+          <button class="icon-button menu-button" id="ouvrir-menu" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Ouvrir le menu">☰</button>
           <nav class="breadcrumb" id="fil-ariane" aria-label="Fil d’Ariane"></nav>
           <div class="topbar__actions">
             <button class="topbar__button topbar__install" id="action-installer" type="button" title="Installer Bibliolearn sur cet appareil" aria-label="Installer Bibliolearn sur cet appareil">⊕ <span class="action-label">Installer</span></button>
@@ -80,6 +79,7 @@
           </div>
         </header>
 
+        <p id="stockage-statut" class="storage-notice" role="status" hidden></p>
         <main class="content" id="contenu" tabindex="-1">
           <div class="loading-state">
             <span class="loading-state__mark">B/</span>
@@ -89,19 +89,19 @@
       </div>
     </div>
 
-    <dialog class="search-dialog" id="dialogue-recherche">
+    <dialog class="search-dialog" id="dialogue-recherche" aria-label="Rechercher une notion">
       <div class="search-dialog__head">
         <span aria-hidden="true">⌕</span>
         <input id="champ-recherche" type="search" autocomplete="off" placeholder="map, div, <div>, RLS, Promise…" aria-label="Rechercher dans la documentation">
         <button class="escape-button" id="fermer-recherche" type="button" aria-label="Fermer la recherche">ESC</button>
       </div>
-      <div class="search-dialog__meta" id="meta-recherche">Commencez à écrire pour chercher dans toutes les fiches.</div>
+      <div class="search-dialog__meta" id="meta-recherche" role="status">Commencez à écrire pour chercher dans toutes les fiches.</div>
       <div class="search-results" id="resultats-recherche"></div>
     </dialog>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <aside class="install-proposal" id="installation-proposition" aria-label="Installer l’application" hidden>
-      <div><strong>Gardez Bibliolearn à portée de main</strong><p>Installez l’application pour retrouver vos cours et ateliers, même après une coupure réseau.</p></div>
+      <div><strong>Gardez Bibliolearn à portée de main</strong><p>Retrouvez les leçons déjà consultées après une coupure réseau.</p></div>
       <div class="install-proposal__actions"><button class="primary-button" type="button" data-action="installer">Installer</button><button class="secondary-button" type="button" data-action="ignorer-installation">Plus tard</button></div>
     </aside>
     <dialog class="install-dialog" id="dialogue-installation" aria-labelledby="titre-installation">
@@ -109,6 +109,6 @@
       <p>Dans le menu de votre navigateur, choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil ». Sur iPhone, ouvrez Partager puis « Sur l’écran d’accueil ».</p>
       <button class="primary-button" type="button" id="fermer-installation">Compris</button>
     </dialog>
-    <script src="/app.js"></script>
+    <script type="module" src="/app.js"></script>
   </body>
 </html>

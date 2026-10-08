@@ -46,6 +46,7 @@ test('accueil et leçon ne téléchargent ni index ni catalogue complet', async 
   const catalogue = new Catalogue(async url => { requetes.push(url); return { ok: true, json: async () => JSON.parse(fs.readFileSync(`public${url}`)) }; });
   await catalogue.initialiser(); await catalogue.charger('fiche', 'html-document');
   assert.equal(requetes.length, 2);
+  assert.equal(catalogue.meta.fiches.find(f => f.id === 'html-document').fichier, 'fiches/html-document.json');
   assert.ok(requetes.every(url => !url.includes('documentation') && !url.includes('index-recherche')));
   await catalogue.charger('fiche', 'html-document'); assert.equal(requetes.length, 2);
 });

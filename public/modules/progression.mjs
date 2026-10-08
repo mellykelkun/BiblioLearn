@@ -22,7 +22,8 @@ export function migrer(storage, maintenant = Date.now()) {
   }
   for (const id of lues) {
     if (!idValide(id)) continue;
-    const n = donnees.notions[id] ||= { etat: 'vu', preuves: [] };
+    if (!objet(donnees.notions[id])) donnees.notions[id] = { etat: 'vu', preuves: [] };
+    const n = donnees.notions[id];
     if (!n.ancienneDeclaration) {
       n.ancienneDeclaration = true;
       if (ETATS.indexOf(n.etat) < 1) n.etat = 'compris';
@@ -35,6 +36,15 @@ export function migrer(storage, maintenant = Date.now()) {
 export class Progression {
   constructor(storage, maintenant = () => Date.now(), avertir = () => {}) {
     this.storage = storage; this.maintenant = maintenant; this.avertir = avertir;
+    // Une valeur v2 illisible reste récupérable au lieu d’être silencieusement écrasée.
+    try {
+      const brute = storage.getItem(CLE);
+      if (brute) {
+        let valide = false;
+        try { const d = JSON.parse(brute); valide = d?.version === 2 && objet(d.notions); } catch {}
+        if (!valide) { storage.setItem(CLE + '.recuperation', brute); avertir('Une sauvegarde locale illisible a été conservée pour récupération. Les anciennes déclarations restent disponibles.'); }
+      }
+    } catch {}
     this.donnees = migrer(storage, maintenant()); this.sauver();
   }
   sauver() {
